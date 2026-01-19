@@ -2,14 +2,10 @@
 
 import styled from "@emotion/styled";
 import { useToastStore } from "@/shared/store/useToastStore";
-import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function Toast() {
-    const { isOpen, options, hideToast } = useToastStore();
-    // Duration logic is mainly handled in store, but we can also use useEffect here if needed for cleanup.
-    // The store handles timeout, but if component unmounts, we don't need to worry much since store is global.
-
+    const { isOpen, options } = useToastStore();
     return (
         <AnimatePresence>
             {isOpen && options && (
