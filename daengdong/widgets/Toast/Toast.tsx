@@ -2,11 +2,10 @@
 
 import styled from "@emotion/styled";
 import { useToastStore } from "@/shared/store/useToastStore";
-import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function Toast() {
-    const { isOpen, options, hideToast } = useToastStore();
+    const { isOpen, options } = useToastStore();
     return (
         <AnimatePresence>
             {isOpen && options && (

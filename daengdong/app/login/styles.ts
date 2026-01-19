@@ -49,9 +49,10 @@ export const BrandText = styled.h2`
 `;
 
 export const LogoImage = styled.img`
-  width: 180px;
+  width: 240px;
   height: auto;
-  margin-bottom: 50px;
+  margin-top: ${spacing[8]}px;
+  margin-bottom: ${spacing[8]}px;
 `;
 
 export const ButtonWrapper = styled.div`

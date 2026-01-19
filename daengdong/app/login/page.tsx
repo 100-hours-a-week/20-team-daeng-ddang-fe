@@ -32,9 +32,9 @@ export default function LoginPage() {
       </HeaderWrapper>
 
       <ContentWrapper>
-        <LogoImage src="/댕동여지도 마스코트.png" alt="Daengdong Map Logo" />
         <BrandTitle>댕동여지도</BrandTitle>
-        <BrandText>간편하게 로그인하고<br /> 바로 산책 시작!</BrandText>
+        <BrandText>댕동여지도와 함께하는 산책</BrandText>
+        <LogoImage src="/댕동여지도 마스코트.png" alt="Daengdong Map Logo" />
       </ContentWrapper>
 
       <ButtonWrapper>
