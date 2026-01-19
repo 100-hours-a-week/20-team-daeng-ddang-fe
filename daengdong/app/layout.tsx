@@ -5,7 +5,6 @@ import { ReactNode } from 'react';
 import { Modal } from '@/widgets/Modal/Modal';
 import { Toast } from '@/widgets/Toast/Toast';
 import { BottomNav } from '@/widgets/BottomNav/BottomNav';
-import { Header } from '@/widgets/Header/Header';
 import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
 
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,7 +16,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
       <body>
-        <Header title="댕동여지도" showBackButton={false} />
         {children}
 
         <Modal />
