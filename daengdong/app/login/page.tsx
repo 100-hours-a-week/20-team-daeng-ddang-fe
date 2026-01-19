@@ -3,17 +3,18 @@
 import { Container, ContentWrapper, BrandText, LogoImage, ButtonWrapper, HeaderWrapper, BrandTitle } from './styles';
 import { KakaoButton } from '@/shared/components/KakaoButton';
 import { Header } from '@/widgets/Header/Header';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleKakaoLogin = () => {
-    // Explicitly check for variable to avoid undefined behavior
+    // If no API URL is set, we use a mock flow for testing UI
     if (!API_BASE_URL) {
-      console.error('API_BASE_URL is not defined');
-      // No alert here, just fail silently or log, as requested to remove alerts.
-      // Ideally show toast if we had access to store here without hooking into it just for this check,
-      // but usually this is a dev error.
+      console.warn('API_BASE_URL is not defined. Using mock login flow.');
+      // Simulate redirection back from Kakao with a mock code
+      router.push('/oauth/kakao/callback?code=mock_auth_code_12345');
       return;
     }
 
@@ -31,7 +32,6 @@ export default function LoginPage() {
       </HeaderWrapper>
 
       <ContentWrapper>
-
         <LogoImage src="/댕동여지도 마스코트.png" alt="Daengdong Map Logo" />
         <BrandTitle>댕동여지도</BrandTitle>
         <BrandText>간편하게 로그인하고<br /> 바로 산책 시작!</BrandText>
