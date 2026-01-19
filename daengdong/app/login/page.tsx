@@ -27,7 +27,7 @@ export default function LoginPage() {
       <HeaderWrapper>
         <Header
           title="로그인"
-          showBackButton={true}
+          showBackButton={false}
         />
       </HeaderWrapper>
 
