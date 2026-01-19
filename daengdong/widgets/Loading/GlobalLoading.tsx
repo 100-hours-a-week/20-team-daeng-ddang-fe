@@ -5,58 +5,59 @@ import { useLoadingStore } from "@/shared/store/useLoadingStore";
 import { useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 
 export function GlobalLoading() {
-    const { isLoading, message } = useLoadingStore();
+  const { isLoading, message } = useLoadingStore();
 
-    useEffect(() => {
-        if (isLoading) {
-            document.body.classList.add("modal-open");
-        } else {
-            document.body.classList.remove("modal-open");
-        }
-        return () => {
-            document.body.classList.remove("modal-open");
-        };
-    }, [isLoading]);
+  useEffect(() => {
+    if (isLoading) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isLoading]);
 
-    if (!isLoading) return null;
+  if (!isLoading) return null;
 
-    // Paw animation configuration
-    const pawCount = 3;
-    const paws = Array.from({ length: pawCount });
+  // Paw animation configuration
+  const pawCount = 3;
+  const paws = Array.from({ length: pawCount });
 
-    return (
-        <Overlay>
-            <Container>
-                <PawContainer>
-                    {paws.map((_, index) => (
-                        <PawWrapper
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 1] }}
-                            transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                delay: index * 0.2, // Stagger effect
-                                ease: "easeInOut",
-                                times: [0, 0.2, 0.8] // Control visibility timing
-                            }}
-                        >
-                            <Image
-                                src="/paw-print.svg"
-                                alt="Loading paw"
-                                width={32}
-                                height={32}
-                                style={{ width: "100%", height: "100%" }}
-                            />
-                        </PawWrapper>
-                    ))}
-                </PawContainer>
-                {message && <Message>{message}</Message>}
-            </Container>
-        </Overlay>
-    );
+  return (
+    <Overlay>
+      <Container>
+        <PawContainer>
+          {paws.map((_, index) => (
+            <PawWrapper
+              key={index}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 1] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                delay: index * 0.2, // Stagger effect
+                ease: "easeInOut",
+                times: [0, 0.2, 0.8] // Control visibility timing
+              }}
+            >
+              <Image
+                src={PawPrintIcon}
+                alt="Loading paw"
+                width={32}
+                height={32}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </PawWrapper>
+          ))}
+        </PawContainer>
+        {message && <Message>{message}</Message>}
+      </Container>
+    </Overlay>
+  );
 }
 
 const Overlay = styled.div`
