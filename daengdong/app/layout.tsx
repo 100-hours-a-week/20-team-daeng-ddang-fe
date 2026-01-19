@@ -1,12 +1,15 @@
 // app/layout.tsx
 'use client';
 
+import './globals.css';
+
 import { ReactNode } from 'react';
 import { Modal } from '@/widgets/Modal/Modal';
 import { Toast } from '@/widgets/Toast/Toast';
 import { BottomNav } from '@/widgets/BottomNav/BottomNav';
 import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
 
+import Providers from './providers';
 import { usePathname, useRouter } from 'next/navigation';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -16,15 +19,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
       <body>
-        {children}
+        <Providers>
+          {children}
 
-        <Modal />
-        <Toast />
-        <GlobalLoading />
-        <BottomNav
-          currentPath={pathname}
-          onNavigate={(path) => router.push(path)}
-        />
+          <Modal />
+          <Toast />
+          <GlobalLoading />
+          {pathname !== '/login' && pathname !== '/oauth/kakao/callback' && (
+            <BottomNav
+              currentPath={pathname}
+              onNavigate={(path) => router.push(path)}
+            />
+          )}
+        </Providers>
       </body>
     </html>
   );
