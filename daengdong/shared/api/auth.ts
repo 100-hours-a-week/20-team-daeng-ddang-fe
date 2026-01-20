@@ -1,19 +1,31 @@
+// shared/api/auth.ts
+import axios from 'axios';
+
 export interface LoginResponse {
     accessToken: string;
-    refreshToken: string;
+    isNewUser: boolean;
+    user: {
+        userId: number;
+    };
 }
 
-// Placeholder for actual API call
+interface ApiResponse<T> {
+    message: string;
+    data: T;
+    errorCode: string | null;
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
-    // In a real app, this would be an axios/fetch call
-    console.log('Mocking Kakao login with code:', code);
+    if (!API_BASE_URL) {
+        throw new Error('API_BASE_URL is not defined');
+    }
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await axios.post<ApiResponse<LoginResponse>>(
+        `${API_BASE_URL}/auth/login`,
+        { code }
+    );
 
-    // Return mock tokens
-    return {
-        accessToken: "mock_access_token_" + code.substring(0, 5),
-        refreshToken: "mock_refresh_token_" + code.substring(0, 5)
-    };
+    return response.data.data;
 };

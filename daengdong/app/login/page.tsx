@@ -13,13 +13,11 @@ export default function LoginPage() {
     // If no API URL is set, we use a mock flow for testing UI
     if (!API_BASE_URL) {
       console.warn('API_BASE_URL is not defined. Using mock login flow.');
-      // Simulate redirection back from Kakao with a mock code
-      router.push('/oauth/kakao/callback?code=mock_auth_code_12345');
       return;
     }
 
     // Redirect to backend auth endpoint
-    window.location.href = `${API_BASE_URL}/auth/kakao`;
+    window.location.href = `${API_BASE_URL}/auth`;
   };
 
   return (
