@@ -45,7 +45,6 @@ function CallbackComponent() {
         }
     }, [code, loginMutation, router]);
 
-    // 🔥 이게 빠져 있었음
     useEffect(() => {
         processLogin();
     }, [processLogin]);

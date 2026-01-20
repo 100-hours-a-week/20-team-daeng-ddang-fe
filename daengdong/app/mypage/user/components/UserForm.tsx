@@ -24,9 +24,11 @@ interface UserFormProps {
     onWithdraw: () => void;
     isSubmitting: boolean;
     isNewUser: boolean;
+    initialParentRegionId?: number;
+    initialRegionId?: number;
 }
 
-export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser }: UserFormProps) {
+export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser, initialParentRegionId, initialRegionId }: UserFormProps) {
     const {
         control,
         handleSubmit,
@@ -35,11 +37,11 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         formState: { errors, isValid },
     } = useForm<UserFormValues & { regionId: number }>({
         resolver: zodResolver(UserSchema),
-        defaultValues: { ...initialData, regionId: 0 },
+        defaultValues: { ...initialData, regionId: initialRegionId || 0 },
         mode: 'onChange',
     });
 
-    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
+    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(initialParentRegionId || null);
 
     // Regions Query
     const { data: provinces } = useRegionsQuery(); // Top level (City/Do)
@@ -56,8 +58,8 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
 
     const handleProvinceChange = (provinceName: string, onChange: (val: string) => void) => {
         onChange(provinceName);
-        setValue('city', '');
-        setValue('regionId', 0); // Reset final ID
+        setValue('city', '', { shouldValidate: true });
+        setValue('regionId', 0, { shouldValidate: true }); // Reset final ID
 
         // Find ID
         const province = provinces?.find(p => p.name === provinceName);
@@ -70,7 +72,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         // Find ID and set regionId
         const district = districts?.find(d => d.name === cityName);
         if (district) {
-            setValue('regionId', district.regionId);
+            setValue('regionId', district.regionId, { shouldValidate: true });
         }
     };
 

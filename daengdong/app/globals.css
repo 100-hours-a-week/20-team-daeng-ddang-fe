@@ -1,11 +1,4 @@
-@font-face {
-  font-family: 'Cafe24Ssurround';
-  src: url('/Cafe24Ssurround-v2.0.woff2') format('woff2'),
-    url('/Cafe24Ssurround-v2.0.woff') format('woff');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+
 
 :root {
   --background: #ffffff;

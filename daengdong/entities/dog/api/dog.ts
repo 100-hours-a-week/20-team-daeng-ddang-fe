@@ -1,5 +1,5 @@
-import { http } from './http';
-import { DogInfo, Gender, Neutered } from '@/entities/dog/model/types';
+import { http } from '@/shared/api/http';
+import { DogInfo, Gender } from '@/entities/dog/model/types';
 
 interface ApiResponse<T> {
     message: string;
@@ -8,7 +8,7 @@ interface ApiResponse<T> {
 }
 
 export interface Breed {
-    id: number;
+    breedId: number;
     name: string;
 }
 
@@ -42,7 +42,7 @@ export const getDogInfo = async (): Promise<DogInfo | null> => {
             isBirthDateUnknown: false, // API doesn't seem to track this explicitly, assume known if date exists
             weight: data.weight,
             gender: data.gender,
-            neutered: data.isNeutered ? 'YES' : 'NO',
+            isNeutered: data.isNeutered,
             imageUrl: data.profileImageUrl,
         };
     } catch (error: any) {
@@ -70,12 +70,7 @@ export interface CreateDogParams {
     isNeutered?: boolean;
 }
 
-// POST /api/v3/dogs
+// POST /api/v3/users/dogs
 export const createDog = async (params: CreateDogParams): Promise<void> => {
-    await http.post<ApiResponse<any>>('/dogs', params);
-};
-
-// PATCH /api/v3/users/dogs
-export const updateDog = async (params: Partial<CreateDogParams>): Promise<void> => {
-    await http.patch<ApiResponse<any>>('/users/dogs', params);
+    await http.post<ApiResponse<any>>('/users/dogs', params);
 };

@@ -1,76 +1,48 @@
 "use client";
 
+import { useEffect } from "react";
+import { WalkMap } from "@/widgets/WalkMap/ui/WalkMap";
+import { WalkStatusPanel } from "@/widgets/WalkStatusPanel/ui/WalkStatusPanel";
+import { useWalkStore } from "@/features/walk/store/walkStore";
 import { Header } from "@/widgets/Header/Header";
-import { useRouter } from "next/navigation";
-import { useLoadingStore } from "@/shared/store/useLoadingStore";
-import { useAuthStore } from "@/shared/stores/authStore";
-import { useToastStore } from "@/shared/store/useToastStore";
-import { Button } from "@/shared/components/Button/Button";
 
 export default function WalkPage() {
-  const { showLoading, hideLoading } = useLoadingStore();
-  const router = useRouter();
-  const setLoggedIn = useAuthStore((state) => state.setLoggedIn);
+  const { walkMode, currentPos, setCurrentPos } = useWalkStore();
 
-  const handleLogout = () => {
-    // Clear Cookie
-    document.cookie = "accessToken=; Max-Age=0; path=/;";
+  // Geolocation Tracking for "Idle" mode
+  // When "walking", WalkManager (global) handles tracking.
+  useEffect(() => {
+    if (!("geolocation" in navigator)) {
+      alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");
+      return;
+    }
 
-    // Update Store
-    setLoggedIn(false);
+    let watchId: number;
 
-    // Show Toast
-    const { showToast } = useToastStore.getState();
-    showToast({
-      message: "로그아웃 되었습니다.",
-      type: "success",
-    });
+    if (walkMode === "idle") {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const newPos = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setCurrentPos(newPos);
+        },
+        (err) => console.error(err),
+        { enableHighAccuracy: true }
+      );
+    }
 
-    // Redirect
-    router.push("/login");
-  };
+    return () => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [walkMode, setCurrentPos]);
 
   return (
-    <div>
+    <div style={{ position: "relative", width: "100%", height: "calc(100vh - 80px)" }}>
       <Header title="산책하기" showBackButton={false} />
-
-      <div style={{ padding: 24, paddingBottom: 100 }}>
-        <Button
-          variant="ghost"
-          onClick={handleLogout}
-          style={{ marginBottom: 32 }}
-        >
-          로그아웃하기
-        </Button>
-
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
-        >
-          <h1>Global Loading Test</h1>
-
-          <button
-            onClick={() => showLoading("산책 결과를 불러오는 중이에요… 🐕")}
-          >
-            로딩 시작 (메시지 있음)
-          </button>
-
-          <button onClick={() => showLoading()}>로딩 시작 (메시지 없음)</button>
-
-          <button onClick={() => hideLoading()} style={{ marginTop: 16 }}>
-            로딩 종료
-          </button>
-
-          <p style={{ marginTop: 24, color: "#666", fontSize: 14 }}>
-            로딩 중에는 화면이 어두워지고 터치가 막혀야 합니다.
-            <br />
-            스피너는 화면 중앙에 고정되어야 합니다.
-          </p>
-        </div>
-      </div>
+      <WalkMap currentPos={currentPos} />
+      <WalkStatusPanel />
     </div>
   );
 }

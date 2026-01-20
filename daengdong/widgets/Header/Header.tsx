@@ -62,7 +62,7 @@ const RightSection = styled.div`
 `;
 
 const Title = styled.h1`
-  font-family: 'Cafe24Ssurround', sans-serif;
+  font-family: var(--font-cafe24), sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;

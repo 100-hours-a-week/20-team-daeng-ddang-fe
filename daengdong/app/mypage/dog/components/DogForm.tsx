@@ -22,7 +22,7 @@ const DogSchema = z.object({
         .min(2, '이름은 최소 2자 이상이어야 합니다.')
         .max(15, '이름은 최대 15자까지 가능합니다.')
         .regex(/^[가-힣a-zA-Z]+$/, '올바르지 않은 이름형식입니다.'),
-    breedId: z.number().min(1, '견종을 선택해주세요.'),
+    breedId: z.number({ message: '견종을 선택해주세요.' }).min(1, '견종을 선택해주세요.'),
     breedName: z.string().min(1, '견종을 선택해주세요.'),
     birthDate: z.string(),
     isBirthDateUnknown: z.boolean(),
@@ -31,7 +31,7 @@ const DogSchema = z.object({
         .min(1, '몸무게를 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
-    neutered: z.enum(['YES', 'NO'], { message: '중성화 여부를 선택해주세요.' }),
+    isNeutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
@@ -72,7 +72,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             isBirthDateUnknown: false,
             weight: '',
             gender: undefined,
-            neutered: undefined,
+            isNeutered: undefined,
             imageFile: null,
             ...initialData,
         },
@@ -130,11 +130,10 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
 
     // Handle Breed Selection
     const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', id);
-        setValue('breedName', name);
+        setValue('breedId', Number(id), { shouldValidate: true });
+        setValue('breedName', name, { shouldValidate: true });
         setBreedSearchKeyword(name); // Set input to selected name
         setIsBreedListOpen(false);
-        trigger('breedName');
     };
 
     // Close breed list when clicking outside (simplification: relying on onBlur delay or similar usually, keeping simple here)
@@ -168,16 +167,15 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 <Label>견종 <Required>*</Required></Label>
                 <div style={{ position: 'relative' }}>
                     <Input
-                        value={breedSearchKeyword || breedName}
+                        value={breedSearchKeyword}
                         onChange={(e) => {
-                            setBreedSearchKeyword(e.target.value);
-                            setValue('breedName', e.target.value); // Sync for validation?
-                            // If typing, reset ID until selected?
-                            // setValue('breedId', 0); // Optional: keep old ID or reset
+                            const value = e.target.value;
+
+                            setBreedSearchKeyword(value);
                             setIsBreedListOpen(true);
                         }}
                         onFocus={() => setIsBreedListOpen(true)}
-                        placeholder="견종 검색"
+                        placeholder="견종 검색 (목록에서 선택해주세요)"
                         disabled={isSubmitting}
                         ref={breedInputRef}
                     />
@@ -185,8 +183,8 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                         <BreedList>
                             {breedList.map((breed) => (
                                 <BreedItem
-                                    key={breed.id}
-                                    onClick={() => handleBreedSelect(breed.id, breed.name)}
+                                    key={breed.breedId}
+                                    onClick={() => handleBreedSelect(breed.breedId, breed.name)}
                                 >
                                     {breed.name}
                                 </BreedItem>
@@ -195,6 +193,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                     )}
                 </div>
                 {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
+                {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
             </FieldGroup>
 
             {/* 4. BirthDate */}
@@ -298,19 +297,19 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             <FieldGroup>
                 <Label>중성화 <Required>*</Required></Label>
                 <Controller
-                    name="neutered"
+                    name="isNeutered"
                     control={control}
                     render={({ field }) => (
                         <SelectDropdown
                             options={['O', 'X']}
-                            value={field.value === 'YES' ? 'O' : field.value === 'NO' ? 'X' : ''}
-                            onChange={(val) => field.onChange(val === 'O' ? 'YES' : 'NO')}
+                            value={field.value === true ? 'O' : field.value === false ? 'X' : ''}
+                            onChange={(val) => field.onChange(val === 'O')}
                             placeholder="중성화 여부 선택"
                             disabled={isSubmitting}
                         />
                     )}
                 />
-                {errors.neutered && <ErrorText>{errors.neutered.message}</ErrorText>}
+                {errors.isNeutered && <ErrorText>{errors.isNeutered.message}</ErrorText>}
             </FieldGroup>
 
             {/* Spacer for bottom button */}

@@ -78,6 +78,8 @@ export function UserInfoScreen() {
                         province: province,
                         city: city
                     }}
+                    initialParentRegionId={userInfo?.parentRegionId}
+                    initialRegionId={userInfo?.regionId}
                     onSubmit={handleUpdate}
                     onWithdraw={handleWithdrawClick}
                     isSubmitting={isSubmitting}
