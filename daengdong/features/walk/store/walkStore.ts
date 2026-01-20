@@ -7,6 +7,8 @@ interface LatLng {
 
 interface WalkState {
     walkMode: "idle" | "walking";
+    currentPos: LatLng | null;
+    startTime: Date | null;
     elapsedTime: number;
     distance: number;
     path: LatLng[];
@@ -14,6 +16,7 @@ interface WalkState {
     startWalk: () => void;
     endWalk: () => void;
     reset: () => void;
+    setCurrentPos: (pos: LatLng) => void;
     incrementTime: () => void;
     addPathPoint: (pos: LatLng) => void;
     addDistance: (km: number) => void;
@@ -21,6 +24,8 @@ interface WalkState {
 
 export const useWalkStore = create<WalkState>((set) => ({
     walkMode: "idle",
+    currentPos: null,
+    startTime: null,
     elapsedTime: 0,
     distance: 0,
     path: [],
@@ -28,6 +33,7 @@ export const useWalkStore = create<WalkState>((set) => ({
     startWalk: () =>
         set({
             walkMode: "walking",
+            startTime: new Date(),
             elapsedTime: 0,
             distance: 0,
             path: [],
@@ -36,6 +42,8 @@ export const useWalkStore = create<WalkState>((set) => ({
     endWalk: () =>
         set({
             walkMode: "idle",
+            currentPos: null,
+            startTime: null,
             elapsedTime: 0,
             distance: 0,
             path: [],
@@ -44,15 +52,23 @@ export const useWalkStore = create<WalkState>((set) => ({
     reset: () =>
         set({
             walkMode: "idle",
+            currentPos: null,
+            startTime: null,
             elapsedTime: 0,
             distance: 0,
             path: [],
         }),
 
+    setCurrentPos: (pos: LatLng) =>
+        set({ currentPos: pos }),
+
     incrementTime: () =>
-        set((state) => ({
-            elapsedTime: state.elapsedTime + 1,
-        })),
+        set((state) => {
+            if (!state.startTime) return state;
+            const now = new Date();
+            const elapsed = Math.floor((now.getTime() - state.startTime.getTime()) / 1000);
+            return { elapsedTime: elapsed };
+        }),
 
     addPathPoint: (pos) =>
         set((state) => ({

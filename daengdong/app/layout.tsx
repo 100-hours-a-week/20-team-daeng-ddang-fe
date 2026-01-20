@@ -9,6 +9,7 @@ import { Modal } from "@/widgets/Modal/Modal";
 import { Toast } from "@/widgets/Toast/Toast";
 import { BottomNav } from "@/widgets/BottomNav/BottomNav";
 import { GlobalLoading } from "@/widgets/Loading/GlobalLoading";
+import { WalkManager } from "@/features/walk/ui/WalkManager";
 
 import Providers from "./providers";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="ko" className={cafe24.variable}>
       <body>
         <Providers>
+          <WalkManager />
           {children}
 
           <Modal />
