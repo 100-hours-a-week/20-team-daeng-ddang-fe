@@ -12,6 +12,9 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { ScrollDatePicker } from '@/widgets/ScrollDatePicker/ScrollDatePicker';
 
+import { useBreedsQuery } from '@/features/dog/api/useBreedsQuery';
+import { useEffect, useRef } from 'react';
+
 // --- Zod Schema ---
 const DogSchema = z.object({
     name: z
@@ -19,7 +22,8 @@ const DogSchema = z.object({
         .min(2, '이름은 최소 2자 이상이어야 합니다.')
         .max(15, '이름은 최대 15자까지 가능합니다.')
         .regex(/^[가-힣a-zA-Z]+$/, '올바르지 않은 이름형식입니다.'),
-    breed: z.string().min(1, '견종을 선택해주세요.'),
+    breedId: z.number().min(1, '견종을 선택해주세요.'),
+    breedName: z.string().min(1, '견종을 선택해주세요.'),
     birthDate: z.string(),
     isBirthDateUnknown: z.boolean(),
     weight: z
@@ -62,7 +66,8 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         resolver: zodResolver(DogSchema),
         defaultValues: {
             name: '',
-            breed: '',
+            breedId: 0,
+            breedName: '',
             birthDate: '',
             isBirthDateUnknown: false,
             weight: '',
@@ -77,6 +82,20 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const birthDate = watch('birthDate');
     const isBirthDateUnknown = watch('isBirthDateUnknown');
+    const breedName = watch('breedName');
+
+    // Breed Search State
+    const [breedSearchKeyword, setBreedSearchKeyword] = useState('');
+    const [isBreedListOpen, setIsBreedListOpen] = useState(false);
+    const { data: breedList } = useBreedsQuery(breedSearchKeyword);
+    const breedInputRef = useRef<HTMLInputElement>(null);
+
+    // Initial Image Preview
+    useEffect(() => {
+        // If there's a profileImage url in initialData (which we don't handle in types yet but logic assumes it might exist externally or processed)
+        // For now, handling basic file preview logic
+    }, []);
+
 
     // Handle Image Change
     const handleImageChange = (file: File | null) => {
@@ -107,12 +126,18 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         return `${years}년 ${months}개월`;
     };
 
-    const BREED_OPTIONS = [
-        '말티즈', '푸들', '포메라니안', '치와와', '시츄', '골든 리트리버', '진돗개', '비숑 프리제', '직접 입력'
-    ];
-
     const [isDateOpen, setIsDateOpen] = useState(false);
-    const [isDirectBreed, setIsDirectBreed] = useState(false);
+
+    // Handle Breed Selection
+    const handleBreedSelect = (id: number, name: string) => {
+        setValue('breedId', id);
+        setValue('breedName', name);
+        setBreedSearchKeyword(name); // Set input to selected name
+        setIsBreedListOpen(false);
+        trigger('breedName');
+    };
+
+    // Close breed list when clicking outside (simplification: relying on onBlur delay or similar usually, keeping simple here)
 
     return (
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -141,39 +166,35 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             {/* 3. Breed */}
             <FieldGroup>
                 <Label>견종 <Required>*</Required></Label>
-                <Controller
-                    name="breed"
-                    control={control}
-                    render={({ field }) => (
-                        <>
-                            <SelectDropdown
-                                options={BREED_OPTIONS}
-                                value={isDirectBreed ? '직접 입력' : (BREED_OPTIONS.includes(field.value) ? field.value : '')}
-                                onChange={(val) => {
-                                    if (val === '직접 입력') {
-                                        setIsDirectBreed(true);
-                                        field.onChange('');
-                                    } else {
-                                        setIsDirectBreed(false);
-                                        field.onChange(val);
-                                    }
-                                }}
-                                placeholder="견종 선택"
-                                disabled={isSubmitting}
-                            />
-                            {isDirectBreed && (
-                                <div style={{ marginTop: '8px' }}>
-                                    <Input
-                                        value={field.value}
-                                        onChange={(e) => field.onChange(e.target.value.slice(0, 20))}
-                                        placeholder="견종을 직접 입력해주세요"
-                                    />
-                                </div>
-                            )}
-                        </>
+                <div style={{ position: 'relative' }}>
+                    <Input
+                        value={breedSearchKeyword || breedName}
+                        onChange={(e) => {
+                            setBreedSearchKeyword(e.target.value);
+                            setValue('breedName', e.target.value); // Sync for validation?
+                            // If typing, reset ID until selected?
+                            // setValue('breedId', 0); // Optional: keep old ID or reset
+                            setIsBreedListOpen(true);
+                        }}
+                        onFocus={() => setIsBreedListOpen(true)}
+                        placeholder="견종 검색"
+                        disabled={isSubmitting}
+                        ref={breedInputRef}
+                    />
+                    {isBreedListOpen && breedList && breedList.length > 0 && (
+                        <BreedList>
+                            {breedList.map((breed) => (
+                                <BreedItem
+                                    key={breed.id}
+                                    onClick={() => handleBreedSelect(breed.id, breed.name)}
+                                >
+                                    {breed.name}
+                                </BreedItem>
+                            ))}
+                        </BreedList>
                     )}
-                />
-                {errors.breed && <ErrorText>{errors.breed.message}</ErrorText>}
+                </div>
+                {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
             </FieldGroup>
 
             {/* 4. BirthDate */}
@@ -412,4 +433,37 @@ const SaveButtonWrapper = styled.div`
   z-index: 50;
   max-width: 600px;
   margin: 0 auto;
+`;
+
+const BreedList = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid ${colors.gray[200]};
+  border-radius: ${radius.md};
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 0;
+`;
+
+const BreedItem = styled.li`
+  padding: 12px 16px;
+  font-size: 14px;
+  color: ${colors.gray[900]};
+  cursor: pointer;
+  border-bottom: 1px solid ${colors.gray[200]};
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: ${colors.gray[50]};
+  }
 `;

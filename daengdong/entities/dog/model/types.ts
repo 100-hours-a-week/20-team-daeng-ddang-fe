@@ -15,7 +15,8 @@ export interface DogInfo {
 
 export interface DogFormValues {
     name: string;
-    breed: string;
+    breedId: number; // Changed from breed string
+    breedName: string; // Display name
     birthDate: string; // Form input string
     isBirthDateUnknown: boolean;
     weight: string; // Form input string (for decimal handling)
