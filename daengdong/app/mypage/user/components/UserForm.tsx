@@ -6,21 +6,22 @@ import { spacing, colors } from '@/shared/styles/tokens';
 import { Button } from '@/shared/components/Button/Button';
 import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdown';
 import { Input } from '@/shared/components/Input/Input';
-import { REGIONS } from '@/shared/data/regions';
 import { useEffect, useState } from 'react';
+import { useRegionsQuery } from '@/features/user/api/useRegionsQuery';
 
 import { UserFormValues } from '@/entities/user/model/types';
 
 // Zod Schema
 const UserSchema = z.object({
     email: z.string(),
-    province: z.string().min(1, '지역을 선택하세요.'),
-    city: z.string().min(1, '시/군/구를 선택하세요.'),
+    province: z.string().min(1, '지역을 선택하세요.'), // Stores name for display/validation
+    city: z.string().min(1, '시/군/구를 선택하세요.'),   // Stores name for display/validation
+    regionId: z.number().min(1, '유효한 지역을 선택하세요.'), // Stores actual ID
 });
 
 interface UserFormProps {
     initialData: UserFormValues;
-    onSubmit: (data: UserFormValues) => void;
+    onSubmit: (data: UserFormValues & { regionId: number, province: string, city: string }) => void;
     onWithdraw: () => void;
     isSubmitting: boolean;
     isNewUser: boolean;
@@ -33,31 +34,46 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         watch,
         setValue,
         formState: { errors, isValid },
-    } = useForm<UserFormValues>({
+    } = useForm<UserFormValues & { regionId: number }>({
         resolver: zodResolver(UserSchema),
-        defaultValues: initialData,
+        defaultValues: { ...initialData, regionId: 0 },
         mode: 'onChange',
     });
 
-    const selectedProvince = watch('province');
-    const [cityOptions, setCityOptions] = useState<string[]>([]);
+    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
 
-    // Update city options when province changes
-    useEffect(() => {
-        if (selectedProvince && REGIONS[selectedProvince]) {
-            setCityOptions(REGIONS[selectedProvince]);
-        } else {
-            setCityOptions([]);
-        }
-    }, [selectedProvince]);
+    // Regions Query
+    const { data: provinces } = useRegionsQuery(); // Top level (City/Do)
+    const { data: districts } = useRegionsQuery(selectedProvinceId ?? undefined); // Sub level (Gu/Gun)
 
-    // Handle province change: reset city if needed
-    const handleProvinceChange = (newProvince: string, onChange: (val: string) => void) => {
-        onChange(newProvince);
-        setValue('city', ''); // Reset city on province change
+    // Maps for Dropdowns
+    // SelectDropdown expects options as strings currently. 
+    // We need to map back and forth between Name and ID since Dropdown is simple.
+    // Ideally SelectDropdown should accept objects, but adapting to current simple UI.
+
+    // Convert Regions to String Options
+    const provinceOptions = provinces?.map(p => p.name) || [];
+    const districtOptions = districts?.map(d => d.name) || [];
+
+    const handleProvinceChange = (provinceName: string, onChange: (val: string) => void) => {
+        onChange(provinceName);
+        setValue('city', '');
+        setValue('regionId', 0); // Reset final ID
+
+        // Find ID
+        const province = provinces?.find(p => p.name === provinceName);
+        setSelectedProvinceId(province ? province.regionId : null);
     };
 
-    const provinceOptions = Object.keys(REGIONS);
+    const handleCityChange = (cityName: string, onChange: (val: string) => void) => {
+        onChange(cityName);
+
+        // Find ID and set regionId
+        const district = districts?.find(d => d.name === cityName);
+        if (district) {
+            setValue('regionId', district.regionId);
+        }
+    };
 
     return (
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -86,7 +102,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
                                     value={field.value}
                                     onChange={(val) => handleProvinceChange(val, field.onChange)}
                                     placeholder={isNewUser ? "시/도 선택" : "시/도"}
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || !provinces}
                                 />
                             )}
                         />
@@ -99,11 +115,11 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
                             control={control}
                             render={({ field }) => (
                                 <SelectDropdown
-                                    options={cityOptions}
+                                    options={districtOptions}
                                     value={field.value}
-                                    onChange={field.onChange}
+                                    onChange={(val) => handleCityChange(val, field.onChange)}
                                     placeholder={isNewUser ? "시/군/구 선택" : "시/군/구"}
-                                    disabled={!selectedProvince || isSubmitting}
+                                    disabled={!selectedProvinceId || isSubmitting}
                                 />
                             )}
                         />

@@ -17,15 +17,20 @@ export function UserInfoScreen() {
 
     const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
 
+    // Parse Region String (e.g., "경기도 성남시")
+    const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
+    const province = regionParts[0] || '';
+    const city = regionParts[1] || '';
+
     // Determine if user is new based on missing location data
-    const isNewUser = !userInfo?.province || !userInfo?.city;
+    const isNewUser = !userInfo?.region;
 
     const saveMutation = useSaveUserInfo(isNewUser);
     const deleteMutation = useDeleteUser();
 
-    const handleUpdate = (data: { email: string; province: string; city: string }) => {
+    const handleUpdate = (data: { email: string; province: string; city: string; regionId: number }) => {
         saveMutation.mutate(
-            { province: data.province, city: data.city },
+            { regionId: data.regionId, province: data.province, city: data.city },
             {
                 onSuccess: () => {
                     showToast({ message: '사용자 정보가 저장되었습니다.', type: 'success' });
@@ -70,9 +75,9 @@ export function UserInfoScreen() {
             <Content>
                 <UserForm
                     initialData={{
-                        email: userInfo.email ?? '',
-                        province: userInfo.province ?? '',
-                        city: userInfo.city ?? ''
+                        email: '', // Email not provided by API
+                        province: province,
+                        city: city
                     }}
                     onSubmit={handleUpdate}
                     onWithdraw={handleWithdrawClick}
