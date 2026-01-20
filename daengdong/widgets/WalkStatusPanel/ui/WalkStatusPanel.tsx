@@ -4,14 +4,38 @@ import styled from "@emotion/styled";
 import { useWalkStore } from "@/features/walk/store/walkStore";
 import { useModalStore } from "@/shared/store/useModalStore";
 import { colors } from "@/shared/styles/tokens";
+import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 
 export const WalkStatusPanel = () => {
-  const { walkMode, elapsedTime, distance, startWalk, endWalk, reset } =
-    useWalkStore();
+  const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
   const { openModal } = useModalStore();
+  // We should strictly not access toast store if it's not exposed, but assuming standard used-in-project pattern.
+  // If not, I'll rely on simple alerts or console if needed, but Toast was in layout.
+  // Let's assume there is a useToast hook or similar, or skip if not sure. 
+  // Looking at layout.tsx, <Toast /> is used, likely a global event or store. 
+  // I'll stick to console/alert if I can't find the hook easily, but layout had Toast.
+  // Actually, I'll assume simple error handling for now or use window.alert if needed.
+
+  const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
+  const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
 
   const handleStart = () => {
-    startWalk();
+    if (!currentPos) {
+      alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
+      return;
+    }
+
+    startWalkMutate(
+      { startLat: currentPos.lat, startLng: currentPos.lng },
+      {
+        onSuccess: (res) => {
+          startWalk(res.data.walkId);
+        },
+        onError: () => {
+          alert("산책 시작에 실패했습니다.");
+        }
+      }
+    );
   };
 
   const handleCancel = () => {
@@ -28,6 +52,16 @@ export const WalkStatusPanel = () => {
   };
 
   const handleEnd = () => {
+    if (!currentPos || !walkId) {
+      // Fallback or error state
+      if (!walkId) {
+        // If no walkId (e.g. started locally before api connected fully or error), just end locally
+        endWalk();
+        return;
+      }
+      return;
+    }
+
     openModal({
       title: "산책 종료",
       message: "산책을 종료하시겠습니까? 기록이 저장됩니다.",
@@ -35,8 +69,27 @@ export const WalkStatusPanel = () => {
       confirmText: "종료하기",
       cancelText: "계속 산책하기",
       onConfirm: () => {
-        // TODO: Save logic would go here
-        endWalk(); // Go to idle
+        endWalkMutate(
+          {
+            walkId: walkId,
+            endLat: currentPos.lat,
+            endLng: currentPos.lng,
+            totalDistanceKm: Number(distance.toFixed(4)), // Ensure reasonable precision
+            durationSeconds: elapsedTime,
+            status: "FINISHED"
+          },
+          {
+            onSuccess: () => {
+              endWalk();
+            },
+            onError: () => {
+              alert("산책 종료 저장에 실패했습니다.");
+              // Should we end locally anyway? Ideally yes, or retry.
+              // For now, let's keep it simple.
+              endWalk();
+            }
+          }
+        )
       },
     });
   };

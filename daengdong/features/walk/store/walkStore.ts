@@ -8,12 +8,13 @@ interface LatLng {
 interface WalkState {
     walkMode: "idle" | "walking";
     currentPos: LatLng | null;
+    walkId: number | null;
     startTime: Date | null;
     elapsedTime: number;
     distance: number;
     path: LatLng[];
 
-    startWalk: () => void;
+    startWalk: (id?: number) => void;
     endWalk: () => void;
     reset: () => void;
     setCurrentPos: (pos: LatLng) => void;
@@ -25,14 +26,16 @@ interface WalkState {
 export const useWalkStore = create<WalkState>((set) => ({
     walkMode: "idle",
     currentPos: null,
+    walkId: null,
     startTime: null,
     elapsedTime: 0,
     distance: 0,
     path: [],
 
-    startWalk: () =>
+    startWalk: (id?: number) =>
         set({
             walkMode: "walking",
+            walkId: id ?? null, // Optional for now, but will come from API
             startTime: new Date(),
             elapsedTime: 0,
             distance: 0,
@@ -43,6 +46,7 @@ export const useWalkStore = create<WalkState>((set) => ({
         set({
             walkMode: "idle",
             currentPos: null,
+            walkId: null,
             startTime: null,
             elapsedTime: 0,
             distance: 0,
@@ -53,6 +57,7 @@ export const useWalkStore = create<WalkState>((set) => ({
         set({
             walkMode: "idle",
             currentPos: null,
+            walkId: null,
             startTime: null,
             elapsedTime: 0,
             distance: 0,
