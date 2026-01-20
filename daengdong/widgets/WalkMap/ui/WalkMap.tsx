@@ -13,6 +13,13 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
     const mapRef = useRef<any>(null);
 
+    // 이미 스크립트가 로드되어 있는 경우 (페이지 이동 후 복귀 시 등) 확인
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.naver) {
+            setLoaded(true);
+        }
+    }, []);
+
     // 지도 초기화 및 중심 이동
     useEffect(() => {
         if (!loaded || !currentPos || !window.naver) return;
@@ -47,6 +54,7 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
         mapRef.current.setCenter(newCenter);
     };
+
 
     return (
         <>
@@ -100,3 +108,4 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
         </>
     );
 };
+

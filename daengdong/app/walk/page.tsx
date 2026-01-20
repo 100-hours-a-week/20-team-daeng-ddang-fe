@@ -86,7 +86,7 @@ export default function WalkPage() {
 
   return (
     <div style={{ position: "relative", width: "100%", height: "calc(100vh - 80px)" }}>
-      <Header title="산책하기" showBackButton={true} />
+      <Header title="산책하기" showBackButton={false} />
       <WalkMap currentPos={currentPos} />
       <WalkStatusPanel />
     </div>
