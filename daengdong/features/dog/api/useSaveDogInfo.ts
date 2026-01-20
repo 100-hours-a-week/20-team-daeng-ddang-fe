@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createDog, CreateDogParams } from '@/shared/api/dogs';
+import { createDog, CreateDogParams } from '@/entities/dog/api/dog';
 
 export const useSaveDogInfo = () => {
     const queryClient = useQueryClient();

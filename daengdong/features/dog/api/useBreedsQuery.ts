@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getBreeds } from '@/shared/api/dogs';
+import { getBreeds } from '@/entities/dog/api/dog';
 
 export const useBreedsQuery = (keyword: string) => {
     return useQuery({

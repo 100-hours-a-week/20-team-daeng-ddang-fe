@@ -1,4 +1,4 @@
-import { http } from './http';
+import { http } from '@/shared/api/http';
 
 export interface Region {
     regionId: number;
