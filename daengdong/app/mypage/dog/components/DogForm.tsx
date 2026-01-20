@@ -183,8 +183,8 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                         <BreedList>
                             {breedList.map((breed) => (
                                 <BreedItem
-                                    key={breed.id}
-                                    onClick={() => handleBreedSelect(breed.id, breed.name)}
+                                    key={breed.breedId}
+                                    onClick={() => handleBreedSelect(breed.breedId, breed.name)}
                                 >
                                     {breed.name}
                                 </BreedItem>

@@ -13,12 +13,11 @@ import { useRouter } from 'next/navigation';
 export function DogInfoScreen() {
     const router = useRouter();
     const { showToast } = useToastStore();
-    const { data: dogInfo, isLoading: isQueryLoading } = useDogInfoQuery();
+    // const { data: dogInfo, isLoading: isQueryLoading } = useDogInfoQuery(); // Disabled for Create-Only Mode
     const saveMutation = useSaveDogInfo();
 
     const handleSave = async (data: DogFormValues) => {
-        const isEditMode = !!dogInfo;
-        let profileImageUrl = dogInfo?.imageUrl || undefined;
+        let profileImageUrl = undefined;
 
         try {
             if (data.imageFile) {
@@ -27,23 +26,20 @@ export function DogInfoScreen() {
             }
 
             saveMutation.mutate({
-                isEditMode,
-                data: {
-                    name: data.name,
-                    breedId: data.breedId,
-                    birthDate: data.birthDate,
-                    weight: parseFloat(data.weight),
-                    gender: data.gender,
-                    isNeutered: data.isNeutered,
-                    profileImageUrl: profileImageUrl,
-                }
+                name: data.name,
+                breedId: data.breedId,
+                birthDate: data.birthDate,
+                weight: parseFloat(data.weight),
+                gender: data.gender,
+                isNeutered: data.isNeutered,
+                profileImageUrl: profileImageUrl,
             }, {
                 onSuccess: () => {
-                    showToast({ message: '반려견 정보가 저장되었습니다.', type: 'success' });
-                    // Optional: Redirect or stay
+                    showToast({ message: '강아지 정보가 등록되었습니다.', type: 'success' });
+                    router.back(); // Redirect after success? User didn't specify, but back is safe.
                 },
                 onError: () => {
-                    showToast({ message: '저장에 실패했습니다.', type: 'error' });
+                    showToast({ message: '등록에 실패했습니다.', type: 'error' });
                 },
             });
         } catch (error) {
@@ -52,27 +48,11 @@ export function DogInfoScreen() {
         }
     };
 
-    if (isQueryLoading) {
-        return <GlobalLoading />;
-    }
-
-    const initialData: Partial<DogFormValues> | undefined = dogInfo ? {
-        name: dogInfo.name,
-        breedId: 0,
-        breedName: dogInfo.breed,
-        birthDate: dogInfo.birthDate || '',
-        isBirthDateUnknown: dogInfo.isBirthDateUnknown,
-        weight: dogInfo.weight.toString(),
-        gender: dogInfo.gender,
-        isNeutered: dogInfo.isNeutered,
-    } : undefined;
-
     return (
         <Container>
-            <Header title="반려견 정보" showBackButton={true} onBack={() => router.back()} />
+            <Header title="반려견 정보 등록" showBackButton={true} onBack={() => router.back()} />
             <Content>
                 <DogForm
-                    initialData={initialData}
                     onSubmit={handleSave}
                     isSubmitting={saveMutation.isPending}
                 />

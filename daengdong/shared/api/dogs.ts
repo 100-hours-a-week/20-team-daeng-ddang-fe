@@ -8,7 +8,7 @@ interface ApiResponse<T> {
 }
 
 export interface Breed {
-    id: number;
+    breedId: number;
     name: string;
 }
 
@@ -73,9 +73,4 @@ export interface CreateDogParams {
 // POST /api/v3/users/dogs
 export const createDog = async (params: CreateDogParams): Promise<void> => {
     await http.post<ApiResponse<any>>('/users/dogs', params);
-};
-
-// PATCH /api/v3/users/dogs
-export const updateDog = async (params: Partial<CreateDogParams>): Promise<void> => {
-    await http.patch<ApiResponse<any>>('/users/dogs', params);
 };
