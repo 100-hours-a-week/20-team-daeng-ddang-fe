@@ -1,5 +1,4 @@
 export type Gender = 'MALE' | 'FEMALE';
-export type Neutered = 'YES' | 'NO';
 
 export interface DogInfo {
     id?: number;
@@ -9,7 +8,7 @@ export interface DogInfo {
     isBirthDateUnknown: boolean;
     weight: number;
     gender: Gender;
-    neutered: Neutered;
+    isNeutered: boolean;
     imageUrl?: string | null;
 }
 
@@ -21,6 +20,6 @@ export interface DogFormValues {
     isBirthDateUnknown: boolean;
     weight: string; // Form input string (for decimal handling)
     gender: Gender;
-    neutered: Neutered;
+    isNeutered: boolean;
     imageFile?: File | null;
 }

@@ -31,7 +31,7 @@ const DogSchema = z.object({
         .min(1, '몸무게를 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
-    neutered: z.enum(['YES', 'NO'], { message: '중성화 여부를 선택해주세요.' }),
+    isNeutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
@@ -72,7 +72,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             isBirthDateUnknown: false,
             weight: '',
             gender: undefined,
-            neutered: undefined,
+            isNeutered: undefined,
             imageFile: null,
             ...initialData,
         },
@@ -298,19 +298,19 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             <FieldGroup>
                 <Label>중성화 <Required>*</Required></Label>
                 <Controller
-                    name="neutered"
+                    name="isNeutered"
                     control={control}
                     render={({ field }) => (
                         <SelectDropdown
                             options={['O', 'X']}
-                            value={field.value === 'YES' ? 'O' : field.value === 'NO' ? 'X' : ''}
-                            onChange={(val) => field.onChange(val === 'O' ? 'YES' : 'NO')}
+                            value={field.value === true ? 'O' : field.value === false ? 'X' : ''}
+                            onChange={(val) => field.onChange(val === 'O')}
                             placeholder="중성화 여부 선택"
                             disabled={isSubmitting}
                         />
                     )}
                 />
-                {errors.neutered && <ErrorText>{errors.neutered.message}</ErrorText>}
+                {errors.isNeutered && <ErrorText>{errors.isNeutered.message}</ErrorText>}
             </FieldGroup>
 
             {/* Spacer for bottom button */}
