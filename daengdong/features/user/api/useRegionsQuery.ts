@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRegions, Region } from '@/shared/api/user';
+import { getRegions, Region } from '@/entities/user/api/user';
 
 export const useRegionsQuery = (parentId?: number) => {
     return useQuery({

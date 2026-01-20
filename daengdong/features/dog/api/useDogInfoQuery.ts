@@ -1,4 +1,4 @@
-// import { getDogInfo } from '@/shared/api/dogs';
+// import { getDogInfo } from '@/entities/dog/api/dog';
 
 import { useQuery } from "@tanstack/react-query";
 import { DogInfo } from '@/entities/dog/model/types';

@@ -27,7 +27,7 @@ export const ContentWrapper = styled.div`
 `;
 
 export const BrandTitle = styled.h1`
-  font-family: 'Cafe24Ssurround';
+  font-family: var(--font-cafe24), sans-serif;
   font-size: 24px;
   font-weight: 500;
   color: ${colors.primary};

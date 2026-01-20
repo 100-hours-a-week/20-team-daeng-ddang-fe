@@ -1,4 +1,4 @@
-import { http } from './http';
+import { http } from '@/shared/api/http';
 import { DogInfo, Gender } from '@/entities/dog/model/types';
 
 interface ApiResponse<T> {

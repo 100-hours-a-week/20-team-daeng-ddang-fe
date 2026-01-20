@@ -3,6 +3,12 @@
 import styled from "@emotion/styled";
 import { colors } from "@/shared/styles/tokens";
 
+import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
+import ScanHeartIcon from "@/shared/assets/icons/scan-heart.svg";
+import DogIcon from "@/shared/assets/icons/dog.svg";
+import TrophyIcon from "@/shared/assets/icons/trophy.svg";
+import CircleUserIcon from "@/shared/assets/icons/circle-user.svg";
+
 interface BottomNavProps {
     currentPath: string;
     onNavigate: (path: string) => void;
@@ -18,27 +24,27 @@ const NAV_ITEMS: NavItem[] = [
     {
         label: "발자국",
         path: "/footprints",
-        iconFn: "/paw-print.svg",
+        iconFn: PawPrintIcon.src,
     },
     {
         label: "헬스케어",
         path: "/healthcare",
-        iconFn: "/scan-heart.svg",
+        iconFn: ScanHeartIcon.src,
     },
     {
         label: "산책하기",
         path: "/walk",
-        iconFn: "/dog.svg",
+        iconFn: DogIcon.src,
     },
     {
         label: "랭킹",
         path: "/ranking",
-        iconFn: "/trophy.svg",
+        iconFn: TrophyIcon.src,
     },
     {
         label: "마이페이지",
         path: "/mypage",
-        iconFn: "/circle-user.svg",
+        iconFn: CircleUserIcon.src,
     },
 ];
 
@@ -74,7 +80,7 @@ const NavContainer = styled.nav`
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
-  z-index: 100;
+  z-index: 9999;
   display: flex;
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
