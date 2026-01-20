@@ -169,9 +169,15 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                     <Input
                         value={breedSearchKeyword || breedName}
                         onChange={(e) => {
-                            setBreedSearchKeyword(e.target.value);
-                            setValue('breedName', e.target.value);
-                            setValue('breedId', 0); // Reset ID when typing to enforce selection
+                            const value = e.target.value;
+
+                            setBreedSearchKeyword(value);
+                            setValue('breedName', value, { shouldDirty: true });
+
+                            if (value !== breedName) {
+                                setValue('breedId', 0, { shouldValidate: true });
+                            }
+
                             setIsBreedListOpen(true);
                         }}
                         onFocus={() => setIsBreedListOpen(true)}
