@@ -130,11 +130,10 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
 
     // Handle Breed Selection
     const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', id);
-        setValue('breedName', name);
+        setValue('breedId', id, { shouldValidate: true });
+        setValue('breedName', name, { shouldValidate: true });
         setBreedSearchKeyword(name); // Set input to selected name
         setIsBreedListOpen(false);
-        trigger('breedName');
     };
 
     // Close breed list when clicking outside (simplification: relying on onBlur delay or similar usually, keeping simple here)
@@ -171,13 +170,12 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                         value={breedSearchKeyword || breedName}
                         onChange={(e) => {
                             setBreedSearchKeyword(e.target.value);
-                            setValue('breedName', e.target.value); // Sync for validation?
-                            // If typing, reset ID until selected?
-                            // setValue('breedId', 0); // Optional: keep old ID or reset
+                            setValue('breedName', e.target.value);
+                            setValue('breedId', 0); // Reset ID when typing to enforce selection
                             setIsBreedListOpen(true);
                         }}
                         onFocus={() => setIsBreedListOpen(true)}
-                        placeholder="견종 검색"
+                        placeholder="견종 검색 (목록에서 선택해주세요)"
                         disabled={isSubmitting}
                         ref={breedInputRef}
                     />
@@ -195,6 +193,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                     )}
                 </div>
                 {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
+                {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
             </FieldGroup>
 
             {/* 4. BirthDate */}

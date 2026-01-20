@@ -56,8 +56,8 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
 
     const handleProvinceChange = (provinceName: string, onChange: (val: string) => void) => {
         onChange(provinceName);
-        setValue('city', '');
-        setValue('regionId', 0); // Reset final ID
+        setValue('city', '', { shouldValidate: true });
+        setValue('regionId', 0, { shouldValidate: true }); // Reset final ID
 
         // Find ID
         const province = provinces?.find(p => p.name === provinceName);
@@ -70,7 +70,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         // Find ID and set regionId
         const district = districts?.find(d => d.name === cityName);
         if (district) {
-            setValue('regionId', district.regionId);
+            setValue('regionId', district.regionId, { shouldValidate: true });
         }
     };
 

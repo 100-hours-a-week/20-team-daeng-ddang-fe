@@ -70,7 +70,7 @@ export interface CreateDogParams {
     isNeutered?: boolean;
 }
 
-// POST /api/v3/dogs
+// POST /api/v3/users/dogs
 export const createDog = async (params: CreateDogParams): Promise<void> => {
     await http.post<ApiResponse<any>>('/users/dogs', params);
 };
