@@ -22,7 +22,7 @@ const DogSchema = z.object({
         .min(2, '이름은 최소 2자 이상이어야 합니다.')
         .max(15, '이름은 최대 15자까지 가능합니다.')
         .regex(/^[가-힣a-zA-Z]+$/, '올바르지 않은 이름형식입니다.'),
-    breedId: z.number().min(1, '견종을 선택해주세요.'),
+    breedId: z.number({ message: '견종을 선택해주세요.' }).min(1, '견종을 선택해주세요.'),
     breedName: z.string().min(1, '견종을 선택해주세요.'),
     birthDate: z.string(),
     isBirthDateUnknown: z.boolean(),
@@ -130,7 +130,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
 
     // Handle Breed Selection
     const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', id, { shouldValidate: true });
+        setValue('breedId', Number(id), { shouldValidate: true });
         setValue('breedName', name, { shouldValidate: true });
         setBreedSearchKeyword(name); // Set input to selected name
         setIsBreedListOpen(false);

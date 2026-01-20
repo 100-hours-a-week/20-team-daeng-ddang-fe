@@ -24,9 +24,11 @@ interface UserFormProps {
     onWithdraw: () => void;
     isSubmitting: boolean;
     isNewUser: boolean;
+    initialParentRegionId?: number;
+    initialRegionId?: number;
 }
 
-export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser }: UserFormProps) {
+export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser, initialParentRegionId, initialRegionId }: UserFormProps) {
     const {
         control,
         handleSubmit,
@@ -35,11 +37,11 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         formState: { errors, isValid },
     } = useForm<UserFormValues & { regionId: number }>({
         resolver: zodResolver(UserSchema),
-        defaultValues: { ...initialData, regionId: 0 },
+        defaultValues: { ...initialData, regionId: initialRegionId || 0 },
         mode: 'onChange',
     });
 
-    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(null);
+    const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(initialParentRegionId || null);
 
     // Regions Query
     const { data: provinces } = useRegionsQuery(); // Top level (City/Do)

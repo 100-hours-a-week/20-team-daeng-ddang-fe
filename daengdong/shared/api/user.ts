@@ -41,6 +41,8 @@ export const registerUserInfo = async (regionId: number): Promise<void> => {
 
 export interface UserInfo {
     userId: number;
+    regionId: number;
+    parentRegionId: number;
     region?: string; // "경기도 성남시"
 }
 
