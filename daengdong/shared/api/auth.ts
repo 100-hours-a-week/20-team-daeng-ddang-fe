@@ -1,5 +1,4 @@
-// shared/api/auth.ts
-import axios from 'axios';
+import { http } from './http';
 
 export interface LoginResponse {
     accessToken: string;
@@ -15,15 +14,9 @@ interface ApiResponse<T> {
     errorCode: string | null;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
-    if (!API_BASE_URL) {
-        throw new Error('API_BASE_URL is not defined');
-    }
-
-    const response = await axios.post<ApiResponse<LoginResponse>>(
-        `${API_BASE_URL}/auth/login`,
+    const response = await http.post<ApiResponse<LoginResponse>>(
+        `/auth/login`,
         { code }
     );
 

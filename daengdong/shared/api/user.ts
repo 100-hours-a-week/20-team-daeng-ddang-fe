@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { http } from './http';
 
 export interface Region {
     regionId: number;
@@ -17,21 +17,15 @@ interface ApiResponse<T> {
     errorCode: string | null;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export const getRegions = async (parentId?: number): Promise<Region[]> => {
-    if (!API_BASE_URL) {
-        throw new Error('API_BASE_URL is not defined');
-    }
-
     const params = parentId ? { parentId } : {};
 
     // According to API docs: 
     // - parentId not provided -> Top level (City/Do)
     // - parentId provided -> Sub level (District/Gu)
 
-    const response = await axios.get<ApiResponse<RegionsResponse>>(
-        `${API_BASE_URL}/users/regions`,
+    const response = await http.get<ApiResponse<RegionsResponse>>(
+        `/users/regions`,
         { params }
     );
 
@@ -39,12 +33,8 @@ export const getRegions = async (parentId?: number): Promise<Region[]> => {
 };
 
 export const registerUserInfo = async (regionId: number): Promise<void> => {
-    if (!API_BASE_URL) {
-        throw new Error('API_BASE_URL is not defined');
-    }
-
-    await axios.post<ApiResponse<any>>(
-        `${API_BASE_URL}/users`,
+    await http.post<ApiResponse<any>>(
+        `/users`,
         { regionId }
     );
 };
@@ -55,24 +45,16 @@ export interface UserInfo {
 }
 
 export const getUserInfo = async (): Promise<UserInfo> => {
-    if (!API_BASE_URL) {
-        throw new Error('API_BASE_URL is not defined');
-    }
-
-    const response = await axios.get<ApiResponse<UserInfo>>(
-        `${API_BASE_URL}/users/me`
+    const response = await http.get<ApiResponse<UserInfo>>(
+        `/users/me`
     );
 
     return response.data.data;
 };
 
 export const updateUserInfo = async (regionId: number): Promise<void> => {
-    if (!API_BASE_URL) {
-        throw new Error('API_BASE_URL is not defined');
-    }
-
-    await axios.patch<ApiResponse<any>>(
-        `${API_BASE_URL}/users`,
+    await http.patch<ApiResponse<any>>(
+        `/users`,
         { regionId }
     );
 };

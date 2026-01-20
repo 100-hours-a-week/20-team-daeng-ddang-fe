@@ -17,7 +17,8 @@ function CallbackComponent() {
     const loginMutation = useMutation({
         mutationFn: kakaoLogin,
         onSuccess: (data) => {
-            document.cookie = `accessToken=${data.accessToken}; path=/; max-age=3600`;
+            // Save Token to LocalStorage
+            localStorage.setItem('accessToken', data.accessToken);
             setLoggedIn(true);
             router.replace('/walk');
         },

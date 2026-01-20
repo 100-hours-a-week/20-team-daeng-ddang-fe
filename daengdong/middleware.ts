@@ -5,11 +5,12 @@ export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Check for accessToken in cookies
-    const hasAccessToken = request.cookies.has('accessToken');
+    // const hasAccessToken = request.cookies.has('accessToken');
 
     // 1. Protected Routes: If no token, redirect to /login
     // We can define protected routes explicitly or exclude public ones.
     // Here we assume everything except public paths is protected.
+    /*
     const isPublicPath =
         pathname === '/login' ||
         pathname.startsWith('/oauth') ||
@@ -28,6 +29,7 @@ export function middleware(request: NextRequest) {
     if (hasAccessToken && (pathname === '/login' || pathname.startsWith('/oauth/kakao/callback'))) {
         return NextResponse.redirect(new URL('/walk', request.url));
     }
+    */
 
     return NextResponse.next();
 }
