@@ -15,7 +15,7 @@ export function UserInfoScreen() {
     const { openModal, closeModal } = useModalStore();
     const { showToast } = useToastStore();
 
-    const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
+    const { data: userInfo, isLoading: isQueryLoading, isError } = useUserInfoQuery();
 
     // Parse Region String (e.g., "경기도 성남시")
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
@@ -62,7 +62,7 @@ export function UserInfoScreen() {
         });
     };
 
-    if (isQueryLoading || !userInfo) {
+    if (isQueryLoading) {
         return <GlobalLoading />;
     }
 
