@@ -6,6 +6,7 @@ import { useLoadingStore } from "@/shared/store/useLoadingStore";
 import { useAuthStore } from "@/shared/stores/authStore";
 import { useToastStore } from "@/shared/store/useToastStore";
 import { Button } from "@/shared/components/Button/Button";
+import { DogForm } from "@/app/mypage/dog/components/DogForm";
 
 export default function WalkPage() {
   const { showLoading, hideLoading } = useLoadingStore();
@@ -33,6 +34,7 @@ export default function WalkPage() {
   return (
     <div>
       <Header title="산책하기" showBackButton={false} />
+      <DogForm onSubmit={() => { }} isSubmitting={false} initialData={{}} />
 
       <div style={{ padding: 24, paddingBottom: 100 }}>
         <Button

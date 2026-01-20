@@ -167,17 +167,11 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 <Label>견종 <Required>*</Required></Label>
                 <div style={{ position: 'relative' }}>
                     <Input
-                        value={breedSearchKeyword || breedName}
+                        value={breedSearchKeyword}
                         onChange={(e) => {
                             const value = e.target.value;
 
                             setBreedSearchKeyword(value);
-                            setValue('breedName', value, { shouldDirty: true });
-
-                            if (value !== breedName) {
-                                setValue('breedId', 0, { shouldValidate: true });
-                            }
-
                             setIsBreedListOpen(true);
                         }}
                         onFocus={() => setIsBreedListOpen(true)}
