@@ -1,5 +1,6 @@
 "use client";
 
+// 지도 렌더링 테스트용 페이지 
 import Script from "next/script";
 import { useState, useEffect } from "react";
 

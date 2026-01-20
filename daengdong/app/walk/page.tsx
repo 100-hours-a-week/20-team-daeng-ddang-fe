@@ -34,7 +34,7 @@ export default function WalkPage() {
   return (
     <div>
       <Header title="산책하기" showBackButton={false} />
-      <DogForm onSubmit={() => { }} isSubmitting={false} initialData={{}} />
+
 
       <div style={{ padding: 24, paddingBottom: 100 }}>
         <Button
