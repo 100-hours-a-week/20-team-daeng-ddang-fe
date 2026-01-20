@@ -13,7 +13,6 @@ import { UserFormValues } from '@/entities/user/model/types';
 
 // Zod Schema
 const UserSchema = z.object({
-    email: z.string(),
     province: z.string().min(1, '지역을 선택하세요.'), // Stores name for display/validation
     city: z.string().min(1, '시/군/구를 선택하세요.'),   // Stores name for display/validation
     regionId: z.number().min(1, '유효한 지역을 선택하세요.'), // Stores actual ID
@@ -77,17 +76,6 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
 
     return (
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
-                <Label>이메일</Label>
-                <Controller
-                    name="email"
-                    control={control}
-                    render={({ field }) => (
-                        <Input {...field} disabled={true} /> // Email is readonly
-                    )}
-                />
-            </FieldGroup>
-
             <FieldGroup>
                 <Label>사는 곳</Label>
 

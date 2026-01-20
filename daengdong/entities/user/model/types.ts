@@ -5,7 +5,6 @@ export interface UserInfo {
 }
 
 export interface UserFormValues {
-    email: string;
     province: string;
     city: string;
 }

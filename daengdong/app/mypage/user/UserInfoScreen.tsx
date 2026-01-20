@@ -28,7 +28,7 @@ export function UserInfoScreen() {
     const saveMutation = useSaveUserInfo(isNewUser);
     const deleteMutation = useDeleteUser();
 
-    const handleUpdate = (data: { email: string; province: string; city: string; regionId: number }) => {
+    const handleUpdate = (data: { province: string; city: string; regionId: number }) => {
         saveMutation.mutate(
             { regionId: data.regionId, province: data.province, city: data.city },
             {
@@ -75,7 +75,6 @@ export function UserInfoScreen() {
             <Content>
                 <UserForm
                     initialData={{
-                        email: '', // Email not provided by API
                         province: province,
                         city: city
                     }}
