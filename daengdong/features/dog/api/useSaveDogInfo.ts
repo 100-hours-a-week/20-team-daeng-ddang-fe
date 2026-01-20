@@ -1,20 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { DogFormValues } from '@/entities/dog/model/types';
-
-// Mock API Call
-const saveDogInfo = async (data: DogFormValues): Promise<void> => {
-    console.log('[API] Saving Dog Info:', data);
-    if (data.imageFile) {
-        console.log('[API] Uploading Image:', data.imageFile.name);
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-};
+import { createDog, updateDog, CreateDogParams } from '@/shared/api/dogs';
 
 export const useSaveDogInfo = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: saveDogInfo,
+        mutationFn: async (params: { isEditMode: boolean; data: CreateDogParams }) => {
+            if (params.isEditMode) {
+                return await updateDog(params.data);
+            } else {
+                return await createDog(params.data);
+            }
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['dogInfo'] });
         },
