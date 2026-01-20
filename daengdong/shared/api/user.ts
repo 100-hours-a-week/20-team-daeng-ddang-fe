@@ -60,7 +60,7 @@ export const getUserInfo = async (): Promise<UserInfo> => {
     }
 
     const response = await axios.get<ApiResponse<UserInfo>>(
-        `${API_BASE_URL}/users`
+        `${API_BASE_URL}/users/me`
     );
 
     return response.data.data;
