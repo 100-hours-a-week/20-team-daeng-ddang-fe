@@ -36,7 +36,6 @@ export function DogInfoScreen() {
             }, {
                 onSuccess: () => {
                     showToast({ message: '강아지 정보가 등록되었습니다.', type: 'success' });
-                    router.back(); // Redirect after success? User didn't specify, but back is safe.
                 },
                 onError: () => {
                     showToast({ message: '등록에 실패했습니다.', type: 'error' });
