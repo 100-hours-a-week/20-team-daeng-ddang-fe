@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
 
 interface WalkMapProps {
@@ -9,14 +9,30 @@ interface WalkMapProps {
     path?: { lat: number; lng: number }[];
 }
 
+declare global {
+    interface Window {
+        initNaverMap?: () => void;
+        naver: any;
+    }
+}
+
 export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
-    const mapRef = useRef<any>(null);
+    const [map, setMap] = useState<any>(null);
 
-    // 이미 스크립트가 로드되어 있는 경우 (페이지 이동 후 복귀 시 등) 확인
+    // 이미 스크립트가 로드되어 있는 경우 확인
     useEffect(() => {
-        if (typeof window !== "undefined" && window.naver) {
+        if (typeof window !== "undefined" && window.naver && window.naver.maps) {
             setLoaded(true);
+        }
+    }, []);
+
+    // Global callback for Naver Map
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.initNaverMap = () => {
+                setLoaded(true);
+            };
         }
     }, []);
 
@@ -27,8 +43,8 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
         const { naver } = window;
         const location = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
 
-        if (!mapRef.current) {
-            const map = new naver.maps.Map("map", {
+        if (!map) {
+            const newMap = new naver.maps.Map("map", {
                 center: location,
                 zoom: 15,
                 gl: true,
@@ -39,28 +55,26 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
                     position: naver.maps.Position.TOP_RIGHT,
                 },
             });
-            mapRef.current = map;
+            setMap(newMap);
+        } else {
+            map.panTo(location);
         }
 
-        mapRef.current.panTo(location);
-
-    }, [loaded, currentPos]);
+    }, [loaded, currentPos, map]);
 
     const recenterToCurrentLocation = () => {
-        if (!currentPos || !mapRef.current) return;
+        if (!currentPos || !map) return;
 
         const { naver } = window;
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
-        mapRef.current.setCenter(newCenter);
+        map.setCenter(newCenter);
     };
-
 
     return (
         <>
             <Script
-                src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=wt3yosmtpj&submodules=gl"
+                src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=wt3yosmtpj&submodules=gl&callback=initNaverMap"
                 strategy="afterInteractive"
-                onLoad={() => setLoaded(true)}
             />
 
             <div
@@ -110,7 +124,7 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
                 </button>
             </div>
 
-            <CurrentLocationMarker map={mapRef.current} position={currentPos} />
+            <CurrentLocationMarker map={map} position={currentPos} />
         </>
     );
 };

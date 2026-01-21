@@ -1,27 +1,39 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToastStore } from '@/shared/store/useToastStore';
 
 export const WalkLogForm = () => {
-    const [log, setLog] = useState('');
+  const [log, setLog] = useState('');
+  const router = useRouter();
+  const { showToast } = useToastStore();
 
-    const handleSubmit = () => {
-        console.log('산책 후기 제출:', log);
-    };
+  const handleSubmit = () => {
+    console.log('산책 후기 제출:', log);
 
-    return (
-        <Container>
-            <Label>산책 후기</Label>
-            <TextArea
-                placeholder="오늘의 산책은 어떠셨나요? 즐거웠던 순간을 기록해주세요!"
-                value={log}
-                onChange={(e) => setLog(e.target.value)}
-            />
-            <SubmitButton onClick={handleSubmit}>
-                기록 완료
-            </SubmitButton>
-        </Container>
-    );
+    showToast({
+      message: '기록 완료!',
+      type: 'success',
+      duration: 2000,
+    });
+
+    router.push('/walk');
+  };
+
+  return (
+    <Container>
+      <Label>산책 후기</Label>
+      <TextArea
+        placeholder="오늘의 산책은 어떠셨나요? 즐거웠던 순간을 기록해주세요!"
+        value={log}
+        onChange={(e) => setLog(e.target.value)}
+      />
+      <SubmitButton onClick={handleSubmit}>
+        기록 완료
+      </SubmitButton>
+    </Container>
+  );
 };
 
 const Container = styled.section`
