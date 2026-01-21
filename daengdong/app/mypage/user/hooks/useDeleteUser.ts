@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { useUserStore } from '@/shared/stores/userStore';
-import { useAuthStore } from '@/shared/stores/authStore';
+import { useUserStore } from '@/entities/user/model/userStore';
+import { useAuthStore } from '@/entities/session/model/store';
 import { useRouter } from 'next/navigation';
 
 // Mock API 요청

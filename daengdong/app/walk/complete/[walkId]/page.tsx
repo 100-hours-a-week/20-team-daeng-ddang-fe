@@ -8,9 +8,6 @@ import { MissionResultSection } from '@/features/missions/ui/MissionResultSectio
 import { WalkLogForm } from '@/features/walk/ui/WalkLogForm';
 
 export default function WalkCompletePage({ params }: { params: { walkId: string } }) {
-    // params.walkId can be used for API calls later
-    // Note: We are relying on client-store for immediate data. 
-    // If refreshed, store is lost -> we would fetch from API using params.walkId (Future Work)
 
     return (
         <PageContainer>
@@ -29,33 +26,33 @@ export default function WalkCompletePage({ params }: { params: { walkId: string 
 }
 
 const PageContainer = styled.div`
-  min-height: 100vh;
-  background-color: white;
-  padding-bottom: 80px; /* Space for BottomNav */
+min - height: 100vh;
+background - color: white;
+padding - bottom: 80px; /* Space for BottomNav */
 `;
 
 const ContentWrapper = styled.div`
-  padding: ${spacing[4]}px;
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+padding: ${spacing[4]} px;
+max - width: 600px;
+margin: 0 auto;
+display: flex;
+flex - direction: column;
 `;
 
 const HeaderTextContainer = styled.div`
-  text-align: center;
-  margin-top: ${spacing[5]}px;
-  margin-bottom: ${spacing[2]}px;
+text - align: center;
+margin - top: ${spacing[5]} px;
+margin - bottom: ${spacing[2]} px;
 `;
 
 const MainTitle = styled.h2`
-  font-size: 24px;
-  font-weight: 800;
-  color: ${colors.gray[900]};
-  margin-bottom: ${spacing[2]}px;
+font - size: 24px;
+font - weight: 800;
+color: ${colors.gray[900]};
+margin - bottom: ${spacing[2]} px;
 `;
 
 const SubTitle = styled.p`
-  font-size: 14px;
-  color: ${colors.gray[700]};
+font - size: 14px;
+color: ${colors.gray[700]};
 `;

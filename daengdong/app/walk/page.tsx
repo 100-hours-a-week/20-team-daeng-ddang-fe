@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { WalkMap } from "@/widgets/WalkMap/ui/WalkMap";
 import { WalkStatusPanel } from "@/widgets/WalkStatusPanel/ui/WalkStatusPanel";
-import { useWalkStore } from "@/features/walk/store/walkStore";
+import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { Header } from "@/widgets/Header/Header";
 
 export default function WalkPage() {

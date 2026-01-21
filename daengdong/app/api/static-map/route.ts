@@ -4,7 +4,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const lat = searchParams.get("lat");
     const lng = searchParams.get("lng");
-    // Optional parameters with defaults
+
     const w = searchParams.get("w") || "300";
     const h = searchParams.get("h") || "300";
     const level = searchParams.get("level") || "16";
@@ -14,7 +14,6 @@ export async function GET(req: Request) {
         return new NextResponse("Missing lat or lng", { status: 400 });
     }
 
-    // Use keys from environment variables
     const clientId = process.env.NAVER_MAP_CLIENT_ID;
     const clientSecret = process.env.NAVER_MAP_CLIENT_SECRET;
 

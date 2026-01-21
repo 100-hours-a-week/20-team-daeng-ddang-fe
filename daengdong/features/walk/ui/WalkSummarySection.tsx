@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
-import { useWalkStore } from '@/features/walk/store/walkStore';
+import { useWalkStore } from '@/entities/walk/model/walkStore';
 
 export const WalkSummarySection = () => {
   const { walkResult } = useWalkStore();

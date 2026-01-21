@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { radius } from '@/shared/styles/tokens';
-import { useWalkStore } from '@/features/walk/store/walkStore';
+import { useWalkStore } from '@/entities/walk/model/walkStore';
 
 export const PathMapImage = ({ className }: { className?: string }) => {
   const { walkResult } = useWalkStore();
