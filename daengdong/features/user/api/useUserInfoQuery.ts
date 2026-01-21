@@ -5,7 +5,7 @@ export const useUserInfoQuery = () => {
     return useQuery({
         queryKey: ['userInfo'],
         queryFn: getUserInfo,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 1000 * 60 * 5, // 5m
         retry: 1,
     });
 };

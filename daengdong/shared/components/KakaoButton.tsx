@@ -2,7 +2,6 @@ import styled from '@emotion/styled';
 import { radius } from '@/shared/styles/tokens';
 import { ReactNode } from 'react';
 
-// Standard Kakao Brand Color
 const KAKAO_YELLOW = '#FEE500';
 
 const Button = styled.button`

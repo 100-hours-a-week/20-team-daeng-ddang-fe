@@ -24,8 +24,7 @@ export function Header({ title, showBackButton, onBack }: HeaderProps) {
     <Container>
       <LeftSection>
         {showBackButton && (
-          <BackButton onClick={handleBackClick} aria-label="Go back">
-            {/* Using a simple SVG for back arrow or text if icon not available */}
+          <BackButton onClick={handleBackClick} aria-label="Go back">\
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>

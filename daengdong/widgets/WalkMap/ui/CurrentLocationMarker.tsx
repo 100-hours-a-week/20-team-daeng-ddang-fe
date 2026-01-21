@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { colors } from "@/shared/styles/tokens";
 
 interface CurrentLocationMarkerProps {
-    map: any; // Using any as per existing types
+    map: any;
     position: { lat: number; lng: number } | null;
 }
 

@@ -17,15 +17,12 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     const [selectedMonth, setSelectedMonth] = useState(initialDate ? dayjs(initialDate).month() + 1 : today.month() + 1);
     const [selectedDay, setSelectedDay] = useState(initialDate ? dayjs(initialDate).date() : today.date());
 
-    // Generate Arrays
-    const years = Array.from({ length: today.year() - 1999 }, (_, i) => today.year() - i); // Current year to 2000
+    const years = Array.from({ length: today.year() - 1999 }, (_, i) => today.year() - i);
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
-    // Dynamic Days based on year/month
     const getDaysInMonth = (year: number, month: number) => dayjs(`${year}-${month}-01`).daysInMonth();
     const days = Array.from({ length: getDaysInMonth(selectedYear, selectedMonth) }, (_, i) => i + 1);
 
-    // Adjust day if month changes and current day exceeds new month's max
     useEffect(() => {
         const maxDays = getDaysInMonth(selectedYear, selectedMonth);
         if (selectedDay > maxDays) {
@@ -33,11 +30,10 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
         }
     }, [selectedYear, selectedMonth]);
 
-    // Body scroll lock
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-            document.body.style.touchAction = 'none'; // Optional: for aggressive locking
+            document.body.style.touchAction = 'none';
         } else {
             document.body.style.overflow = '';
             document.body.style.touchAction = '';
@@ -105,7 +101,6 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     );
 }
 
-// --- Wheel Column Component ---
 interface WheelColumnProps {
     items: number[];
     selectedValue: number;
@@ -117,7 +112,6 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
     const ITEM_HEIGHT = 40;
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Initial scroll position
     useEffect(() => {
         if (containerRef.current) {
             const index = items.indexOf(selectedValue);
@@ -125,26 +119,16 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
                 containerRef.current.scrollTop = index * ITEM_HEIGHT;
             }
         }
-    }, []); // Run on mount
+    }, []);
 
-    // Handle scroll to snap
     const handleScroll = () => {
         if (!containerRef.current) return;
         const scrollTop = containerRef.current.scrollTop;
         const index = Math.round(scrollTop / ITEM_HEIGHT);
         if (items[index]) {
-            // Debounce or just set state (might cause jitter if not throttled, but for simple selection usually fine if distinct)
-            // Ideally we check scroll end, but native scroll snap does the job visually.
-            // We update state when scroll is "settled" or continuously.
-            // For smoother experience, let's update continuously but rely on Confirm.
             onSelect(items[index]);
         }
     };
-
-    // Additional logic for "Scroll End" to snap state exactly?
-    // Using simple onScroll leads to state updates. Let's rely on click-to-confirm logic.
-    // However, we need to update `selectedValue` so 'days' can recompute.
-    // Let's us `onScroll` with a check.
 
     return (
         <ColumnWrapper>
@@ -164,8 +148,6 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
         </ColumnWrapper>
     );
 }
-
-// --- Styles ---
 
 const Backdrop = styled(motion.div)`
     position: fixed;

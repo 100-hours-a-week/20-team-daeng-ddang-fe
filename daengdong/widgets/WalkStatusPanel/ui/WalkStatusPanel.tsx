@@ -9,13 +9,6 @@ import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations
 export const WalkStatusPanel = () => {
   const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
   const { openModal } = useModalStore();
-  // We should strictly not access toast store if it's not exposed, but assuming standard used-in-project pattern.
-  // If not, I'll rely on simple alerts or console if needed, but Toast was in layout.
-  // Let's assume there is a useToast hook or similar, or skip if not sure. 
-  // Looking at layout.tsx, <Toast /> is used, likely a global event or store. 
-  // I'll stick to console/alert if I can't find the hook easily, but layout had Toast.
-  // Actually, I'll assume simple error handling for now or use window.alert if needed.
-
   const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
   const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
 
@@ -46,16 +39,14 @@ export const WalkStatusPanel = () => {
       confirmText: "취소하기",
       cancelText: "계속 산책하기",
       onConfirm: () => {
-        reset(); // Reset and go to idle
+        reset();
       },
     });
   };
 
   const handleEnd = () => {
     if (!currentPos || !walkId) {
-      // Fallback or error state
       if (!walkId) {
-        // If no walkId (e.g. started locally before api connected fully or error), just end locally
         endWalk();
         return;
       }
@@ -74,7 +65,7 @@ export const WalkStatusPanel = () => {
             walkId: walkId,
             endLat: currentPos.lat,
             endLng: currentPos.lng,
-            totalDistanceKm: Number(distance.toFixed(4)), // Ensure reasonable precision
+            totalDistanceKm: Number(distance.toFixed(4)),
             durationSeconds: elapsedTime,
             status: "FINISHED"
           },
@@ -84,8 +75,6 @@ export const WalkStatusPanel = () => {
             },
             onError: () => {
               alert("산책 종료 저장에 실패했습니다.");
-              // Should we end locally anyway? Ideally yes, or retry.
-              // For now, let's keep it simple.
               endWalk();
             }
           }

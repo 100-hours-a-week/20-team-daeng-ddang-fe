@@ -2,19 +2,18 @@ import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { InputHTMLAttributes, forwardRef } from 'react';
 
-/* eslint-disable-next-line @typescript-eslint/no-empty-object-type */
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> { }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ disabled, ...props }, ref) => {
-        return (
-            <InputBase
-                ref={ref}
-                disabled={disabled}
-                {...props}
-            />
-        );
-    }
+  ({ disabled, ...props }, ref) => {
+    return (
+      <InputBase
+        ref={ref}
+        disabled={disabled}
+        {...props}
+      />
+    );
+  }
 );
 
 Input.displayName = 'Input';

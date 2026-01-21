@@ -23,7 +23,6 @@ export function GlobalLoading() {
 
   if (!isLoading) return null;
 
-  // Paw animation configuration
   const pawCount = 3;
   const paws = Array.from({ length: pawCount });
 
@@ -39,9 +38,9 @@ export function GlobalLoading() {
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
-                delay: index * 0.2, // Stagger effect
+                delay: index * 0.2,
                 ease: "easeInOut",
-                times: [0, 0.2, 0.8] // Control visibility timing
+                times: [0, 0.2, 0.8]
               }}
             >
               <Image

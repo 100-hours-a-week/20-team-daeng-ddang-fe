@@ -27,7 +27,6 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
         const { naver } = window;
         const location = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
 
-        // 1. 지도 초기화 (최초 1회)
         if (!mapRef.current) {
             const map = new naver.maps.Map("map", {
                 center: location,
@@ -73,7 +72,6 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
                 }}
             />
 
-            {/* 우측 상단 (줌컨트롤 바로 밑) - Re-centering Button */}
             <div
                 style={{
                     position: "fixed",

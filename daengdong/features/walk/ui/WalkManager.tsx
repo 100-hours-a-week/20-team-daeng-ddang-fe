@@ -8,12 +8,11 @@ export const WalkManager = () => {
     const { walkMode, incrementTime, addDistance, addPathPoint, setCurrentPos } = useWalkStore();
     const prevPosRef = useRef<{ lat: number; lng: number } | null>(null);
 
-    // 1. Timer Logic
+    // 시간 추적
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
         if (walkMode === "walking") {
-            // Update time immediately on mount/resume
             incrementTime();
 
             interval = setInterval(() => {
@@ -26,7 +25,7 @@ export const WalkManager = () => {
         };
     }, [walkMode, incrementTime]);
 
-    // 2. Geolocation Tracking Logic
+    // 위치 추적
     useEffect(() => {
         if (!("geolocation" in navigator)) {
             return;
@@ -42,13 +41,13 @@ export const WalkManager = () => {
                         lng: pos.coords.longitude,
                     };
 
-                    // Update current position in store
+                    // 현재 위치 업데이트
                     setCurrentPos(newPos);
 
-                    // Add to path
+                    // 경로에 추가
                     addPathPoint(newPos);
 
-                    // Calculate distance
+                    // 거리 계산
                     if (prevPosRef.current) {
                         const dist = calculateDistance(
                             prevPosRef.current.lat,
@@ -56,7 +55,7 @@ export const WalkManager = () => {
                             newPos.lat,
                             newPos.lng
                         );
-                        // Minimum movement threshold (5m)
+                        // 5m 이상 움직였을 때만 거리 추가
                         if (dist > 0.005) {
                             addDistance(dist);
                             prevPosRef.current = newPos;
@@ -69,7 +68,7 @@ export const WalkManager = () => {
                 { enableHighAccuracy: true }
             );
         } else {
-            // Reset prevPos when idle
+            // 산책 중이 아닐 때 prevPos 초기화
             prevPosRef.current = null;
         }
 
@@ -78,5 +77,5 @@ export const WalkManager = () => {
         };
     }, [walkMode, addPathPoint, addDistance, setCurrentPos]);
 
-    return null; // This component handles logic only, no UI
+    return null;
 };

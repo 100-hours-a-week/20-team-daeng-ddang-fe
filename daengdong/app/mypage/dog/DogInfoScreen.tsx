@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 export function DogInfoScreen() {
     const router = useRouter();
     const { showToast } = useToastStore();
-    // const { data: dogInfo, isLoading: isQueryLoading } = useDogInfoQuery(); // Disabled for Create-Only Mode
     const saveMutation = useSaveDogInfo();
 
     const handleSave = async (data: DogFormValues) => {
@@ -21,7 +20,6 @@ export function DogInfoScreen() {
 
         try {
             if (data.imageFile) {
-                // Upload new image
                 profileImageUrl = await uploadImage(data.imageFile);
             }
 

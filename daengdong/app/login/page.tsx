@@ -12,13 +12,11 @@ export default function LoginPage() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const handleKakaoLogin = () => {
-    // If no API URL is set, we use a mock flow for testing UI
     if (!API_BASE_URL) {
       console.warn("API_BASE_URL is not defined. Using mock login flow.");
       return;
     }
 
-    // Redirect to backend auth endpoint
     window.location.href = `${API_BASE_URL}/auth`;
   };
 

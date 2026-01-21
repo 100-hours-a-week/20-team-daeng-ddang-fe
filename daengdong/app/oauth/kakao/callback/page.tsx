@@ -17,7 +17,6 @@ function CallbackComponent() {
     const loginMutation = useMutation({
         mutationFn: kakaoLogin,
         onSuccess: (data) => {
-            // Save Token to LocalStorage
             localStorage.setItem('accessToken', data.accessToken);
             setLoggedIn(true);
             router.replace('/walk');

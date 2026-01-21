@@ -5,7 +5,6 @@ export const useRegionsQuery = (parentId?: number) => {
     return useQuery({
         queryKey: ['regions', parentId],
         queryFn: () => getRegions(parentId),
-        // Cache regions effectively as they rarely change
-        staleTime: 1000 * 60 * 60, // 1 hour
+        staleTime: 1000 * 60 * 60, // 1h
     });
 };

@@ -17,12 +17,9 @@ export function UserInfoScreen() {
 
     const { data: userInfo, isLoading: isQueryLoading, isError } = useUserInfoQuery();
 
-    // Parse Region String (e.g., "경기도 성남시")
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
     const province = regionParts[0] || '';
     const city = regionParts[1] || '';
-
-    // Determine if user is new based on missing location data
     const isNewUser = !userInfo?.region;
 
     const saveMutation = useSaveUserInfo(isNewUser);
@@ -87,7 +84,6 @@ export function UserInfoScreen() {
                 />
             </Content>
 
-            {/* Stores (Modal, Toast) are globally rendered in Layout, but we use their hooks here */}
         </Container>
     );
 }

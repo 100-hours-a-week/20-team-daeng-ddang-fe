@@ -120,11 +120,10 @@ const IconWrapper = styled.div<{ isActive: boolean }>`
   justify-content: center;
 `;
 
-// Use CSS Mask to colorize the external SVG
 const MaskedIcon = styled.div<{ src: string }>`
   width: 100%;
   height: 100%;
-  background-color: currentColor; /* Inherits color from parent */
+  background-color: currentColor;
   mask-image: url(${({ src }) => src});
   mask-repeat: no-repeat;
   mask-position: center;

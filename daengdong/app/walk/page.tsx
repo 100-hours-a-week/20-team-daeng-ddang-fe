@@ -9,8 +9,6 @@ import { Header } from "@/widgets/Header/Header";
 export default function WalkPage() {
   const { walkMode, currentPos, setCurrentPos } = useWalkStore();
 
-  // Geolocation Tracking for "Idle" mode
-  // When "walking", WalkManager (global) handles tracking.
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       alert("이 브라우저에서는 위치 정보가 지원되지 않습니다.");

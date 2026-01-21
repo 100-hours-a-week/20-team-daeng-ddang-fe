@@ -12,7 +12,6 @@ export const http = axios.create({
 
 http.interceptors.request.use(
     (config) => {
-        // Safe check for browser environment
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('accessToken');
             if (token) {
@@ -32,7 +31,6 @@ http.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Token expired or invalid
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('accessToken');
                 window.location.href = '/login';

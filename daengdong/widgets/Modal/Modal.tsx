@@ -5,62 +5,59 @@ import styled from "@emotion/styled";
 import { useModalStore } from "@/shared/store/useModalStore";
 
 export function Modal() {
-    const { isOpen, options, closeModal } = useModalStore();
+  const { isOpen, options, closeModal } = useModalStore();
 
-    useEffect(() => {
-        if (isOpen) {
-            document.body.classList.add("modal-open");
-        } else {
-            document.body.classList.remove("modal-open");
-        }
-        return () => {
-            document.body.classList.remove("modal-open");
-        };
-    }, [isOpen]);
-
-    if (!isOpen || !options) return null;
-
-    const {
-        title,
-        message,
-        type = "alert",
-        confirmText = "확인",
-        cancelText = "취소",
-        onConfirm,
-        onCancel,
-    } = options;
-
-    const handleConfirm = () => {
-        if (onConfirm) onConfirm();
-        closeModal();
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => {
+      document.body.classList.remove("modal-open");
     };
+  }, [isOpen]);
 
-    const handleCancel = () => {
-        if (onCancel) onCancel();
-        closeModal();
-    };
+  if (!isOpen || !options) return null;
 
-    // Prevent closing when clicking outside as per spec (backdrop click does NOT close)
-    // Spec says: "backdrop 클릭 시 모달 닫히지 않음" -> So no onClick on Overlay to close.
+  const {
+    title,
+    message,
+    type = "alert",
+    confirmText = "확인",
+    cancelText = "취소",
+    onConfirm,
+    onCancel,
+  } = options;
 
-    return (
-        <Overlay>
-            <ModalContainer>
-                <Title>{title}</Title>
-                {message && <Message>{message}</Message>}
-                <ButtonGroup type={type}>
-                    {type === "confirm" && (
-                        <Button variant="secondary" onClick={handleCancel}>
-                            {cancelText}
-                        </Button>
-                    )}
-                    <Button variant="primary" onClick={handleConfirm}>
-                        {confirmText}
-                    </Button>
-                </ButtonGroup>
-            </ModalContainer>
-        </Overlay>
-    );
+  const handleConfirm = () => {
+    if (onConfirm) onConfirm();
+    closeModal();
+  };
+
+  const handleCancel = () => {
+    if (onCancel) onCancel();
+    closeModal();
+  };
+
+  return (
+    <Overlay>
+      <ModalContainer>
+        <Title>{title}</Title>
+        {message && <Message>{message}</Message>}
+        <ButtonGroup type={type}>
+          {type === "confirm" && (
+            <Button variant="secondary" onClick={handleCancel}>
+              {cancelText}
+            </Button>
+          )}
+          <Button variant="primary" onClick={handleConfirm}>
+            {confirmText}
+          </Button>
+        </ButtonGroup>
+      </ModalContainer>
+    </Overlay>
+  );
 }
 
 const Overlay = styled.div`
@@ -134,12 +131,12 @@ const Button = styled.button<{ variant: "primary" | "secondary" }>`
   transition: opacity 0.2s;
 
   ${({ variant }) =>
-        variant === "primary"
-            ? `
+    variant === "primary"
+      ? `
     background-color: #000;
     color: white;
   `
-            : `
+      : `
     background-color: #f5f5f5;
     color: #666;
   `}

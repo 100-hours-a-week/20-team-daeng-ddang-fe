@@ -35,7 +35,7 @@ export const useWalkStore = create<WalkState>((set) => ({
     startWalk: (id?: number) =>
         set({
             walkMode: "walking",
-            walkId: id ?? null, // Optional for now, but will come from API
+            walkId: id ?? null,
             startTime: new Date(),
             elapsedTime: 0,
             distance: 0,

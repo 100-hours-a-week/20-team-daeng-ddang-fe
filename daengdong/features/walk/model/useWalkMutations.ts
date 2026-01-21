@@ -1,12 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { startWalkApi, endWalkApi, StartWalkRequest, EndWalkRequest } from "../api/walk";
+import { useToastStore } from "@/shared/store/useToastStore";
 
 export const useStartWalk = () => {
     return useMutation({
         mutationFn: (req: StartWalkRequest) => startWalkApi(req),
         onError: (error) => {
             console.error("Failed to start walk", error);
-            // Handle error (e.g., show toast)
+            const { showToast } = useToastStore.getState();
+            showToast({
+                message: '산책 시작에 실패했습니다. 다시 시도해주세요.',
+                type: 'error',
+                duration: 3000,
+            });
         },
     });
 };
@@ -16,7 +22,12 @@ export const useEndWalk = () => {
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onError: (error) => {
             console.error("Failed to end walk", error);
-            // Handle error
+            const { showToast } = useToastStore.getState();
+            showToast({
+                message: '산책 종료에 실패했습니다. 다시 시도해주세요.',
+                type: 'error',
+                duration: 3000,
+            });
         },
     });
 };
