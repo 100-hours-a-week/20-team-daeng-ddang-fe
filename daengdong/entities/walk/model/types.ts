@@ -78,3 +78,8 @@ export interface WriteWalkDiaryResponse {
     };
     errorCode: null;
 }
+
+export interface BlockData {
+    blockId: string;
+    dogId: number;
+}

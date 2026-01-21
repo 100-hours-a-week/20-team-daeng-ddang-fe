@@ -3,6 +3,8 @@
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
+import { MyBlocksOverlay } from "./MyBlocksOverlay";
+import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
@@ -20,6 +22,27 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<any>(null);
 
+    const [zoom, setZoom] = useState(15);
+
+    // mock
+    const BLOCK_SIZE = 80;
+    const sizeKm = BLOCK_SIZE / 1000;
+    const centerLat = 37.3868;
+    const centerLng = 127.1247;
+
+    const latDelta = sizeKm / 111;
+    const lngDelta = sizeKm / (111 * Math.cos(centerLat * (Math.PI / 180)));
+
+    const mockMyBlocks = [
+        { blockId: `P_${centerLat}_${centerLng}`, dogId: 1 }, // (0,0)
+        { blockId: `P_${centerLat}_${centerLng + lngDelta}`, dogId: 1 }, // (0,1) Right
+    ];
+
+    const mockOthersBlocks = [
+        { blockId: `P_${centerLat - latDelta}_${centerLng}`, dogId: 5 }, // (-1,0) Bottom
+        { blockId: `P_${centerLat - latDelta}_${centerLng + lngDelta}`, dogId: 9 }, // (-1,1) Bottom-Right
+    ];
+
     // 이미 스크립트가 로드되어 있는 경우 확인
     useEffect(() => {
         if (typeof window !== "undefined" && window.naver && window.naver.maps) {
@@ -27,7 +50,6 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
         }
     }, []);
 
-    // Global callback for Naver Map
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.initNaverMap = () => {
@@ -55,6 +77,11 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
                     position: naver.maps.Position.TOP_RIGHT,
                 },
             });
+
+            naver.maps.Event.addListener(newMap, 'zoom_changed', () => {
+                setZoom(newMap.getZoom());
+            });
+
             setMap(newMap);
         } else {
             map.panTo(location);
@@ -125,6 +152,13 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
             </div>
 
             <CurrentLocationMarker map={map} position={currentPos} />
+
+            {map && zoom >= 15 && (
+                <>
+                    <MyBlocksOverlay map={map} myBlocks={mockMyBlocks} />
+                    <OthersBlocksOverlay map={map} othersBlocks={mockOthersBlocks} />
+                </>
+            )}
         </>
     );
 };
