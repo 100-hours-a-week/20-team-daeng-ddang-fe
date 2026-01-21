@@ -50,7 +50,7 @@ export const BlockPolygon = ({ map, block, isMine = false, blockSize = 80 }: Blo
                 polygonRef.current = null;
             }
         };
-    }, [map, block, isMine, blockSize]);
+    }, [map, block.blockId, isMine, blockSize]);
 
     return null;
 };
