@@ -1,24 +1,33 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useToastStore } from '@/shared/store/useToastStore';
+import { useWriteWalkDiary } from '@/features/walk/model/useWalkMutations';
 
 export const WalkLogForm = () => {
   const [log, setLog] = useState('');
   const router = useRouter();
+  const { walkId } = useParams();
   const { showToast } = useToastStore();
+  const { mutate: writeDiary } = useWriteWalkDiary();
 
   const handleSubmit = () => {
-    console.log('산책 후기 제출:', log);
+    if (!walkId) return;
 
-    showToast({
-      message: '기록 완료!',
-      type: 'success',
-      duration: 2000,
-    });
-
-    router.push('/walk');
+    writeDiary(
+      { walkId: Number(walkId), memo: log },
+      {
+        onSuccess: () => {
+          showToast({
+            message: '산책일지가 작성되었습니다.',
+            type: 'success',
+            duration: 2000,
+          });
+          router.push('/walk');
+        },
+      }
+    );
   };
 
   return (

@@ -1,39 +1,12 @@
 import { http } from "@/shared/api/http";
-
-export interface StartWalkRequest {
-    startLat: number;
-    startLng: number;
-}
-
-export interface StartWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-    };
-}
-
-export interface EndWalkRequest {
-    walkId: number;
-    endLat: number;
-    endLng: number;
-    totalDistanceKm: number;
-    durationSeconds: number;
-    status: "FINISHED";
-}
-
-export interface EndWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-        endedAt: string;
-        totalDistanceKm: number;
-        durationSeconds: number;
-        occupiedBlockCount: number;
-        status: "FINISHED";
-    };
-}
+import {
+    StartWalkRequest,
+    StartWalkResponse,
+    EndWalkRequest,
+    EndWalkResponse,
+    WriteWalkDiaryRequest,
+    WriteWalkDiaryResponse
+} from "../model/types";
 
 export const startWalkApi = async (req: StartWalkRequest) => {
     // TODO: 연동 시 주석 해제
@@ -70,4 +43,22 @@ export const endWalkApi = async (req: EndWalkRequest) => {
             status: "FINISHED",
         },
     } as EndWalkResponse;
+};
+
+export const postWalkDiary = async (req: WriteWalkDiaryRequest) => {
+    // TODO: 연동 시 주석 해제
+    // const response = await http.post<WriteWalkDiaryResponse>(`/api/v3/walks/${req.walkId}/diaries`, { memo: req.memo });
+    // return response;
+
+    // Mock response
+    console.log(`POST /api/v3/walks/${req.walkId}/diaries`, { memo: req.memo });
+    return {
+        message: "산책일지가 작성되었습니다.",
+        data: {
+            walkDiaryId: 10,
+            walkId: req.walkId,
+            createdAt: new Date().toISOString(),
+        },
+        errorCode: null,
+    } as WriteWalkDiaryResponse;
 };

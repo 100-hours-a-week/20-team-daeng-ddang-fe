@@ -28,3 +28,53 @@ export interface WalkState {
     addDistance: (km: number) => void;
     setWalkResult: (result: WalkResult) => void;
 }
+
+export interface StartWalkRequest {
+    startLat: number;
+    startLng: number;
+}
+
+export interface StartWalkResponse {
+    message: string;
+    data: {
+        walkId: number;
+        startedAt: string;
+    };
+}
+
+export interface EndWalkRequest {
+    walkId: number;
+    endLat: number;
+    endLng: number;
+    totalDistanceKm: number;
+    durationSeconds: number;
+    status: "FINISHED";
+}
+
+export interface EndWalkResponse {
+    message: string;
+    data: {
+        walkId: number;
+        startedAt: string;
+        endedAt: string;
+        totalDistanceKm: number;
+        durationSeconds: number;
+        occupiedBlockCount: number;
+        status: "FINISHED";
+    };
+}
+
+export interface WriteWalkDiaryRequest {
+    walkId: number;
+    memo: string;
+}
+
+export interface WriteWalkDiaryResponse {
+    message: string;
+    data: {
+        walkDiaryId: number;
+        walkId: number;
+        createdAt: string;
+    };
+    errorCode: null;
+}
