@@ -1,8 +1,14 @@
 import { http } from "@/shared/api/http";
-import { ApiResponse } from '@/shared/api/types';
-import { StartWalkRequest, StartWalkResponse, EndWalkRequest, EndWalkResponse } from '@/entities/walk/model/types';
+import {
+    StartWalkRequest,
+    StartWalkResponse,
+    EndWalkRequest,
+    EndWalkResponse,
+    WriteWalkDiaryRequest,
+    WriteWalkDiaryResponse
+} from "../model/types";
 
-export const startWalkApi = async (req: StartWalkRequest): Promise<ApiResponse<StartWalkResponse>> => {
+export const startWalkApi = async (req: StartWalkRequest) => {
     // TODO: 연동 시 주석 해제
     // const response = await http.post<ApiResponse<StartWalkResponse>>("/api/v3/walks", req);
     // return response.data;
@@ -39,4 +45,22 @@ export const endWalkApi = async (req: EndWalkRequest): Promise<ApiResponse<EndWa
         },
         errorCode: null
     };
+};
+
+export const postWalkDiary = async (req: WriteWalkDiaryRequest) => {
+    // TODO: 연동 시 주석 해제
+    // const response = await http.post<WriteWalkDiaryResponse>(`/api/v3/walks/${req.walkId}/diaries`, { memo: req.memo });
+    // return response;
+
+    // Mock response
+    console.log(`POST /api/v3/walks/${req.walkId}/diaries`, { memo: req.memo });
+    return {
+        message: "산책일지가 작성되었습니다.",
+        data: {
+            walkDiaryId: 10,
+            walkId: req.walkId,
+            createdAt: new Date().toISOString(),
+        },
+        errorCode: null,
+    } as WriteWalkDiaryResponse;
 };

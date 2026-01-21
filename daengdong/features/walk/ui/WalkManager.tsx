@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useWalkStore } from "@/features/walk/store/walkStore";
+import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { calculateDistance } from "@/shared/utils/geo";
 
 export const WalkManager = () => {

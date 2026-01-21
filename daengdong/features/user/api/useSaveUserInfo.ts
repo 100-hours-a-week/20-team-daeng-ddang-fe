@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserStore } from '@/shared/stores/userStore';
+import { useUserStore } from '@/entities/user/model/userStore';
 import { registerUserInfo } from '@/entities/user/api/user';
 
 export const useSaveUserInfo = (isNewUser: boolean) => {

@@ -1,27 +1,5 @@
 import { create } from "zustand";
-
-interface LatLng {
-    lat: number;
-    lng: number;
-}
-
-interface WalkState {
-    walkMode: "idle" | "walking";
-    currentPos: LatLng | null;
-    walkId: number | null;
-    startTime: Date | null;
-    elapsedTime: number;
-    distance: number;
-    path: LatLng[];
-
-    startWalk: (id?: number) => void;
-    endWalk: () => void;
-    reset: () => void;
-    setCurrentPos: (pos: LatLng) => void;
-    incrementTime: () => void;
-    addPathPoint: (pos: LatLng) => void;
-    addDistance: (km: number) => void;
-}
+import { WalkState } from "./types";
 
 export const useWalkStore = create<WalkState>((set) => ({
     walkMode: "idle",
@@ -31,6 +9,7 @@ export const useWalkStore = create<WalkState>((set) => ({
     elapsedTime: 0,
     distance: 0,
     path: [],
+    walkResult: null,
 
     startWalk: (id?: number) =>
         set({
@@ -40,6 +19,7 @@ export const useWalkStore = create<WalkState>((set) => ({
             elapsedTime: 0,
             distance: 0,
             path: [],
+            walkResult: null,
         }),
 
     endWalk: () =>
@@ -62,9 +42,10 @@ export const useWalkStore = create<WalkState>((set) => ({
             elapsedTime: 0,
             distance: 0,
             path: [],
+            walkResult: null,
         }),
 
-    setCurrentPos: (pos: LatLng) =>
+    setCurrentPos: (pos) =>
         set({ currentPos: pos }),
 
     incrementTime: () =>
@@ -84,4 +65,7 @@ export const useWalkStore = create<WalkState>((set) => ({
         set((state) => ({
             distance: state.distance + km,
         })),
+
+    setWalkResult: (result) =>
+        set({ walkResult: result }),
 }));
