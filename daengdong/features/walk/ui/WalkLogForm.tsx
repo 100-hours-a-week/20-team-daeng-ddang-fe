@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useToastStore } from '@/shared/store/useToastStore';
+import { useToastStore } from '@/shared/stores/useToastStore';
 import { useWriteWalkDiary } from '@/features/walk/model/useWalkMutations';
 
 export const WalkLogForm = () => {

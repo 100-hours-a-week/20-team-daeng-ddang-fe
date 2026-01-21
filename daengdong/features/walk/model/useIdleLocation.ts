@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useWalkStore } from '../store/walkStore';
+import { useWalkStore } from '@/entities/walk/model/walkStore';
 
 export const useIdleLocation = () => {
     const { walkMode, setCurrentPos } = useWalkStore();

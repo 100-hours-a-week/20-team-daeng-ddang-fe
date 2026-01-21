@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { useModalStore } from "@/shared/store/useModalStore";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import { colors } from "@/shared/styles/tokens";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { useRouter } from "next/navigation";
@@ -62,7 +62,6 @@ export const WalkStatusPanel = () => {
       confirmText: "종료하기",
       cancelText: "계속 산책하기",
       onConfirm: async () => {
-        // 1. Construct Static Map URL (Server Proxy)
         const imageUrl = `/api/static-map?lat=${currentPos.lat}&lng=${currentPos.lng}&w=400&h=400&level=16&scale=2`;
 
         endWalkMutate(
