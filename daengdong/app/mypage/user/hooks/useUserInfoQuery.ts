@@ -6,9 +6,8 @@ export interface UserInfoResponse {
     city: string;
 }
 
-// Mock API Call
+// Mock API 요청
 const fetchUserInfo = async (): Promise<UserInfoResponse> => {
-    // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     return {
@@ -22,7 +21,7 @@ export const useUserInfoQuery = () => {
     return useQuery({
         queryKey: ['userInfo'],
         queryFn: fetchUserInfo,
-        staleTime: 1000 * 60 * 5, // 5 minutes
+        staleTime: 1000 * 60 * 5, // 5m
         retry: 1,
     });
 };

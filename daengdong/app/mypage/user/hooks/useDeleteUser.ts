@@ -3,7 +3,7 @@ import { useUserStore } from '@/shared/stores/userStore';
 import { useAuthStore } from '@/shared/stores/authStore';
 import { useRouter } from 'next/navigation';
 
-// Mock API Call
+// Mock API 요청
 const deleteUser = async (): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 800));
 };
@@ -16,14 +16,9 @@ export const useDeleteUser = () => {
     return useMutation({
         mutationFn: deleteUser,
         onSuccess: () => {
-            // 1. Clear cookie (Client-side)
             document.cookie = 'accessToken=; Max-Age=0; path=/;';
-
-            // 2. Reset stores
             resetUser();
             setLoggedIn(false);
-
-            // 3. Redirect to login
             router.replace('/login');
         },
     });

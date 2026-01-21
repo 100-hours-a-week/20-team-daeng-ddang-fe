@@ -5,17 +5,15 @@ import styled from '@emotion/styled';
 import { spacing, colors } from '@/shared/styles/tokens';
 import { Button } from '@/shared/components/Button/Button';
 import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdown';
-import { Input } from '@/shared/components/Input/Input';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRegionsQuery } from '@/features/user/api/useRegionsQuery';
 
 import { UserFormValues } from '@/entities/user/model/types';
 
-// Zod Schema
 const UserSchema = z.object({
-    province: z.string().min(1, '지역을 선택하세요.'), // Stores name for display/validation
-    city: z.string().min(1, '시/군/구를 선택하세요.'),   // Stores name for display/validation
-    regionId: z.number().min(1, '유효한 지역을 선택하세요.'), // Stores actual ID
+    province: z.string().min(1, '지역을 선택하세요.'),
+    city: z.string().min(1, '시/군/구를 선택하세요.'),
+    regionId: z.number().min(1, '유효한 지역을 선택하세요.'),
 });
 
 interface UserFormProps {
@@ -43,25 +41,17 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
 
     const [selectedProvinceId, setSelectedProvinceId] = useState<number | null>(initialParentRegionId || null);
 
-    // Regions Query
-    const { data: provinces } = useRegionsQuery(); // Top level (City/Do)
-    const { data: districts } = useRegionsQuery(selectedProvinceId ?? undefined); // Sub level (Gu/Gun)
+    const { data: provinces } = useRegionsQuery();
+    const { data: districts } = useRegionsQuery(selectedProvinceId ?? undefined);
 
-    // Maps for Dropdowns
-    // SelectDropdown expects options as strings currently. 
-    // We need to map back and forth between Name and ID since Dropdown is simple.
-    // Ideally SelectDropdown should accept objects, but adapting to current simple UI.
-
-    // Convert Regions to String Options
     const provinceOptions = provinces?.map(p => p.name) || [];
     const districtOptions = districts?.map(d => d.name) || [];
 
     const handleProvinceChange = (provinceName: string, onChange: (val: string) => void) => {
         onChange(provinceName);
         setValue('city', '', { shouldValidate: true });
-        setValue('regionId', 0, { shouldValidate: true }); // Reset final ID
+        setValue('regionId', 0, { shouldValidate: true });
 
-        // Find ID
         const province = provinces?.find(p => p.name === provinceName);
         setSelectedProvinceId(province ? province.regionId : null);
     };
@@ -69,7 +59,6 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
     const handleCityChange = (cityName: string, onChange: (val: string) => void) => {
         onChange(cityName);
 
-        // Find ID and set regionId
         const district = districts?.find(d => d.name === cityName);
         if (district) {
             setValue('regionId', district.regionId, { shouldValidate: true });
