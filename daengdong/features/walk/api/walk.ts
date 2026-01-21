@@ -1,44 +1,11 @@
 import { http } from "@/shared/api/http";
+import { ApiResponse } from '@/shared/api/types';
+import { StartWalkRequest, StartWalkResponse, EndWalkRequest, EndWalkResponse } from '@/entities/walk/model/types';
 
-export interface StartWalkRequest {
-    startLat: number;
-    startLng: number;
-}
-
-export interface StartWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-    };
-}
-
-export interface EndWalkRequest {
-    walkId: number;
-    endLat: number;
-    endLng: number;
-    totalDistanceKm: number;
-    durationSeconds: number;
-    status: "FINISHED";
-}
-
-export interface EndWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-        endedAt: string;
-        totalDistanceKm: number;
-        durationSeconds: number;
-        occupiedBlockCount: number;
-        status: "FINISHED";
-    };
-}
-
-export const startWalkApi = async (req: StartWalkRequest) => {
+export const startWalkApi = async (req: StartWalkRequest): Promise<ApiResponse<StartWalkResponse>> => {
     // TODO: 연동 시 주석 해제
-    // const response = await http.post<StartWalkResponse>("/api/v3/walks", req);
-    // return response;
+    // const response = await http.post<ApiResponse<StartWalkResponse>>("/api/v3/walks", req);
+    // return response.data;
 
     // Mock response
     console.log("POST /api/v3/walks", req);
@@ -48,13 +15,14 @@ export const startWalkApi = async (req: StartWalkRequest) => {
             walkId: Math.floor(Math.random() * 1000),
             startedAt: new Date().toISOString(),
         },
-    } as StartWalkResponse;
+        errorCode: null
+    };
 };
 
-export const endWalkApi = async (req: EndWalkRequest) => {
+export const endWalkApi = async (req: EndWalkRequest): Promise<ApiResponse<EndWalkResponse>> => {
     // TODO: 연동 시 주석 해제
-    // const response = await http.post<EndWalkResponse>(`/api/v3/walks/${req.walkId}`, req);
-    // return response;
+    // const response = await http.post<ApiResponse<EndWalkResponse>>(`/api/v3/walks/${req.walkId}`, req);
+    // return response.data;
 
     // Mock response
     console.log(`POST /api/v3/walks/${req.walkId}`, req);
@@ -62,12 +30,13 @@ export const endWalkApi = async (req: EndWalkRequest) => {
         message: "산책이 정상적으로 종료되었습니다.",
         data: {
             walkId: req.walkId,
-            startedAt: new Date().toISOString(), // Mock, should be actual start time
+            startedAt: new Date().toISOString(),
             endedAt: new Date().toISOString(),
             totalDistanceKm: req.totalDistanceKm,
             durationSeconds: req.durationSeconds,
-            occupiedBlockCount: 0, // Mock
+            occupiedBlockCount: 0,
             status: "FINISHED",
         },
-    } as EndWalkResponse;
+        errorCode: null
+    };
 };

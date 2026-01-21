@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { startWalkApi, endWalkApi, StartWalkRequest, EndWalkRequest } from "../api/walk";
-import { useToastStore } from "@/shared/store/useToastStore";
+import { startWalkApi, endWalkApi } from "@/features/walk/api/walk";
+import { StartWalkRequest, EndWalkRequest } from "@/entities/walk/model/types";
+import { useToastStore } from "@/shared/stores/useToastStore";
 
 export const useStartWalk = () => {
     return useMutation({

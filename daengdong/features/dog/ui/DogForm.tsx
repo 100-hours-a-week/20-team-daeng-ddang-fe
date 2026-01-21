@@ -8,14 +8,11 @@ import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdow
 import { Input } from '@/shared/components/Input/Input';
 import { DogFormValues } from '@/entities/dog/model/types';
 import { ProfileImageUploader } from './ProfileImageUploader';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { ScrollDatePicker } from '@/widgets/ScrollDatePicker/ScrollDatePicker';
-
 import { useBreedsQuery } from '@/features/dog/api/useBreedsQuery';
-import { useEffect, useRef } from 'react';
 
-// --- Zod Schema ---
 const DogSchema = z.object({
     name: z
         .string()
@@ -45,15 +42,12 @@ const DogSchema = z.object({
     path: ["birthDate"],
 });
 
-
-// --- Props ---
 interface DogFormProps {
     initialData?: Partial<DogFormValues>;
     onSubmit: (data: DogFormValues) => void;
     isSubmitting: boolean;
 }
 
-// --- Component ---
 export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const {
         control,
@@ -84,20 +78,13 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const isBirthDateUnknown = watch('isBirthDateUnknown');
     const breedName = watch('breedName');
 
-    // Breed Search State
+    // 견종 검색 State
     const [breedSearchKeyword, setBreedSearchKeyword] = useState('');
     const [isBreedListOpen, setIsBreedListOpen] = useState(false);
     const { data: breedList } = useBreedsQuery(breedSearchKeyword);
     const breedInputRef = useRef<HTMLInputElement>(null);
 
-    // Initial Image Preview
-    useEffect(() => {
-        // If there's a profileImage url in initialData (which we don't handle in types yet but logic assumes it might exist externally or processed)
-        // For now, handling basic file preview logic
-    }, []);
-
-
-    // Handle Image Change
+    // 이미지 변경
     const handleImageChange = (file: File | null) => {
         setValue('imageFile', file, { shouldDirty: true });
         if (file) {
@@ -111,7 +98,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         }
     };
 
-    // Calculate Age
+    // 나이 계산
     const getAgeString = () => {
         if (isBirthDateUnknown || !birthDate) return '모름';
         const birth = dayjs(birthDate);
@@ -128,19 +115,15 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
 
     const [isDateOpen, setIsDateOpen] = useState(false);
 
-    // Handle Breed Selection
     const handleBreedSelect = (id: number, name: string) => {
         setValue('breedId', Number(id), { shouldValidate: true });
         setValue('breedName', name, { shouldValidate: true });
-        setBreedSearchKeyword(name); // Set input to selected name
+        setBreedSearchKeyword(name);
         setIsBreedListOpen(false);
     };
 
-    // Close breed list when clicking outside (simplification: relying on onBlur delay or similar usually, keeping simple here)
-
     return (
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-            {/* 1. Profile Image */}
             <Section>
                 <ProfileImageUploader
                     imagePreview={imagePreview}
@@ -149,7 +132,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 />
             </Section>
 
-            {/* 2. Name */}
             <FieldGroup>
                 <Label>이름 <Required>*</Required></Label>
                 <Controller
@@ -162,7 +144,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 {errors.name && <ErrorText>{errors.name.message}</ErrorText>}
             </FieldGroup>
 
-            {/* 3. Breed */}
             <FieldGroup>
                 <Label>견종 <Required>*</Required></Label>
                 <div style={{ position: 'relative' }}>
@@ -196,7 +177,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
             </FieldGroup>
 
-            {/* 4. BirthDate */}
             <FieldGroup>
                 <LabelRow>
                     <Label>생년월일 <Required>*</Required></Label>
@@ -251,7 +231,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 initialDate={birthDate}
             />
 
-            {/* 5. Weight */}
             <FieldGroup>
                 <Label>몸무게 <Required>*</Required></Label>
                 <WeightWrapper>
@@ -274,7 +253,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 {errors.weight && <ErrorText>{errors.weight.message}</ErrorText>}
             </FieldGroup>
 
-            {/* 6. Gender */}
             <FieldGroup>
                 <Label>성별 <Required>*</Required></Label>
                 <Controller
@@ -293,7 +271,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 {errors.gender && <ErrorText>{errors.gender.message}</ErrorText>}
             </FieldGroup>
 
-            {/* 7. Neutered */}
             <FieldGroup>
                 <Label>중성화 <Required>*</Required></Label>
                 <Controller
@@ -312,7 +289,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                 {errors.isNeutered && <ErrorText>{errors.isNeutered.message}</ErrorText>}
             </FieldGroup>
 
-            {/* Spacer for bottom button */}
             <div style={{ height: '80px' }} />
 
             <SaveButtonWrapper>

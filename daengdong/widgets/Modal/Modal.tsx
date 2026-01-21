@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import styled from "@emotion/styled";
-import { useModalStore } from "@/shared/store/useModalStore";
+import { useModalStore } from "@/shared/stores/useModalStore";
 
 export function Modal() {
   const { isOpen, options, closeModal } = useModalStore();

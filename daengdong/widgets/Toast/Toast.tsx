@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { useToastStore } from "@/shared/store/useToastStore";
+import { useToastStore } from "@/shared/stores/useToastStore";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function Toast() {

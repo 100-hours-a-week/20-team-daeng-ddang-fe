@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { useWalkStore } from "@/features/walk/store/walkStore";
-import { useModalStore } from "@/shared/store/useModalStore";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import { colors } from "@/shared/styles/tokens";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 

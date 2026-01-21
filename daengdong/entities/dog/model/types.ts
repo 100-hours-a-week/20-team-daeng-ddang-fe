@@ -1,5 +1,23 @@
 export type Gender = 'MALE' | 'FEMALE';
 
+export interface Breed {
+    breedId: number;
+    name: string;
+}
+
+// 서버
+export interface DogResponse {
+    dogId: number;
+    name: string;
+    breed: string;
+    gender: Gender;
+    isNeutered: boolean;
+    birth: string; // "2021-01-01"
+    weight: number;
+    profileImageUrl: string | null;
+}
+
+// 프론트
 export interface DogInfo {
     id?: number;
     name: string;
@@ -12,14 +30,25 @@ export interface DogInfo {
     imageUrl?: string | null;
 }
 
+// 폼
 export interface DogFormValues {
     name: string;
-    breedId: number; // Changed from breed string
-    breedName: string; // Display name
-    birthDate: string; // Form input string
+    breedId: number;
+    breedName: string;
+    birthDate: string;
     isBirthDateUnknown: boolean;
-    weight: string; // Form input string (for decimal handling)
+    weight: string;
     gender: Gender;
     isNeutered: boolean;
     imageFile?: File | null;
+}
+
+export interface CreateDogParams {
+    name: string;
+    breedId: number;
+    birthDate: string;
+    weight: number;
+    profileImageUrl?: string;
+    gender?: Gender;
+    isNeutered?: boolean;
 }

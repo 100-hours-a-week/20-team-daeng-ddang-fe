@@ -3,8 +3,8 @@ import { useUserInfoQuery } from '@/features/user/api/useUserInfoQuery';
 import { useSaveUserInfo } from '@/features/user/api/useSaveUserInfo';
 import { useDeleteUser } from './hooks/useDeleteUser';
 import { UserForm } from './components/UserForm';
-import { useModalStore } from '@/shared/store/useModalStore';
-import { useToastStore } from '@/shared/store/useToastStore';
+import { useModalStore } from '@/shared/stores/useModalStore';
+import { useToastStore } from '@/shared/stores/useToastStore';
 import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';
@@ -20,6 +20,7 @@ export function UserInfoScreen() {
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
     const province = regionParts[0] || '';
     const city = regionParts[1] || '';
+
     const isNewUser = !userInfo?.region;
 
     const saveMutation = useSaveUserInfo(isNewUser);

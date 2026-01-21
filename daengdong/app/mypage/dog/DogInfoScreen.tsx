@@ -1,10 +1,8 @@
 import { Header } from '@/widgets/Header/Header';
-import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
-import { useDogInfoQuery } from '@/features/dog/api/useDogInfoQuery';
 import { useSaveDogInfo } from '@/features/dog/api/useSaveDogInfo';
 import { uploadImage } from '@/shared/api/files';
-import { useToastStore } from '@/shared/store/useToastStore';
-import { DogForm } from './components/DogForm';
+import { useToastStore } from '@/shared/stores/useToastStore';
+import { DogForm } from '@/features/dog/ui/DogForm';
 import { DogFormValues } from '@/entities/dog/model/types';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';

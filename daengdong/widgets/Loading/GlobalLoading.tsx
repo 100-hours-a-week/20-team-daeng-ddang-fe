@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { useLoadingStore } from "@/shared/store/useLoadingStore";
+import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";

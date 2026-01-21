@@ -1,28 +1,13 @@
 import { http } from '@/shared/api/http';
-
-export interface Region {
-    regionId: number;
-    name: string;
-    level: 'CITY' | 'DISTRICT';
-    parentRegionId?: number;
-}
+import { ApiResponse } from '@/shared/api/types';
+import { Region, UserInfo } from '@/entities/user/model/types';
 
 interface RegionsResponse {
     regions: Region[];
 }
 
-interface ApiResponse<T> {
-    message: string;
-    data: T;
-    errorCode: string | null;
-}
-
 export const getRegions = async (parentId?: number): Promise<Region[]> => {
     const params = parentId ? { parentId } : {};
-
-    // According to API docs: 
-    // - parentId not provided -> Top level (City/Do)
-    // - parentId provided -> Sub level (District/Gu)
 
     const response = await http.get<ApiResponse<RegionsResponse>>(
         `/users/regions`,
@@ -38,13 +23,6 @@ export const registerUserInfo = async (regionId: number): Promise<void> => {
         { regionId }
     );
 };
-
-export interface UserInfo {
-    userId: number;
-    regionId: number;
-    parentRegionId: number;
-    region?: string; // "경기도 성남시"
-}
 
 export const getUserInfo = async (): Promise<UserInfo> => {
     const response = await http.get<ApiResponse<UserInfo>>(

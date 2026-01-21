@@ -68,7 +68,6 @@ export const WalkManager = () => {
                 { enableHighAccuracy: true }
             );
         } else {
-            // 산책 중이 아닐 때 prevPos 초기화
             prevPosRef.current = null;
         }
 

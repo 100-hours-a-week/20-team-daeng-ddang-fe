@@ -1,23 +1,18 @@
 import { ImageResponse } from 'next/og';
 
-// Route segment config
 export const runtime = 'edge';
 
-// Image metadata
 export const size = {
     width: 32,
     height: 32,
 };
 export const contentType = 'image/png';
 
-// Import tokens to ensure consistency - wait, importing from local file in edge can be tricky if it has dependencies. 
-// tokens.ts is pure const, so it should be fine. But to be safe and simple:
 const primaryColor = '#FFB74D';
 
 export default function Icon() {
     return new ImageResponse(
         (
-            // ImageResponse JSX element
             <div
                 style={{
                     fontSize: 24,
@@ -48,7 +43,7 @@ export default function Icon() {
                 </svg>
             </div>
         ),
-        // ImageResponse options
+
         {
             ...size,
         }
