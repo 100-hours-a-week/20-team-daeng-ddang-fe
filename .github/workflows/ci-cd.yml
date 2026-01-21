@@ -1,0 +1,162 @@
+name: FE CI/CD
+
+on:
+  pull_request:
+    branches: ["main", "develop"]
+  push:
+    branches: ["main", "develop"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fe-ci-cd-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RELEASE_ID: ${{ github.sha }}
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: daengdong
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: daengdong/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test (if present)
+        run: |
+          set -euo pipefail
+          if pnpm -s run | grep -qE '^test'; then
+            pnpm test
+          else
+            echo "[INFO] No test script. Skipping."
+          fi
+
+      - name: Build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: pnpm build
+
+      - name: Package standalone artifact
+        run: |
+          set -euo pipefail
+
+          # Next standalone 산출물 존재 확인
+          test -d .next/standalone
+          test -d .next/static
+          test -f .next/BUILD_ID
+
+          rm -rf .artifact
+          mkdir -p .artifact
+
+          # 1) standalone 결과물 복사
+          cp -a .next/standalone/* .artifact/
+
+          # 2) .next 전체를 복사
+          rm -rf .artifact/.next
+          cp -a .next .artifact/.next
+
+          # 3) public 복사
+          cp -a public .artifact/public
+
+          # 4) 압축
+          tar -czf next-standalone.tgz -C .artifact .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-standalone-${{ env.RELEASE_ID }}
+          path: daengdong/next-standalone.tgz
+          if-no-files-found: error
+          retention-days: 30
+
+  cd:
+    name: CD
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-standalone-${{ env.RELEASE_ID }}
+
+      - name: Upload artifact to EC2
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: "next-standalone.tgz"
+          target: "/tmp"
+      
+      - name: Deploy
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            set -euo pipefail
+
+            RELEASE_ID="${{ env.RELEASE_ID }}"
+
+            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            CURRENT_LINK="${FRONTEND_DIR}/current"
+            BACKUP_LINK="${FRONTEND_DIR}/backup"
+            RELEASE_DIR="${FRONTEND_DIR}/releases/${RELEASE_ID}"
+
+            mkdir -p "${RELEASE_DIR}"
+
+            # 1) 직전 버전 백업 (current가 가리키는 실제 경로)
+            if [ -L "${CURRENT_LINK}" ] || [ -d "${CURRENT_LINK}" ]; then
+              CURRENT_RELEASE="$(readlink -f "${CURRENT_LINK}" || true)"
+              if [ -n "${CURRENT_RELEASE}" ] && [ -d "${CURRENT_RELEASE}" ]; then
+                ln -sfn "${CURRENT_RELEASE}" "${BACKUP_LINK}"
+              fi
+            fi
+
+            # 2) 새 릴리즈 압축 해제
+            tar -xzf "/tmp/next-standalone.tgz" -C "${RELEASE_DIR}"
+            rm -f "/tmp/next-standalone.tgz"
+
+            # 3) current 교체
+            ln -sfn "${RELEASE_DIR}" "${CURRENT_LINK}"
+
+            # 4) 새 릴리즈 반영
+            pm2 delete app-frontend || true
+            cd /opt/app/frontend/current
+            NODE_ENV=production pm2 start ./server.js --name app-frontend
+            pm2 save
