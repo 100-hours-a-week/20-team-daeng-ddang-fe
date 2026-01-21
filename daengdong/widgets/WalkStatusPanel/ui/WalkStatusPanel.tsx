@@ -5,12 +5,14 @@ import { useWalkStore } from "@/features/walk/store/walkStore";
 import { useModalStore } from "@/shared/store/useModalStore";
 import { colors } from "@/shared/styles/tokens";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
+import { useRouter } from "next/navigation";
 
 export const WalkStatusPanel = () => {
-  const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
+  const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, setWalkResult } = useWalkStore();
   const { openModal } = useModalStore();
   const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
   const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
+  const router = useRouter();
 
   const handleStart = () => {
     if (!currentPos) {
@@ -59,7 +61,10 @@ export const WalkStatusPanel = () => {
       type: "confirm",
       confirmText: "종료하기",
       cancelText: "계속 산책하기",
-      onConfirm: () => {
+      onConfirm: async () => {
+        // 1. Construct Static Map URL (Server Proxy)
+        const imageUrl = `/api/static-map?lat=${currentPos.lat}&lng=${currentPos.lng}&w=400&h=400&level=16&scale=2`;
+
         endWalkMutate(
           {
             walkId: walkId,
@@ -71,6 +76,14 @@ export const WalkStatusPanel = () => {
           },
           {
             onSuccess: () => {
+              setWalkResult({
+                time: elapsedTime,
+                distance: distance,
+                imageUrl: imageUrl
+              });
+
+              router.push(`/walk/complete/${walkId}`);
+
               endWalk();
             },
             onError: () => {

@@ -5,6 +5,12 @@ interface LatLng {
     lng: number;
 }
 
+interface WalkResult {
+    time: number;
+    distance: number;
+    imageUrl?: string;
+}
+
 interface WalkState {
     walkMode: "idle" | "walking";
     currentPos: LatLng | null;
@@ -13,6 +19,7 @@ interface WalkState {
     elapsedTime: number;
     distance: number;
     path: LatLng[];
+    walkResult: WalkResult | null; // Added walkResult
 
     startWalk: (id?: number) => void;
     endWalk: () => void;
@@ -21,6 +28,7 @@ interface WalkState {
     incrementTime: () => void;
     addPathPoint: (pos: LatLng) => void;
     addDistance: (km: number) => void;
+    setWalkResult: (result: WalkResult) => void; // Added setWalkResult
 }
 
 export const useWalkStore = create<WalkState>((set) => ({
@@ -31,6 +39,7 @@ export const useWalkStore = create<WalkState>((set) => ({
     elapsedTime: 0,
     distance: 0,
     path: [],
+    walkResult: null,
 
     startWalk: (id?: number) =>
         set({
@@ -40,6 +49,7 @@ export const useWalkStore = create<WalkState>((set) => ({
             elapsedTime: 0,
             distance: 0,
             path: [],
+            walkResult: null, // Clear result on start
         }),
 
     endWalk: () =>
@@ -51,6 +61,7 @@ export const useWalkStore = create<WalkState>((set) => ({
             elapsedTime: 0,
             distance: 0,
             path: [],
+            // Do NOT clear walkResult here, as we need it for the complete page
         }),
 
     reset: () =>
@@ -62,6 +73,7 @@ export const useWalkStore = create<WalkState>((set) => ({
             elapsedTime: 0,
             distance: 0,
             path: [],
+            walkResult: null,
         }),
 
     setCurrentPos: (pos: LatLng) =>
@@ -84,4 +96,7 @@ export const useWalkStore = create<WalkState>((set) => ({
         set((state) => ({
             distance: state.distance + km,
         })),
+
+    setWalkResult: (result) =>
+        set({ walkResult: result }),
 }));

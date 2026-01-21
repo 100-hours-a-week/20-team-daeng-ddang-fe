@@ -9,6 +9,8 @@ import { WalkLogForm } from '@/features/walk/ui/WalkLogForm';
 
 export default function WalkCompletePage({ params }: { params: { walkId: string } }) {
     // params.walkId can be used for API calls later
+    // Note: We are relying on client-store for immediate data. 
+    // If refreshed, store is lost -> we would fetch from API using params.walkId (Future Work)
 
     return (
         <PageContainer>

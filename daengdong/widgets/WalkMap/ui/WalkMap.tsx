@@ -64,13 +64,21 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
             />
 
             <div
-                id="map"
+                id="walk-map-container"
                 style={{
                     width: "100%",
                     height: "100vh",
                     position: "relative",
                 }}
-            />
+            >
+                <div
+                    id="map"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                    }}
+                />
+            </div>
 
             <div
                 style={{
