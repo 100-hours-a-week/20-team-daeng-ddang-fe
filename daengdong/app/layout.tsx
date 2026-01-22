@@ -1,17 +1,10 @@
-"use client";
-
 import "./globals.css";
 
 import { ReactNode } from "react";
 import localFont from "next/font/local";
-import { Modal } from "@/widgets/Modal/Modal";
-import { Toast } from "@/widgets/Toast/Toast";
-import { BottomNav } from "@/widgets/BottomNav/BottomNav";
-import { GlobalLoading } from "@/widgets/Loading/GlobalLoading";
-import { WalkManager } from "@/features/walk/ui/WalkManager";
-
+import { EmotionProvider } from "@/shared/lib/emotion-provider";
 import Providers from "./providers";
-import { usePathname, useRouter } from "next/navigation";
+import { LayoutClient } from "./layout-client";
 
 const cafe24 = localFont({
   src: [
@@ -31,26 +24,14 @@ const cafe24 = localFont({
 });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-
   return (
     <html lang="ko" className={cafe24.variable}>
       <body>
-        <Providers>
-          <WalkManager />
-          {children}
-
-          <Modal />
-          <Toast />
-          <GlobalLoading />
-          {pathname !== '/login' && pathname !== '/oauth/kakao/callback' && !pathname.startsWith('/snapshot') && (
-            <BottomNav
-              currentPath={pathname}
-              onNavigate={(path) => router.push(path)}
-            />
-          )}
-        </Providers>
+        <EmotionProvider>
+          <Providers>
+            <LayoutClient>{children}</LayoutClient>
+          </Providers>
+        </EmotionProvider>
       </body>
     </html>
   );

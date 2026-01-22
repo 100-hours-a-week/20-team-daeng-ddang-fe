@@ -10,9 +10,10 @@ export interface DogResponse {
     dogId: number;
     name: string;
     breed: string;
+    breedId?: number;
     gender: Gender;
     isNeutered: boolean;
-    birth: string; // "2021-01-01"
+    birthDate: string; // "2021-01-01"
     weight: number;
     profileImageUrl: string | null;
 }
@@ -22,6 +23,7 @@ export interface DogInfo {
     id?: number;
     name: string;
     breed: string;
+    breedId?: number;
     birthDate: string | null; // YYYY-MM-DD
     isBirthDateUnknown: boolean;
     weight: number;
@@ -51,4 +53,14 @@ export interface CreateDogParams {
     profileImageUrl?: string;
     gender?: Gender;
     isNeutered?: boolean;
+}
+
+export interface UpdateDogParams {
+    name: string;
+    breedId: number;
+    birthDate: string;
+    gender: Gender;
+    isNeutered: boolean;
+    weight: number;
+    profileImageUrl?: string;
 }

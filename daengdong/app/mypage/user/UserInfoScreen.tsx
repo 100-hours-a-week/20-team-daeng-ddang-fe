@@ -1,6 +1,6 @@
 import { Header } from '@/widgets/Header/Header';
 import { useUserInfoQuery } from '@/features/user/api/useUserInfoQuery';
-import { useSaveUserInfo } from '@/features/user/api/useSaveUserInfo';
+import { useSaveUserMutation } from '@/features/user/api/useSaveUserInfo';
 import { useDeleteUser } from './hooks/useDeleteUser';
 import { UserForm } from './components/UserForm';
 import { useModalStore } from '@/shared/stores/useModalStore';
@@ -12,29 +12,40 @@ import { useRouter } from 'next/navigation';
 
 export function UserInfoScreen() {
     const router = useRouter();
-    const { openModal, closeModal } = useModalStore();
+    const { openModal } = useModalStore();
     const { showToast } = useToastStore();
 
-    const { data: userInfo, isLoading: isQueryLoading, isError } = useUserInfoQuery();
+    const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
 
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
     const province = regionParts[0] || '';
     const city = regionParts[1] || '';
 
-    const isNewUser = !userInfo?.region;
+    const isNewUser = !userInfo?.userId;
 
-    const saveMutation = useSaveUserInfo(isNewUser);
+    const saveMutation = useSaveUserMutation();
     const deleteMutation = useDeleteUser();
 
     const handleUpdate = (data: { province: string; city: string; regionId: number }) => {
+        const isUpdate = !!userInfo?.userId;
+
         saveMutation.mutate(
-            { regionId: data.regionId, province: data.province, city: data.city },
+            {
+                userId: userInfo?.userId,
+                regionId: data.regionId
+            },
             {
                 onSuccess: () => {
-                    showToast({ message: '사용자 정보가 저장되었습니다.', type: 'success' });
+                    showToast({
+                        message: isUpdate ? '사용자 정보가 수정되었습니다.' : '사용자 정보가 등록되었습니다.',
+                        type: 'success'
+                    });
                 },
                 onError: () => {
-                    showToast({ message: '저장에 실패했습니다.', type: 'error' });
+                    showToast({
+                        message: isUpdate ? '수정에 실패했습니다.' : '등록에 실패했습니다.',
+                        type: 'error'
+                    });
                 }
             }
         );
