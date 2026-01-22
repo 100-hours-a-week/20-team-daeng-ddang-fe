@@ -1,11 +1,9 @@
 import { SnapshotMap } from "./SnapshotMap";
 
-// Mock data generator
 const generateMockData = (walkId: string) => {
     const centerLat = 37.3868;
     const centerLng = 127.1247;
 
-    // Simulate a walk path
     const path = [
         { lat: centerLat, lng: centerLng },
         { lat: centerLat + 0.001, lng: centerLng },

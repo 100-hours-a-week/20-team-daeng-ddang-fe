@@ -8,7 +8,7 @@ export const useStartWalk = () => {
     return useMutation({
         mutationFn: (req: StartWalkRequest) => startWalkApi(req),
         onError: (error) => {
-            console.error("Failed to start walk", error);
+            console.error("산책 시작 실패", error);
             const { showToast } = useToastStore.getState();
             showToast({
                 message: '산책 시작에 실패했습니다. 다시 시도해주세요.',
@@ -23,18 +23,19 @@ export const useEndWalk = () => {
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onSuccess: async (response) => {
-            const { walkId } = response.data;
-            const { setWalkResult, path } = useWalkStore.getState();
+            const { walkId } = response;
+            const { setWalkResult, path, myBlocks, othersBlocks } = useWalkStore.getState();
+            const blockCount = myBlocks.length;
 
             try {
-                // Snapshot generation
                 const snapshotRes = await fetch(`/api/snapshot?walkId=${walkId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         data: {
                             path: path,
-                            // blocks: ... if available
+                            myBlocks: myBlocks,
+                            othersBlocks: othersBlocks,
                         }
                     })
                 });
@@ -43,35 +44,34 @@ export const useEndWalk = () => {
                     const blob = await snapshotRes.blob();
                     const imageUrl = URL.createObjectURL(blob);
 
-                    // Update store with image
-                    // Note: In a real app, you might upload this blob to S3/Cloudinary and get a URL
-                    // Here we use a local ObjectURL for immediate display
                     setWalkResult({
-                        time: response.data.durationSeconds,
-                        distance: response.data.totalDistanceKm, // using km directly from response
-                        imageUrl: imageUrl
+                        time: response.durationSeconds,
+                        distance: response.totalDistanceKm,
+                        imageUrl,
+                        blockCount,
                     });
                 } else {
-                    console.error("Snapshot failed");
-                    // Still set result without image
+                    console.error("지도 스냅샷 실패");
                     setWalkResult({
-                        time: response.data.durationSeconds,
-                        distance: response.data.totalDistanceKm,
-                        imageUrl: undefined
+                        time: response.durationSeconds,
+                        distance: response.totalDistanceKm,
+                        imageUrl: undefined,
+                        blockCount,
                     });
                 }
 
             } catch (e) {
-                console.error("Snapshot error", e);
+                console.error("지도 스냅샷 생성 실패", e);
                 setWalkResult({
-                    time: response.data.durationSeconds,
-                    distance: response.data.totalDistanceKm,
-                    imageUrl: undefined
+                    time: response.durationSeconds,
+                    distance: response.totalDistanceKm,
+                    imageUrl: undefined,
+                    blockCount,
                 });
             }
         },
         onError: (error) => {
-            console.error("Failed to end walk", error);
+            console.error("산책 종료 실패", error);
             const { showToast } = useToastStore.getState();
             showToast({
                 message: '산책 종료에 실패했습니다. 다시 시도해주세요.',
@@ -86,7 +86,7 @@ export const useWriteWalkDiary = () => {
     return useMutation({
         mutationFn: (req: WriteWalkDiaryRequest) => postWalkDiary(req),
         onError: (error) => {
-            console.error("Failed to write walk diary", error);
+            console.error("산책 일지 작성 실패", error);
             const { showToast } = useToastStore.getState();
             showToast({
                 message: '산책 일지 작성에 실패했습니다. 다시 시도해주세요.',

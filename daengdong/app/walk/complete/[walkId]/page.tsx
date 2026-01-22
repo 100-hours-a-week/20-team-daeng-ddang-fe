@@ -7,22 +7,25 @@ import { WalkSummarySection } from '@/features/walk/ui/WalkSummarySection';
 import { MissionResultSection } from '@/features/missions/ui/MissionResultSection';
 import { WalkLogForm } from '@/features/walk/ui/WalkLogForm';
 
-export default function WalkCompletePage({ params }: { params: { walkId: string } }) {
+import { use } from 'react';
 
-    return (
-        <PageContainer>
-            <ContentWrapper>
-                <PathMapImage />
-                <HeaderTextContainer>
-                    <MainTitle>🎉 산책 완료!</MainTitle>
-                    <SubTitle>오늘 걸은 만큼 땅을 차지했어요</SubTitle>
-                </HeaderTextContainer>
-                <WalkSummarySection />
-                <MissionResultSection />
-                <WalkLogForm />
-            </ContentWrapper>
-        </PageContainer>
-    );
+export default function WalkCompletePage({ params }: { params: Promise<{ walkId: string }> }) {
+  const { walkId } = use(params);
+
+  return (
+    <PageContainer>
+      <ContentWrapper>
+        <PathMapImage />
+        <HeaderTextContainer>
+          <MainTitle>🎉 산책 완료!</MainTitle>
+          <SubTitle>오늘 걸은 만큼 땅을 차지했어요</SubTitle>
+        </HeaderTextContainer>
+        <WalkSummarySection />
+        <MissionResultSection walkId={parseInt(walkId)} />
+        <WalkLogForm />
+      </ContentWrapper>
+    </PageContainer>
+  );
 }
 
 const PageContainer = styled.div`

@@ -5,11 +5,36 @@ import { WalkStatusPanel } from "@/features/walk/ui/WalkStatusPanel";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { Header } from "@/widgets/Header/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
+import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
+import { useEffect } from "react";
+import { walkApi } from "@/entities/walk/api";
 
 export default function WalkPage() {
-  const { currentPos } = useWalkStore();
+  const { currentPos, walkMode, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
 
   useIdleLocation();
+
+  const { data: nearbyBlocks } = useNearbyBlocksQuery(
+    currentPos?.lat ?? null,
+    currentPos?.lng ?? null,
+    500
+  );
+
+  useEffect(() => {
+    if (currentPos) {
+      walkApi.getMyBlocks(currentPos.lat, currentPos.lng).then((blocks) => {
+        setMyBlocks(blocks);
+      });
+    }
+  }, [currentPos, setMyBlocks]);
+
+  useEffect(() => {
+    if (nearbyBlocks) {
+      const myDogId = 1;
+      const others = nearbyBlocks.filter(b => b.dogId !== myDogId);
+      setOthersBlocks(others);
+    }
+  }, [nearbyBlocks, setOthersBlocks]);
 
   return (
     <div
@@ -20,7 +45,11 @@ export default function WalkPage() {
       }}
     >
       <Header title="산책하기" showBackButton={false} />
-      <WalkMap currentPos={currentPos} />
+      <WalkMap
+        currentPos={currentPos}
+        myBlocks={myBlocks}
+        othersBlocks={othersBlocks}
+      />
       <WalkStatusPanel />
     </div>
   );

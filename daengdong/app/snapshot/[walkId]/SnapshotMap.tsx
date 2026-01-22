@@ -33,7 +33,6 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
     const [myBlocks, setMyBlocks] = useState(initialMyBlocks);
     const [othersBlocks, setOthersBlocks] = useState(initialOthersBlocks);
 
-    // Initial load check for injected data
     useEffect(() => {
         if (typeof window !== "undefined" && window.SNAPSHOT_DATA) {
             if (window.SNAPSHOT_DATA.path) setPath(window.SNAPSHOT_DATA.path);
@@ -42,7 +41,6 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
         }
     }, []);
 
-    // Mock center calculation (start or end of path)
     const centerLat = path.length > 0 ? path[path.length - 1].lat : 37.3868;
     const centerLng = path.length > 0 ? path[path.length - 1].lng : 127.1247;
 
@@ -71,26 +69,25 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
                 zoomControl: false,
                 scaleControl: false,
                 mapDataControl: false,
-                logoControl: false, // Might strict Naver TOS to remove logo, but for snapshot it's often cleaner. User request said "No UI".
+                logoControl: false,
             });
 
             setMap(newMap);
         }
     }, [loaded, centerLat, centerLng]);
 
-    // Draw Polyline and Signal Ready
     useEffect(() => {
         if (!map || !window.naver) return;
 
         const { naver } = window;
+        window.snapshotReady = false;
 
-        // Draw Polyline
         if (path.length > 0) {
             const polylinePath = path.map(p => new naver.maps.LatLng(p.lat, p.lng));
             new naver.maps.Polyline({
                 map: map,
                 path: polylinePath,
-                strokeColor: '#FFB74D', // Primary color
+                strokeColor: '#FFB74D',
                 strokeOpacity: 0.8,
                 strokeWeight: 6,
                 strokeLineCap: 'round',
@@ -99,7 +96,6 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
 
         }
 
-        // Draw Marker at User's Last Location
         if (path.length > 0) {
             const lastPoint = path[path.length - 1];
             new naver.maps.Marker({
@@ -121,24 +117,20 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
             });
         }
 
-        // Ensure map is centered on the last point (User's location)
         if (path.length > 0) {
             const lastPoint = path[path.length - 1];
             map.setCenter(new naver.maps.LatLng(lastPoint.lat, lastPoint.lng));
-            map.setZoom(17); // Check this matches the user request for one level higher
+            map.setZoom(17);
         }
 
-        // Set ready signal after a short delay to ensure rendering frames
-        // In a real scenario, we might wait for tilesloaded event
         const idleListener = naver.maps.Event.addListener(map, 'idle', () => {
-            // Delay slightly to allow polygons to render
             setTimeout(() => {
                 window.snapshotReady = true;
-            }, 500);
+            }, 800);
             naver.maps.Event.removeListener(idleListener);
         });
 
-    }, [map, path]);
+    }, [map, path, myBlocks, othersBlocks]);
 
     return (
         <>
