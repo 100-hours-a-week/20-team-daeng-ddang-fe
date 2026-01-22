@@ -2,7 +2,6 @@ import { http } from "@/shared/api/http";
 import { ApiResponse } from "@/shared/api/types";
 import {
     BlockData,
-    NearbyBlocksParams,
     MissionAnalysisData,
     StartWalkResponse,
     EndWalkResponse,

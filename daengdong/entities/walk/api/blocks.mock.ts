@@ -33,7 +33,6 @@ const generateMockBlocks = (lat: number, lng: number) => {
 export const walkRepositoryMock: WalkRepository = {
     getNearbyBlocks: async (params) => {
         console.log("[MOCK] getNearbyBlocks", params);
-        // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 500));
 
         return generateMockBlocks(params.lat, params.lng);

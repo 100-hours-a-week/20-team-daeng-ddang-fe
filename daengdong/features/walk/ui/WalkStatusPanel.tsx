@@ -17,7 +17,6 @@ export const WalkStatusPanel = () => {
     const router = useRouter();
 
     const handleStart = () => {
-        // ... existing start logic ...
         if (!currentPos) {
             alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
             return;
@@ -27,7 +26,7 @@ export const WalkStatusPanel = () => {
             { startLat: currentPos.lat, startLng: currentPos.lng },
             {
                 onSuccess: (res) => {
-                    startWalk(res.data.walkId);
+                    startWalk(res.walkId);
                 },
                 onError: () => {
                     alert("산책 시작에 실패했습니다.");
@@ -78,7 +77,6 @@ export const WalkStatusPanel = () => {
                     },
                     {
                         onSuccess: () => {
-                            // Image URL is now handled by useEndWalk -> snapshot api
                             router.push(`/walk/complete/${walkId}`);
                             endWalk();
                             hideLoading();

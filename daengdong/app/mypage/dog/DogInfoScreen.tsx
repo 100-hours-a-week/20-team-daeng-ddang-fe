@@ -38,7 +38,7 @@ export function DogInfoScreen() {
                 },
             });
         } catch (error) {
-            console.error('Failed to save dog info:', error);
+            console.error('강아지 정보 저장 실패:', error);
             showToast({ message: '이미지 업로드 또는 저장에 실패했습니다.', type: 'error' });
         }
     };
@@ -66,5 +66,5 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   padding: ${spacing[5]}px;
-  padding-bottom: 80px; // Space for fixed bottom button
+  padding-bottom: 80px;
 `;

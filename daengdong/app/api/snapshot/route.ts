@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const walkId = searchParams.get("walkId");
 
     if (!walkId) {
-        return NextResponse.json({ error: "Missing walkId" }, { status: 400 });
+        return NextResponse.json({ error: "산책 ID가 없습니다." }, { status: 400 });
     }
 
     try {
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         const host = req.nextUrl.host;
         const snapshotUrl = `${protocol}//${host}/snapshot/${walkId}`;
 
-        console.log(`Navigating to ${snapshotUrl}`);
+        console.log(`스냅샷 생성 URL: ${snapshotUrl}`);
 
         await page.goto(snapshotUrl, {
             waitUntil: "domcontentloaded",
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
                 timeout: 5000,
             });
         } catch (e) {
-            console.warn("Timeout waiting for window.snapshotReady, proceeding with screenshot anyway");
+            console.warn("스냅샷 생성 타임아웃");
         }
 
         const buffer = await page.screenshot({
@@ -82,9 +82,9 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error) {
-        console.error("Snapshot generation failed:", error);
+        console.error("스냅샷 생성 실패:", error);
         return NextResponse.json(
-            { error: "Failed to generate snapshot", details: error instanceof Error ? error.message : String(error) },
+            { error: "스냅샷 생성 실패", details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }
