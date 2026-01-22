@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Modal />
           <Toast />
           <GlobalLoading />
-          {pathname !== '/login' && pathname !== '/oauth/kakao/callback' && (
+          {pathname !== '/login' && pathname !== '/oauth/kakao/callback' && !pathname.startsWith('/snapshot') && (
             <BottomNav
               currentPath={pathname}
               onNavigate={(path) => router.push(path)}

@@ -80,7 +80,7 @@ const NavContainer = styled.nav`
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
-  z-index: 9999;
+  z-index: 1000;
   display: flex;
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
