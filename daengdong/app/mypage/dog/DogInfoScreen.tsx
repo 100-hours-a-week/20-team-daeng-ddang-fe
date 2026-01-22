@@ -45,7 +45,7 @@ export function DogInfoScreen() {
 
     return (
         <Container>
-            <Header title="반려견 정보 등록" showBackButton={true} onBack={() => router.back()} />
+            <Header title="반려견 정보" showBackButton={true} onBack={() => router.back()} />
             <Content>
                 <DogForm
                     onSubmit={handleSave}
