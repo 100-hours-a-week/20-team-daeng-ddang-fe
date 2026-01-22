@@ -17,7 +17,7 @@ export default function WalkPage() {
   const { data: nearbyBlocks } = useNearbyBlocksQuery(
     currentPos?.lat ?? null,
     currentPos?.lng ?? null,
-    500
+    1000
   );
 
   useEffect(() => {

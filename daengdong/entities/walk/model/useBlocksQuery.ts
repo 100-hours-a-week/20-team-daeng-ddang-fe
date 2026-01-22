@@ -4,7 +4,7 @@ import { walkApi } from "../api";
 export const useNearbyBlocksQuery = (
     lat: number | null,
     lng: number | null,
-    radius: number = 500
+    radius: number = 1000
 ) => {
     return useQuery({
         queryKey: ["nearbyBlocks", lat, lng, radius],
