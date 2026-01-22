@@ -3,6 +3,7 @@
 import styled from "@emotion/styled";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { useModalStore } from "@/shared/stores/useModalStore";
+import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { colors } from "@/shared/styles/tokens";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { useRouter } from "next/navigation";
@@ -10,11 +11,13 @@ import { useRouter } from "next/navigation";
 export const WalkStatusPanel = () => {
   const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, setWalkResult } = useWalkStore();
   const { openModal } = useModalStore();
+  const { showLoading, hideLoading } = useLoadingStore();
   const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
   const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
   const router = useRouter();
 
   const handleStart = () => {
+    // ... existing start logic ...
     if (!currentPos) {
       alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
       return;
@@ -62,7 +65,7 @@ export const WalkStatusPanel = () => {
       confirmText: "종료하기",
       cancelText: "계속 산책하기",
       onConfirm: async () => {
-        const imageUrl = `/api/static-map?lat=${currentPos.lat}&lng=${currentPos.lng}&w=400&h=400&level=16&scale=2`;
+        showLoading("산책 결과를 저장하고 스냅샷을 생성 중입니다...");
 
         endWalkMutate(
           {
@@ -75,17 +78,13 @@ export const WalkStatusPanel = () => {
           },
           {
             onSuccess: () => {
-              setWalkResult({
-                time: elapsedTime,
-                distance: distance,
-                imageUrl: imageUrl
-              });
-
+              // Image URL is now handled by useEndWalk -> snapshot api
               router.push(`/walk/complete/${walkId}`);
-
               endWalk();
+              hideLoading();
             },
             onError: () => {
+              hideLoading();
               alert("산책 종료 저장에 실패했습니다.");
               endWalk();
             }

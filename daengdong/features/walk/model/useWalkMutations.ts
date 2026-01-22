@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { startWalkApi, endWalkApi, postWalkDiary } from "@/entities/walk/api/walk";
 import { StartWalkRequest, EndWalkRequest, WriteWalkDiaryRequest } from "@/entities/walk/model/types";
 import { useToastStore } from "@/shared/stores/useToastStore";
+import { useWalkStore } from "@/entities/walk/model/walkStore";
 
 export const useStartWalk = () => {
     return useMutation({
@@ -21,6 +22,54 @@ export const useStartWalk = () => {
 export const useEndWalk = () => {
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
+        onSuccess: async (response) => {
+            const { walkId } = response.data;
+            const { setWalkResult, path } = useWalkStore.getState();
+
+            try {
+                // Snapshot generation
+                const snapshotRes = await fetch(`/api/snapshot?walkId=${walkId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: {
+                            path: path,
+                            // blocks: ... if available
+                        }
+                    })
+                });
+
+                if (snapshotRes.ok) {
+                    const blob = await snapshotRes.blob();
+                    const imageUrl = URL.createObjectURL(blob);
+
+                    // Update store with image
+                    // Note: In a real app, you might upload this blob to S3/Cloudinary and get a URL
+                    // Here we use a local ObjectURL for immediate display
+                    setWalkResult({
+                        time: response.data.durationSeconds,
+                        distance: response.data.totalDistanceKm, // using km directly from response
+                        imageUrl: imageUrl
+                    });
+                } else {
+                    console.error("Snapshot failed");
+                    // Still set result without image
+                    setWalkResult({
+                        time: response.data.durationSeconds,
+                        distance: response.data.totalDistanceKm,
+                        imageUrl: undefined
+                    });
+                }
+
+            } catch (e) {
+                console.error("Snapshot error", e);
+                setWalkResult({
+                    time: response.data.durationSeconds,
+                    distance: response.data.totalDistanceKm,
+                    imageUrl: undefined
+                });
+            }
+        },
         onError: (error) => {
             console.error("Failed to end walk", error);
             const { showToast } = useToastStore.getState();
