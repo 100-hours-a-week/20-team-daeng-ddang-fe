@@ -7,51 +7,34 @@ import { Header } from "@/widgets/Header/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useEffect } from "react";
-import { getMyBlocks } from "@/entities/walk/api/blocks";
+import { walkApi } from "@/entities/walk/api";
 
 export default function WalkPage() {
   const { currentPos, walkMode, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
 
   useIdleLocation();
 
-  const { data: nearbyBlocksData } = useNearbyBlocksQuery(
+  const { data: nearbyBlocks } = useNearbyBlocksQuery(
     currentPos?.lat ?? null,
     currentPos?.lng ?? null,
     500
   );
 
   useEffect(() => {
-    if (walkMode === "idle") {
-      setMyBlocks([]);
-      setOthersBlocks([]);
-    }
-  }, [walkMode, setMyBlocks, setOthersBlocks]);
-
-  useEffect(() => {
-    if (walkMode === "walking" && myBlocks.length === 0 && currentPos) {
-      getMyBlocks(currentPos.lat, currentPos.lng).then((response) => {
-        setMyBlocks(response.data.blocks);
+    if (currentPos) {
+      walkApi.getMyBlocks(currentPos.lat, currentPos.lng).then((blocks) => {
+        setMyBlocks(blocks);
       });
     }
-  }, [walkMode, myBlocks.length, currentPos, setMyBlocks]);
+  }, [currentPos, setMyBlocks]);
 
   useEffect(() => {
-    if (nearbyBlocksData?.data?.blocks) {
+    if (nearbyBlocks) {
       const myDogId = 1;
-      const blocks = nearbyBlocksData.data.blocks;
-
-      if (walkMode === "idle") {
-        const mine = blocks.filter(b => b.dogId === myDogId);
-        const others = blocks.filter(b => b.dogId !== myDogId);
-
-        setMyBlocks(mine);
-        setOthersBlocks(others);
-      } else {
-        const others = blocks.filter(b => b.dogId !== myDogId);
-        setOthersBlocks(others);
-      }
+      const others = nearbyBlocks.filter(b => b.dogId !== myDogId);
+      setOthersBlocks(others);
     }
-  }, [walkMode, nearbyBlocksData, setMyBlocks, setOthersBlocks]);
+  }, [nearbyBlocks, setOthersBlocks]);
 
   return (
     <div

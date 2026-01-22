@@ -23,7 +23,7 @@ export const useEndWalk = () => {
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onSuccess: async (response) => {
-            const { walkId } = response.data;
+            const { walkId } = response;
             const { setWalkResult, path, myBlocks, othersBlocks } = useWalkStore.getState();
             const blockCount = myBlocks.length;
 
@@ -49,8 +49,8 @@ export const useEndWalk = () => {
                     // Note: In a real app, you might upload this blob to S3/Cloudinary and get a URL
                     // Here we use a local ObjectURL for immediate display
                     setWalkResult({
-                        time: response.data.durationSeconds,
-                        distance: response.data.totalDistanceKm, // using km directly from response
+                        time: response.durationSeconds,
+                        distance: response.totalDistanceKm, // using km directly from response
                         imageUrl: imageUrl,
                         blockCount,
                     });
@@ -58,8 +58,8 @@ export const useEndWalk = () => {
                     console.error("Snapshot failed");
                     // Still set result without image
                     setWalkResult({
-                        time: response.data.durationSeconds,
-                        distance: response.data.totalDistanceKm,
+                        time: response.durationSeconds,
+                        distance: response.totalDistanceKm,
                         imageUrl: undefined,
                         blockCount,
                     });
@@ -68,8 +68,8 @@ export const useEndWalk = () => {
             } catch (e) {
                 console.error("Snapshot error", e);
                 setWalkResult({
-                    time: response.data.durationSeconds,
-                    distance: response.data.totalDistanceKm,
+                    time: response.durationSeconds,
+                    distance: response.totalDistanceKm,
                     imageUrl: undefined,
                     blockCount,
                 });

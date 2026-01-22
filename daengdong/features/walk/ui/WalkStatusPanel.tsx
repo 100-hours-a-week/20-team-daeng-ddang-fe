@@ -9,125 +9,125 @@ import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations
 import { useRouter } from "next/navigation";
 
 export const WalkStatusPanel = () => {
-  const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, setWalkResult } = useWalkStore();
-  const { openModal } = useModalStore();
-  const { showLoading, hideLoading } = useLoadingStore();
-  const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
-  const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
-  const router = useRouter();
+    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, setWalkResult } = useWalkStore();
+    const { openModal } = useModalStore();
+    const { showLoading, hideLoading } = useLoadingStore();
+    const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
+    const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
+    const router = useRouter();
 
-  const handleStart = () => {
-    // ... existing start logic ...
-    if (!currentPos) {
-      alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
-      return;
-    }
-
-    startWalkMutate(
-      { startLat: currentPos.lat, startLng: currentPos.lng },
-      {
-        onSuccess: (res) => {
-          startWalk(res.data.walkId);
-        },
-        onError: () => {
-          alert("산책 시작에 실패했습니다.");
+    const handleStart = () => {
+        // ... existing start logic ...
+        if (!currentPos) {
+            alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
+            return;
         }
-      }
-    );
-  };
 
-  const handleCancel = () => {
-    openModal({
-      title: "산책 취소",
-      message: "산책을 취소하시겠습니까? 기록은 저장되지 않습니다.",
-      type: "confirm",
-      confirmText: "취소하기",
-      cancelText: "계속 산책하기",
-      onConfirm: () => {
-        reset();
-      },
-    });
-  };
+        startWalkMutate(
+            { startLat: currentPos.lat, startLng: currentPos.lng },
+            {
+                onSuccess: (res) => {
+                    startWalk(res.data.walkId);
+                },
+                onError: () => {
+                    alert("산책 시작에 실패했습니다.");
+                }
+            }
+        );
+    };
 
-  const handleEnd = () => {
-    if (!currentPos || !walkId) {
-      if (!walkId) {
-        endWalk();
-        return;
-      }
-      return;
+    const handleCancel = () => {
+        openModal({
+            title: "산책 취소",
+            message: "산책을 취소하시겠습니까? 기록은 저장되지 않습니다.",
+            type: "confirm",
+            confirmText: "취소하기",
+            cancelText: "계속 산책하기",
+            onConfirm: () => {
+                reset();
+            },
+        });
+    };
+
+    const handleEnd = () => {
+        if (!currentPos || !walkId) {
+            if (!walkId) {
+                endWalk();
+                return;
+            }
+            return;
+        }
+
+        openModal({
+            title: "산책 종료",
+            message: "산책을 종료하시겠습니까? 기록이 저장됩니다.",
+            type: "confirm",
+            confirmText: "종료하기",
+            cancelText: "계속 산책하기",
+            onConfirm: async () => {
+                showLoading("산책 결과를 저장하고 스냅샷을 생성 중입니다...");
+
+                endWalkMutate(
+                    {
+                        walkId: walkId,
+                        endLat: currentPos.lat,
+                        endLng: currentPos.lng,
+                        totalDistanceKm: Number(distance.toFixed(4)),
+                        durationSeconds: elapsedTime,
+                        status: "FINISHED"
+                    },
+                    {
+                        onSuccess: () => {
+                            // Image URL is now handled by useEndWalk -> snapshot api
+                            router.push(`/walk/complete/${walkId}`);
+                            endWalk();
+                            hideLoading();
+                        },
+                        onError: () => {
+                            hideLoading();
+                            alert("산책 종료 저장에 실패했습니다.");
+                            endWalk();
+                        }
+                    }
+                )
+            },
+        });
+    };
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    if (walkMode === "idle") {
+        return (
+            <Container>
+                <Message>산책 준비 완료!</Message>
+                <StartButton onClick={handleStart}>산책 시작 🐕</StartButton>
+            </Container>
+        );
     }
 
-    openModal({
-      title: "산책 종료",
-      message: "산책을 종료하시겠습니까? 기록이 저장됩니다.",
-      type: "confirm",
-      confirmText: "종료하기",
-      cancelText: "계속 산책하기",
-      onConfirm: async () => {
-        showLoading("산책 결과를 저장하고 스냅샷을 생성 중입니다...");
-
-        endWalkMutate(
-          {
-            walkId: walkId,
-            endLat: currentPos.lat,
-            endLng: currentPos.lng,
-            totalDistanceKm: Number(distance.toFixed(4)),
-            durationSeconds: elapsedTime,
-            status: "FINISHED"
-          },
-          {
-            onSuccess: () => {
-              // Image URL is now handled by useEndWalk -> snapshot api
-              router.push(`/walk/complete/${walkId}`);
-              endWalk();
-              hideLoading();
-            },
-            onError: () => {
-              hideLoading();
-              alert("산책 종료 저장에 실패했습니다.");
-              endWalk();
-            }
-          }
-        )
-      },
-    });
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  if (walkMode === "idle") {
     return (
-      <Container>
-        <Message>산책 준비 완료!</Message>
-        <StartButton onClick={handleStart}>산책 시작 🐕</StartButton>
-      </Container>
+        <Container>
+            <StatsRow>
+                <StatItem>
+                    <Label>시간</Label>
+                    <Value>{formatTime(elapsedTime)}</Value>
+                </StatItem>
+                <StatItem>
+                    <Label>거리</Label>
+                    <Value>{distance.toFixed(2)} km</Value>
+                </StatItem>
+            </StatsRow>
+
+            <ButtonRow>
+                <CancelButton onClick={handleCancel}>취소하기</CancelButton>
+                <EndButton onClick={handleEnd}>산책 종료</EndButton>
+            </ButtonRow>
+        </Container>
     );
-  }
-
-  return (
-    <Container>
-      <StatsRow>
-        <StatItem>
-          <Label>시간</Label>
-          <Value>{formatTime(elapsedTime)}</Value>
-        </StatItem>
-        <StatItem>
-          <Label>거리</Label>
-          <Value>{distance.toFixed(2)} km</Value>
-        </StatItem>
-      </StatsRow>
-
-      <ButtonRow>
-        <CancelButton onClick={handleCancel}>취소하기</CancelButton>
-        <EndButton onClick={handleEnd}>산책 종료</EndButton>
-      </ButtonRow>
-    </Container>
-  );
 };
 
 const Container = styled.div`

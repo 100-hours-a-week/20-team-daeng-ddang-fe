@@ -92,7 +92,7 @@ export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [
                 id="walk-map-container"
                 style={{
                     width: "100%",
-                    height: "100vh",
+                    height: "100%",
                     position: "relative",
                 }}
             >
@@ -137,7 +137,7 @@ export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [
 
             <CurrentLocationMarker map={map} position={currentPos} />
 
-            {map && zoom >= 15 && (
+            {map && zoom >= 13 && (
                 <>
                     <MyBlocksOverlay map={map} myBlocks={myBlocks} />
                     <OthersBlocksOverlay map={map} othersBlocks={othersBlocks} />

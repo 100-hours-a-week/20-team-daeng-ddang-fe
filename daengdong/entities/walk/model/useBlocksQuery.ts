@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getNearbyBlocks } from "../api/blocks";
+import { walkApi } from "../api";
 
 export const useNearbyBlocksQuery = (
     lat: number | null,
@@ -8,7 +8,7 @@ export const useNearbyBlocksQuery = (
 ) => {
     return useQuery({
         queryKey: ["nearbyBlocks", lat, lng, radius],
-        queryFn: () => getNearbyBlocks({ lat: lat!, lng: lng!, radius }),
+        queryFn: () => walkApi.getNearbyBlocks({ lat: lat!, lng: lng!, radius }),
         enabled: lat !== null && lng !== null,
         staleTime: 30000,
         refetchOnWindowFocus: false,

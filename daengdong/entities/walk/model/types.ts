@@ -87,3 +87,30 @@ export interface BlockData {
     dogId: number;
     occupiedAt?: string;
 }
+
+export interface NearbyBlocksParams {
+    lat: number;
+    lng: number;
+    radius: number;
+}
+
+export interface MissionRecord {
+    missionRecordId: number;
+    missionId: number;
+    title: string;
+    status: "SUCCESS" | "FAIL";
+    confidence: number;
+    message: string;
+}
+
+export interface MissionAnalysisData {
+    walkId: number;
+    analyzedAt: string;
+    missions: MissionRecord[];
+}
+
+export interface MissionAnalysisResponse {
+    message: string;
+    data: MissionAnalysisData;
+    errorCode: string | null;
+}
