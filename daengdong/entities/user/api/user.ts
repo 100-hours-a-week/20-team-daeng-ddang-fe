@@ -1,40 +1,24 @@
 import { http } from '@/shared/api/http';
 import { ApiResponse } from '@/shared/api/types';
-import { Region, UserInfo } from '@/entities/user/model/types';
+import { Region, UserInfo, CreateUserParams, UpdateUserParams, UserResponse } from '@/entities/user/model/types';
+import { userApi } from './index';
 
 interface RegionsResponse {
     regions: Region[];
 }
 
 export const getRegions = async (parentId?: number): Promise<Region[]> => {
-    const params = parentId ? { parentId } : {};
-
-    const response = await http.get<ApiResponse<RegionsResponse>>(
-        `/users/regions`,
-        { params }
-    );
-
-    return response.data.data.regions;
+    return userApi.getRegions(parentId);
 };
 
-export const registerUserInfo = async (regionId: number): Promise<void> => {
-    await http.post<ApiResponse<any>>(
-        `/users`,
-        { regionId }
-    );
+export const registerUserInfo = async (params: CreateUserParams): Promise<UserResponse> => {
+    return userApi.createUser(params);
 };
 
-export const getUserInfo = async (): Promise<UserInfo> => {
-    const response = await http.get<ApiResponse<UserInfo>>(
-        `/users/me`
-    );
-
-    return response.data.data;
+export const getUserInfo = async (): Promise<UserInfo | null> => {
+    return userApi.getUserInfo();
 };
 
-export const updateUserInfo = async (regionId: number): Promise<void> => {
-    await http.patch<ApiResponse<any>>(
-        `/users`,
-        { regionId }
-    );
+export const updateUserInfo = async (params: UpdateUserParams): Promise<UserResponse> => {
+    return userApi.updateUser(params);
 };

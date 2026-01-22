@@ -1,30 +1,11 @@
 import { http } from '@/shared/api/http';
-import { DogInfo, DogResponse, Breed, CreateDogParams } from '@/entities/dog/model/types';
+import { DogInfo, DogResponse, Breed, CreateDogParams, UpdateDogParams } from '@/entities/dog/model/types';
 import { ApiResponse } from '@/shared/api/types';
+import { dogApi } from './index';
 
 // GET /api/v3/users/dogs
 export const getDogInfo = async (): Promise<DogInfo | null> => {
-    try {
-        const response = await http.get<ApiResponse<DogResponse>>('/users/dogs');
-        const data = response.data.data;
-
-        return {
-            id: data.dogId,
-            name: data.name,
-            breed: data.breed,
-            birthDate: data.birth,
-            isBirthDateUnknown: false,
-            weight: data.weight,
-            gender: data.gender,
-            isNeutered: data.isNeutered,
-            imageUrl: data.profileImageUrl,
-        };
-    } catch (error: any) {
-        if (error.response?.status === 404) {
-            return null;
-        }
-        throw error;
-    }
+    return dogApi.getDogInfo();
 };
 
 interface BreedsResponse {
@@ -39,6 +20,11 @@ export const getBreeds = async (keyword?: string): Promise<Breed[]> => {
 };
 
 // POST /api/v3/users/dogs
-export const createDog = async (params: CreateDogParams): Promise<void> => {
-    await http.post<ApiResponse<any>>('/users/dogs', params);
+export const createDog = async (params: CreateDogParams): Promise<DogResponse> => {
+    return dogApi.createDog(params);
+};
+
+// PATCH /api/v3/users/dogs
+export const updateDog = async (params: UpdateDogParams): Promise<DogResponse> => {
+    return dogApi.updateDog(params);
 };

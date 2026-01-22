@@ -1,25 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUserStore } from '@/entities/user/model/userStore';
-import { registerUserInfo } from '@/entities/user/api/user';
+import { registerUserInfo, updateUserInfo } from '@/entities/user/api/user';
+import { CreateUserParams, UpdateUserParams } from '@/entities/user/model/types';
 
-export const useSaveUserInfo = (isNewUser: boolean) => {
+interface SaveUserMutationParams {
+    userId?: number;
+    regionId: number;
+}
+
+export const useSaveUserMutation = () => {
     const queryClient = useQueryClient();
-    const setUserInfo = useUserStore((state) => state.setUserInfo);
 
     return useMutation({
-        mutationFn: async (params: { regionId: number; province?: string; city?: string }) => {
-            if (isNewUser) {
-                await registerUserInfo(params.regionId);
-                return { province: params.province, city: params.city };
+        mutationFn: async ({ userId, regionId }: SaveUserMutationParams) => {
+            if (userId) {
+                // 수정: PATCH
+                const params: UpdateUserParams = { regionId };
+                return await updateUserInfo(params);
             } else {
-                throw new Error("Update not implemented yet");
+                // 등록: POST
+                const params: CreateUserParams = { regionId };
+                return await registerUserInfo(params);
             }
         },
-        onSuccess: (newData) => {
-            if (newData.province && newData.city) {
-                setUserInfo({ province: newData.province, city: newData.city });
-            }
-
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['userInfo'] });
         },
     });
