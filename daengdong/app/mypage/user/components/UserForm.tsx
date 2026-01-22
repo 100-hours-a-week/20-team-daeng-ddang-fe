@@ -24,9 +24,10 @@ interface UserFormProps {
     isNewUser: boolean;
     initialParentRegionId?: number;
     initialRegionId?: number;
+    kakaoEmail?: string;
 }
 
-export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser, initialParentRegionId, initialRegionId }: UserFormProps) {
+export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNewUser, initialParentRegionId, initialRegionId, kakaoEmail }: UserFormProps) {
     const {
         control,
         handleSubmit,
@@ -67,6 +68,11 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
 
     return (
         <FormWrapper onSubmit={handleSubmit(onSubmit)}>
+            <FieldGroup>
+                <Label>이메일</Label>
+                <ReadOnlyInput value={kakaoEmail || ''} disabled />
+            </FieldGroup>
+
             <FieldGroup>
                 <Label>사는 곳</Label>
 
@@ -175,4 +181,15 @@ const ButtonGroup = styled.div`
   align-items: center;
   gap: ${spacing[4]}px;
   margin-top: ${spacing[8]}px;
+`;
+
+const ReadOnlyInput = styled.input`
+  width: 100%;
+  padding: ${spacing[3]}px;
+  background-color: ${colors.gray[200]};
+  border: 1px solid ${colors.gray[200]};
+  border-radius: 8px;
+  color: ${colors.gray[900]};
+  font-size: 14px;
+  outline: none;
 `;

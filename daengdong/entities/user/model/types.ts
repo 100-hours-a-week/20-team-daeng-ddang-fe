@@ -20,4 +20,5 @@ export interface UserInfo {
     regionId: number;
     parentRegionId: number;
     region?: string; // "경기도 성남시"
+    kakaoEmail: string;
 }

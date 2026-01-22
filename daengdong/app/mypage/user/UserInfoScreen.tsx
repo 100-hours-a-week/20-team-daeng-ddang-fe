@@ -82,6 +82,7 @@ export function UserInfoScreen() {
                     onWithdraw={handleWithdrawClick}
                     isSubmitting={isSubmitting}
                     isNewUser={isNewUser}
+                    kakaoEmail={userInfo?.kakaoEmail}
                 />
             </Content>
 
