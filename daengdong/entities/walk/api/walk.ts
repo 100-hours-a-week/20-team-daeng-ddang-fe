@@ -1,4 +1,5 @@
 import { http } from "@/shared/api/http";
+import { ApiResponse } from "@/shared/api/types";
 import {
     StartWalkRequest,
     StartWalkResponse,
@@ -42,7 +43,7 @@ export const endWalkApi = async (req: EndWalkRequest): Promise<ApiResponse<EndWa
             durationSeconds: req.durationSeconds,
             occupiedBlockCount: 0,
             status: "FINISHED",
-        },
+        } as EndWalkResponse,
         errorCode: null
     };
 };

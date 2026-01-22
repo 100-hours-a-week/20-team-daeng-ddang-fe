@@ -14,7 +14,7 @@ export const WalkSummarySection = () => {
   const summaryData = {
     time: walkResult ? formatTime(walkResult.time) : '0분 0초',
     distance: walkResult ? `${walkResult.distance.toFixed(2)}km` : '0.00km',
-    blockCount: '12개', // Dummy data for now
+    blockCount: walkResult?.blockCount !== undefined ? `${walkResult.blockCount}개` : '0개',
   };
 
   return (

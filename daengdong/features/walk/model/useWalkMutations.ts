@@ -24,7 +24,8 @@ export const useEndWalk = () => {
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onSuccess: async (response) => {
             const { walkId } = response.data;
-            const { setWalkResult, path } = useWalkStore.getState();
+            const { setWalkResult, path, myBlocks, othersBlocks } = useWalkStore.getState();
+            const blockCount = myBlocks.length;
 
             try {
                 // Snapshot generation
@@ -34,7 +35,8 @@ export const useEndWalk = () => {
                     body: JSON.stringify({
                         data: {
                             path: path,
-                            // blocks: ... if available
+                            myBlocks: myBlocks,
+                            othersBlocks: othersBlocks,
                         }
                     })
                 });
@@ -49,7 +51,8 @@ export const useEndWalk = () => {
                     setWalkResult({
                         time: response.data.durationSeconds,
                         distance: response.data.totalDistanceKm, // using km directly from response
-                        imageUrl: imageUrl
+                        imageUrl: imageUrl,
+                        blockCount,
                     });
                 } else {
                     console.error("Snapshot failed");
@@ -57,7 +60,8 @@ export const useEndWalk = () => {
                     setWalkResult({
                         time: response.data.durationSeconds,
                         distance: response.data.totalDistanceKm,
-                        imageUrl: undefined
+                        imageUrl: undefined,
+                        blockCount,
                     });
                 }
 
@@ -66,7 +70,8 @@ export const useEndWalk = () => {
                 setWalkResult({
                     time: response.data.durationSeconds,
                     distance: response.data.totalDistanceKm,
-                    imageUrl: undefined
+                    imageUrl: undefined,
+                    blockCount,
                 });
             }
         },

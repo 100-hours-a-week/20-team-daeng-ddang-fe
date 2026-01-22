@@ -83,6 +83,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
         if (!map || !window.naver) return;
 
         const { naver } = window;
+        window.snapshotReady = false;
 
         // Draw Polyline
         if (path.length > 0) {
@@ -134,11 +135,11 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
             // Delay slightly to allow polygons to render
             setTimeout(() => {
                 window.snapshotReady = true;
-            }, 500);
+            }, 800);
             naver.maps.Event.removeListener(idleListener);
         });
 
-    }, [map, path]);
+    }, [map, path, myBlocks, othersBlocks]);
 
     return (
         <>

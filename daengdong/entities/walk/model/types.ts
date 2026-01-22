@@ -7,6 +7,7 @@ export interface WalkResult {
     time: number;
     distance: number;
     imageUrl?: string;
+    blockCount?: number;
 }
 
 export interface WalkState {
@@ -18,6 +19,8 @@ export interface WalkState {
     distance: number;
     path: LatLng[];
     walkResult: WalkResult | null;
+    myBlocks: BlockData[];
+    othersBlocks: BlockData[];
 
     startWalk: (id?: number) => void;
     endWalk: () => void;
@@ -27,6 +30,12 @@ export interface WalkState {
     addPathPoint: (pos: LatLng) => void;
     addDistance: (km: number) => void;
     setWalkResult: (result: WalkResult) => void;
+    setMyBlocks: (blocks: BlockData[]) => void;
+    setOthersBlocks: (blocks: BlockData[]) => void;
+    addMyBlock: (block: BlockData) => void;
+    removeMyBlock: (blockId: string) => void;
+    updateOthersBlock: (block: BlockData) => void;
+    removeOthersBlock: (blockId: string) => void;
 }
 
 export interface StartWalkRequest {
@@ -35,11 +44,8 @@ export interface StartWalkRequest {
 }
 
 export interface StartWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-    };
+    walkId: number;
+    startedAt: string;
 }
 
 export interface EndWalkRequest {
@@ -52,16 +58,13 @@ export interface EndWalkRequest {
 }
 
 export interface EndWalkResponse {
-    message: string;
-    data: {
-        walkId: number;
-        startedAt: string;
-        endedAt: string;
-        totalDistanceKm: number;
-        durationSeconds: number;
-        occupiedBlockCount: number;
-        status: "FINISHED";
-    };
+    walkId: number;
+    startedAt: string;
+    endedAt: string;
+    totalDistanceKm: number;
+    durationSeconds: number;
+    occupiedBlockCount: number;
+    status: "FINISHED";
 }
 
 export interface WriteWalkDiaryRequest {
@@ -82,4 +85,5 @@ export interface WriteWalkDiaryResponse {
 export interface BlockData {
     blockId: string;
     dogId: number;
+    occupiedAt?: string;
 }

@@ -5,10 +5,13 @@ import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
+import { BlockData } from "@/entities/walk/model/types";
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
     path?: { lat: number; lng: number }[];
+    myBlocks?: BlockData[];
+    othersBlocks?: BlockData[];
 }
 
 declare global {
@@ -18,30 +21,11 @@ declare global {
     }
 }
 
-export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
+export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<any>(null);
 
     const [zoom, setZoom] = useState(15);
-
-    // mock
-    const BLOCK_SIZE = 80;
-    const sizeKm = BLOCK_SIZE / 1000;
-    const centerLat = 37.3868;
-    const centerLng = 127.1247;
-
-    const latDelta = sizeKm / 111;
-    const lngDelta = sizeKm / (111 * Math.cos(centerLat * (Math.PI / 180)));
-
-    const mockMyBlocks = [
-        { blockId: `P_${centerLat}_${centerLng}`, dogId: 1 }, // (0,0)
-        { blockId: `P_${centerLat}_${centerLng + lngDelta}`, dogId: 1 }, // (0,1) Right
-    ];
-
-    const mockOthersBlocks = [
-        { blockId: `P_${centerLat - latDelta}_${centerLng}`, dogId: 5 }, // (-1,0) Bottom
-        { blockId: `P_${centerLat - latDelta}_${centerLng + lngDelta}`, dogId: 9 }, // (-1,1) Bottom-Right
-    ];
 
     // 이미 스크립트가 로드되어 있는 경우 확인
     useEffect(() => {
@@ -155,8 +139,8 @@ export const WalkMap = ({ currentPos, path = [] }: WalkMapProps) => {
 
             {map && zoom >= 15 && (
                 <>
-                    <MyBlocksOverlay map={map} myBlocks={mockMyBlocks} />
-                    <OthersBlocksOverlay map={map} othersBlocks={mockOthersBlocks} />
+                    <MyBlocksOverlay map={map} myBlocks={myBlocks} />
+                    <OthersBlocksOverlay map={map} othersBlocks={othersBlocks} />
                 </>
             )}
         </>
