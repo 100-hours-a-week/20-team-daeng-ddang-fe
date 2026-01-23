@@ -5,120 +5,189 @@ import styled from '@emotion/styled';
 import { WalkWebSocketClient } from '@/shared/lib/websocket/WalkWebSocketClient';
 import { ServerMessage } from '@/shared/lib/websocket/types';
 import { ENV } from '@/shared/config/env';
+import { useWalkStore } from '@/entities/walk/model/walkStore';
 
 export function WebSocketTest() {
-    const [client, setClient] = useState<WalkWebSocketClient | null>(null);
-    const [isConnected, setIsConnected] = useState(false);
-    const [messages, setMessages] = useState<ServerMessage[]>([]);
-    const [error, setError] = useState<string | null>(null);
+  const { currentPos: walkStorePos } = useWalkStore();
+  const [client, setClient] = useState<WalkWebSocketClient | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState<ServerMessage[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [localPos, setLocalPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [isTrackingLocation, setIsTrackingLocation] = useState(false);
 
-    const handleConnect = async () => {
-        try {
-            setError(null);
-            const baseUrl = ENV.API_BASE_URL || 'http://localhost:8080';
+  // 테스트 페이지 자체 위치 추적
+  useEffect(() => {
+    if (!('geolocation' in navigator)) {
+      console.warn('⚠️ Geolocation not supported');
+      return;
+    }
 
-            const newClient = new WalkWebSocketClient(
-                baseUrl,
-                (message) => {
-                    console.log('📨 메시지 수신:', message);
-                    setMessages((prev) => [...prev, message]);
-                },
-                (err) => {
-                    console.error('❌ 에러:', err);
-                    setError(err.message);
-                }
-            );
+    if (isTrackingLocation) {
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const newPos = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+          setLocalPos(newPos);
+          console.log('📍 위치 업데이트:', newPos);
+        },
+        (err) => {
+          console.error('❌ 위치 추적 에러:', err);
+          setError(`위치 추적 실패: ${err.message}`);
+        },
+        { enableHighAccuracy: true }
+      );
 
-            await newClient.connect(999); // 테스트용 walkId
-            setClient(newClient);
-            setIsConnected(true);
-            console.log('✅ 연결 성공!');
-        } catch (err: any) {
-            setError(err.message);
-            setIsConnected(false);
+      return () => {
+        navigator.geolocation.clearWatch(watchId);
+      };
+    }
+  }, [isTrackingLocation]);
+
+  // walkStore 또는 로컬 위치 사용
+  const currentPos = walkStorePos || localPos;
+
+  const handleConnect = async () => {
+    try {
+      setError(null);
+      const baseUrl = ENV.API_BASE_URL || 'http://localhost:8080';
+
+      const newClient = new WalkWebSocketClient(
+        baseUrl,
+        (message) => {
+          console.log('📨 메시지 수신:', message);
+          setMessages((prev) => [...prev, message]);
+        },
+        (err) => {
+          console.error('❌ 에러:', err);
+          setError(err.message);
         }
+      );
+
+      // 연결 시 자동으로 walkId 토픽 구독됨
+      await newClient.connect(999); // 테스트용 walkId
+      setClient(newClient);
+      setIsConnected(true);
+      console.log('✅ 연결 성공! (자동으로 /topic/walks/999 구독됨)');
+    } catch (err: any) {
+      setError(err.message);
+      setIsConnected(false);
+    }
+  };
+
+  const handleDisconnect = () => {
+    if (client) {
+      client.disconnect();
+      setClient(null);
+      setIsConnected(false);
+      setMessages([]);
+      setIsTrackingLocation(false);
+      console.log('🔌 연결 해제');
+    }
+  };
+
+  const handleToggleTracking = () => {
+    setIsTrackingLocation((prev) => !prev);
+  };
+
+  const handleSendLocation = () => {
+    if (client && isConnected) {
+      // 현재 위치가 있으면 사용, 없으면 기본 테스트 위치 사용
+      const lat = currentPos?.lat ?? 37.39421;
+      const lng = currentPos?.lng ?? 127.11142;
+
+      client.sendLocation(lat, lng);
+      console.log('📤 위치 전송 완료:', {
+        lat,
+        lng,
+        source: currentPos ? 'current position' : 'default test location'
+      });
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (client) {
+        client.disconnect();
+      }
     };
+  }, [client]);
 
-    const handleDisconnect = () => {
-        if (client) {
-            client.disconnect();
-            setClient(null);
-            setIsConnected(false);
-            setMessages([]);
-            console.log('🔌 연결 해제');
-        }
-    };
+  return (
+    <Container>
+      <Title>WebSocket 연결 테스트</Title>
 
-    const handleSubscribe = () => {
-        if (client && isConnected) {
-            // 테스트용 구독 (regionId: 1, cellId: "0_0")
-            client.subscribeToRegionCell(1, '0_0', (message) => {
-                console.log('📡 채널 메시지:', message);
-            });
-        }
-    };
+      <StatusSection>
+        <StatusLabel>연결 상태:</StatusLabel>
+        <Status isConnected={isConnected}>
+          {isConnected ? '🟢 연결됨' : '🔴 연결 안됨'}
+        </Status>
+      </StatusSection>
 
-    const handleSendLocation = () => {
-        if (client && isConnected) {
-            // 테스트용 위치 전송
-            client.sendLocation(37.39421, 127.11142);
-            console.log('📤 위치 전송 완료');
-        }
-    };
+      {isConnected && (
+        <InfoBox>
+          ℹ️ 구독 중: <code>/topic/walks/999</code>
+        </InfoBox>
+      )}
 
-    useEffect(() => {
-        return () => {
-            if (client) {
-                client.disconnect();
-            }
-        };
-    }, [client]);
+      <StatusSection>
+        <StatusLabel>위치 추적:</StatusLabel>
+        <Status isConnected={isTrackingLocation}>
+          {isTrackingLocation ? '🟢 추적 중' : '🔴 추적 안함'}
+        </Status>
+      </StatusSection>
 
-    return (
-        <Container>
-            <Title>WebSocket 연결 테스트</Title>
+      <StatusSection>
+        <StatusLabel>현재 위치:</StatusLabel>
+        <Status isConnected={!!currentPos}>
+          {currentPos
+            ? `📍 ${currentPos.lat.toFixed(5)}, ${currentPos.lng.toFixed(5)}`
+            : '❓ 위치 정보 없음 (기본값 사용)'}
+        </Status>
+      </StatusSection>
 
-            <StatusSection>
-                <StatusLabel>연결 상태:</StatusLabel>
-                <Status isConnected={isConnected}>
-                    {isConnected ? '🟢 연결됨' : '🔴 연결 안됨'}
-                </Status>
-            </StatusSection>
+      {walkStorePos && (
+        <InfoBox>
+          ℹ️ WalkStore에서 위치 사용 중
+        </InfoBox>
+      )}
 
-            {error && (
-                <ErrorBox>
-                    ❌ 에러: {error}
-                </ErrorBox>
-            )}
+      {error && (
+        <ErrorBox>
+          ❌ 에러: {error}
+        </ErrorBox>
+      )}
 
-            <ButtonGroup>
-                <Button onClick={handleConnect} disabled={isConnected}>
-                    연결하기
-                </Button>
-                <Button onClick={handleDisconnect} disabled={!isConnected}>
-                    연결 해제
-                </Button>
-                <Button onClick={handleSubscribe} disabled={!isConnected}>
-                    채널 구독
-                </Button>
-                <Button onClick={handleSendLocation} disabled={!isConnected}>
-                    위치 전송
-                </Button>
-            </ButtonGroup>
+      <ButtonGroup>
+        <Button onClick={handleConnect} disabled={isConnected}>
+          연결하기
+        </Button>
+        <Button onClick={handleDisconnect} disabled={!isConnected}>
+          연결 해제
+        </Button>
+        <Button onClick={handleToggleTracking} disabled={!!walkStorePos}>
+          {isTrackingLocation ? '위치 추적 중지' : '위치 추적 시작'}
+        </Button>
+        <Button onClick={handleSendLocation} disabled={!isConnected}>
+          위치 전송
+        </Button>
+      </ButtonGroup>
 
-            <MessagesSection>
-                <MessagesTitle>수신 메시지 ({messages.length})</MessagesTitle>
-                <MessagesList>
-                    {messages.map((msg, index) => (
-                        <MessageItem key={index}>
-                            <MessageType>{msg.type}</MessageType>
-                            <MessageData>{JSON.stringify(msg, null, 2)}</MessageData>
-                        </MessageItem>
-                    ))}
-                </MessagesList>
-            </MessagesSection>
-        </Container>
-    );
+      <MessagesSection>
+        <MessagesTitle>수신 메시지 ({messages.length})</MessagesTitle>
+        <MessagesList>
+          {messages.map((msg, index) => (
+            <MessageItem key={index}>
+              <MessageType>{msg.type}</MessageType>
+              <MessageData>{JSON.stringify(msg, null, 2)}</MessageData>
+            </MessageItem>
+          ))}
+        </MessagesList>
+      </MessagesSection>
+    </Container>
+  );
 }
 
 const Container = styled.div`
@@ -147,6 +216,24 @@ const StatusLabel = styled.span`
 const Status = styled.span<{ isConnected: boolean }>`
   color: ${props => props.isConnected ? '#22c55e' : '#ef4444'};
   font-weight: 600;
+`;
+
+const InfoBox = styled.div`
+  background-color: #dbeafe;
+  border: 1px solid #3b82f6;
+  color: #1e40af;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+  code {
+    background-color: #1e40af;
+    color: #dbeafe;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+  }
 `;
 
 const ErrorBox = styled.div`
