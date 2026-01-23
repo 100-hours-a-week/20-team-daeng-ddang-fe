@@ -137,7 +137,7 @@ export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [
 
             <CurrentLocationMarker map={map} position={currentPos} />
 
-            {map && zoom >= 13 && (
+            {map && (
                 <>
                     <MyBlocksOverlay map={map} myBlocks={myBlocks} />
                     <OthersBlocksOverlay map={map} othersBlocks={othersBlocks} />
