@@ -21,9 +21,12 @@ export const dogRepositoryReal: DogRepository = {
                 isNeutered: data.isNeutered,
                 imageUrl: data.profileImageUrl ?? null,
             };
-        } catch (error: any) {
-            if (error.response?.status === 404) {
-                return null;
+        } catch (error: unknown) {
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { status?: number } };
+                if (axiosError.response?.status === 404) {
+                    return null;
+                }
             }
             throw error;
         }

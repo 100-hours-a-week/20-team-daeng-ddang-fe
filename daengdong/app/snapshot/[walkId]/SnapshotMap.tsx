@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { BlockData } from "@/entities/walk/model/types";
 import { MyBlocksOverlay } from "@/features/walk/ui/MyBlocksOverlay";
 import { OthersBlocksOverlay } from "@/features/walk/ui/OthersBlocksOverlay";
+import { NaverMap } from "@/types/naver-maps";
 
 interface SnapshotMapProps {
     path: { lat: number; lng: number }[];
@@ -12,22 +13,9 @@ interface SnapshotMapProps {
     othersBlocks: BlockData[];
 }
 
-declare global {
-    interface Window {
-        initNaverMap?: () => void;
-        naver: any;
-        snapshotReady?: boolean;
-        SNAPSHOT_DATA?: {
-            path: { lat: number; lng: number }[];
-            myBlocks?: BlockData[];
-            othersBlocks?: BlockData[];
-        };
-    }
-}
-
 export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othersBlocks: initialOthersBlocks }: SnapshotMapProps) => {
     const [loaded, setLoaded] = useState(false);
-    const [map, setMap] = useState<any>(null);
+    const [map, setMap] = useState<NaverMap | null>(null);
 
     const [path, setPath] = useState(initialPath);
     const [myBlocks, setMyBlocks] = useState(initialMyBlocks);
