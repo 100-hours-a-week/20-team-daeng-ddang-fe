@@ -7,7 +7,6 @@ import { Header } from "@/widgets/Header/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useEffect } from "react";
-import { walkApi } from "@/entities/walk/api";
 
 export default function WalkPage() {
   const { currentPos, walkMode, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
@@ -20,21 +19,17 @@ export default function WalkPage() {
     1000
   );
 
-  useEffect(() => {
-    if (currentPos) {
-      walkApi.getMyBlocks(currentPos.lat, currentPos.lng).then((blocks) => {
-        setMyBlocks(blocks);
-      });
-    }
-  }, [currentPos, setMyBlocks]);
-
+  // nearbyBlocks를 myBlocks와 othersBlocks로 분리
   useEffect(() => {
     if (nearbyBlocks) {
       const myDogId = 1;
-      const others = nearbyBlocks.filter(b => b.dogId !== myDogId);
-      setOthersBlocks(others);
+      const myBlocksData = nearbyBlocks.filter(b => b.dogId === myDogId);
+      const othersBlocksData = nearbyBlocks.filter(b => b.dogId !== myDogId);
+
+      setMyBlocks(myBlocksData);
+      setOthersBlocks(othersBlocksData);
     }
-  }, [nearbyBlocks, setOthersBlocks]);
+  }, [nearbyBlocks, setMyBlocks, setOthersBlocks]);
 
   return (
     <div

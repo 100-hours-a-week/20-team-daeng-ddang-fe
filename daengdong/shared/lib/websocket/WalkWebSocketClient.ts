@@ -18,14 +18,16 @@ export class WalkWebSocketClient {
         return new Promise((resolve, reject) => {
             this.walkId = walkId;
 
-            // HTTP/HTTPS URL을 WebSocket URL로 변환
+            // HTTP/HTTPS URL을 WebSocket URL로 변환하고 /api/v3 제거
             const wsUrl = this.baseUrl
                 .replace(/^http:\/\//, 'ws://')
-                .replace(/^https:\/\//, 'wss://');
+                .replace(/^https:\/\//, 'wss://')
+                .replace(/\/api\/v3$/, ''); // /api/v3 경로 제거
 
             this.client = new Client({
                 brokerURL: `${wsUrl}/ws/walks`,
                 debug: (str) => {
+
                     console.log('[STOMP Debug]', str);
                 },
                 reconnectDelay: 5000, // 5초 후 재연결
