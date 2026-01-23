@@ -9,7 +9,7 @@ import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useEffect } from "react";
 
 export default function WalkPage() {
-  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
+  const { currentPos, walkMode, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
 
   useIdleLocation();
 

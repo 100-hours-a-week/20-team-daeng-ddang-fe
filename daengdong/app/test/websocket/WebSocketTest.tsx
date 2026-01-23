@@ -71,9 +71,8 @@ export function WebSocketTest() {
       setClient(newClient);
       setIsConnected(true);
       console.log('✅ 연결 성공! (자동으로 /topic/walks/999 구독됨)');
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMessage);
+    } catch (err: any) {
+      setError(err.message);
       setIsConnected(false);
     }
   };
