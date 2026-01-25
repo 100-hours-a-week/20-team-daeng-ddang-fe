@@ -17,7 +17,7 @@ concurrency:
 env:
   RELEASE_ID: ${{ github.sha }}
   ARTIFACT_FILE: next-standalone.tgz
-  RUN_TITLE: >-
+  MESSAGE: >-
     ${{
       github.event.pull_request.title ||
       github.event.head_commit.message ||
@@ -169,7 +169,7 @@ jobs:
         if: always()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          RUN_TITLE: ${{ env.RUN_TITLE }}
+          MESSAGE: ${{ env.MESSAGE }}
           JOB_STATUS: ${{ job.status }}
           RELEASE_ID: ${{ env.RELEASE_ID }}
           ACTOR: ${{ github.actor }}
@@ -220,13 +220,17 @@ jobs:
             test_label="skipped (${test_sec}s)"
           fi
 
+          # 개행 문자 및 따옴표 제거, 200자로 자름
+          safe_msg=$(echo "$MESSAGE" | tr '\n' ' ' | sed 's/"/\\"/g' | head -c 200)
+
           payload=$(cat <<JSON
           {
             "embeds": [
               {
-                "title": "[FE | CI | ${ENV_NAME}] ${RUN_TITLE}: ${JOB_STATUS}",
+                "title": "[FE / ${ENV_NAME}] CI ${JOB_STATUS}",
                 "url": "${RUN_URL}",
                 "color": ${color},
+                "description": "${safe_msg}",
                 "fields": [
                   {"name":"Release ID","value":"\`${RELEASE_ID}\`","inline":false},
                   {"name":"Actor","value":"${ACTOR}","inline":true},
@@ -298,6 +302,12 @@ jobs:
             BACKUP_LINK="${FRONTEND_DIR}/backup"
             RELEASE_DIR="${FRONTEND_DIR}/releases/${RELEASE_ID}"
 
+            UPSTREAM_FILE="/etc/caddy/upstreams/frontend.caddy"
+            BLUE_PORT=3000
+            GREEN_PORT=3001
+            BLUE_NAME="app-frontend-blue"
+            GREEN_NAME="app-frontend-green"
+
             mkdir -p "${RELEASE_DIR}"
 
             # 1) 직전 버전 백업 (current가 가리키는 실제 경로)
@@ -315,11 +325,66 @@ jobs:
             # 3) current 교체
             ln -sfn "${RELEASE_DIR}" "${CURRENT_LINK}"
 
-            # 4) 새 릴리즈 반영
-            pm2 delete app-frontend || true
-            cd /opt/app/frontend/current
-            PORT=3000 NODE_ENV=production pm2 start ./server.js --name app-frontend
+            # 4) 현재 활성 포트 확인
+            active_port="$(grep -Eo '127\.0\.0\.1:(3000|3001)' "${UPSTREAM_FILE}" | awk -F: '{print $2}' || true)"
+
+              # 초기 값 없으면 blue 활성화 상태라고 가정
+            if [ -z "${active_port}" ]; then
+              active_port="${BLUE_PORT}"
+            fi
+
+            if [ "${active_port}" = "${BLUE_PORT}" ]; then
+              idle_port="${GREEN_PORT}"
+              idle_name="${GREEN_NAME}"
+              active_name="${BLUE_NAME}"
+            else
+              idle_port="${BLUE_PORT}"
+              idle_name="${BLUE_NAME}"
+              active_name="${GREEN_NAME}"
+            fi
+
+            echo "[INFO] active_port=${active_port}, idle_port=${idle_port}"
+
+            # 5) 신규 버전 배포
+            pm2 delete "${idle_name}" || true
+            cd "${CURRENT_LINK}"
+
+            PORT="${idle_port}" NODE_ENV=production pm2 start ./server.js --name "${idle_name}"
             pm2 save
+
+            # 6) 헬스 체크
+            health_path="/"
+            max_wait=30
+
+            echo "[INFO] health check: http://127.0.0.1:${idle_port}${health_path}"
+            ok=0
+            for i in $(seq 1 "${max_wait}"); do
+              if curl -fsS "http://127.0.0.1:${idle_port}${health_path}" >/dev/null; then
+                ok=1
+                break
+              fi
+              sleep 1
+            done
+
+            if [ "${ok}" -ne 1 ]; then
+              echo "[ERROR] new release health check failed. rollback (keep active)"
+              pm2 delete "${idle_name}" || true
+              exit 1
+            fi
+
+            # 7) sed로 upstream 파일 스위치
+              # 파일 안에 3000/3001이 여러번 있어도 전부 교체(정규화)
+            sed -i -E "s/127\.0\.0\.1:(3000|3001)/127.0.0.1:${idle_port}/g" "${UPSTREAM_FILE}"
+
+            # 8) Caddy 리로드
+            caddy reload --config /etc/caddy/Caddyfile
+
+            echo "[INFO] switched upstream to ${idle_port}"
+            
+            # 9) 전환 성공 후, 기존(active) 프로세스 종료
+            pm2 delete "${active_name}" || true
+            pm2 save
+            echo "[INFO] stopped old process: ${active_name}"
 
       - name: Mark CD end
         id: cd_time_end
@@ -330,7 +395,7 @@ jobs:
         if: always()
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          RUN_TITLE: ${{ env.RUN_TITLE }}
+          MESSAGE: ${{ env.MESSAGE }}
           ENV_NAME: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
           CD_START: ${{ steps.cd_time.outputs.start }}
           CD_END: ${{ steps.cd_time_end.outputs.end }}
@@ -355,13 +420,17 @@ jobs:
           else color=9807270
           fi
 
+          # 개행 문자 및 따옴표 제거, 200자로 자름
+          safe_msg=$(echo "$MESSAGE" | tr '\n' ' ' | sed 's/"/\\"/g' | head -c 200)
+
           payload=$(cat <<JSON
           {
             "embeds": [
               {
-                "title": "[FE | CD | ${ENV_NAME}] ${RUN_TITLE}: ${JOB_STATUS}",
+                "title": "[FE / ${ENV_NAME}] CD ${JOB_STATUS}",
                 "url": "${RUN_URL}",
                 "color": ${color},
+                "description": "${safe_msg}",
                 "fields": [
                   {"name":"Release ID","value":"\`${RELEASE_ID}\`","inline":false},
                   {"name":"Actor","value":"${ACTOR}","inline":true},
