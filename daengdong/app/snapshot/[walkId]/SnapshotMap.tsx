@@ -81,7 +81,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setMap(newMap);
         }
-    }, [loaded, centerLat, centerLng]);
+    }, [loaded, centerLat, centerLng, map]);
 
     useEffect(() => {
         if (!map || !window.naver) return;

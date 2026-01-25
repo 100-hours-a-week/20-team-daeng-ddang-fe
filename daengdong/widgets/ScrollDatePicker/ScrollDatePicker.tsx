@@ -117,7 +117,7 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
                 containerRef.current.scrollTop = index * ITEM_HEIGHT;
             }
         }
-    }, []);
+    }, [items, selectedValue]);
 
     const handleScroll = () => {
         if (!containerRef.current) return;
