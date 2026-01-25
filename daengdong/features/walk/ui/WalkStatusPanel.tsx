@@ -7,9 +7,10 @@ import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { colors } from "@/shared/styles/tokens";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { useRouter } from "next/navigation";
+import { fileApi } from "@/shared/api/file";
 
 export const WalkStatusPanel = () => {
-    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
+    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, path, myBlocks, othersBlocks } = useWalkStore();
     const { openModal } = useModalStore();
     const { showLoading, hideLoading } = useLoadingStore();
     const { mutate: startWalkMutate } = useStartWalk();
@@ -64,30 +65,69 @@ export const WalkStatusPanel = () => {
             confirmText: "종료하기",
             cancelText: "계속 산책하기",
             onConfirm: async () => {
-                showLoading("산책 결과를 저장하고 스냅샷을 생성 중입니다...");
+                showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
 
-                endWalkMutate(
-                    {
-                        walkId: walkId,
-                        endLat: currentPos.lat,
-                        endLng: currentPos.lng,
-                        totalDistanceKm: Number(distance.toFixed(4)),
-                        durationSeconds: elapsedTime,
-                        status: "FINISHED"
-                    },
-                    {
-                        onSuccess: () => {
-                            router.push(`/walk/complete/${walkId}`);
-                            endWalk();
-                            hideLoading();
+                try {
+                    // 서버 사이드 스냅샷 생성 요청
+                    const snapshotResponse = await fetch(`/api/snapshot?walkId=${walkId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
                         },
-                        onError: () => {
-                            hideLoading();
-                            alert("산책 종료 저장에 실패했습니다.");
-                            endWalk();
-                        }
+                        body: JSON.stringify({
+                            data: {
+                                path,
+                                myBlocks,
+                                othersBlocks,
+                            },
+                        }),
+                    });
+
+                    if (!snapshotResponse.ok) {
+                        throw new Error("스냅샷 생성에 실패했습니다.");
                     }
-                )
+
+                    const blob = await snapshotResponse.blob();
+                    let imageUrl = "";
+
+                    if (blob) {
+                        // Presigned URL 요청
+                        const filename = `walk_snapshot_${walkId}_${Date.now()}.png`;
+                        const { url, key } = await fileApi.getPresignedUrl(filename, "image/png");
+
+                        // S3 업로드
+                        await fileApi.uploadFile(url, blob, "image/png");
+
+                        imageUrl = key;
+                    }
+
+                    endWalkMutate(
+                        {
+                            walkId: walkId,
+                            endLat: currentPos.lat,
+                            endLng: currentPos.lng,
+                            totalDistanceKm: Number(distance.toFixed(4)),
+                            durationSeconds: elapsedTime,
+                            status: "FINISHED",
+                            imageUrl: imageUrl || undefined,
+                        },
+                        {
+                            onSuccess: () => {
+                                router.push(`/walk/complete/${walkId}`);
+                                endWalk();
+                                hideLoading();
+                            },
+                            onError: () => {
+                                hideLoading();
+                                alert("산책 종료 저장에 실패했습니다.");
+                            }
+                        }
+                    );
+                } catch (error) {
+                    console.error("Snapshot creation failed:", error);
+                    hideLoading();
+                    alert("스냅샷 생성 중 오류가 발생했습니다. 산책을 다시 종료해주세요.");
+                }
             },
         });
     };

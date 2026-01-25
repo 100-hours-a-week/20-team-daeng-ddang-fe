@@ -55,6 +55,7 @@ export interface EndWalkRequest {
     totalDistanceKm: number;
     durationSeconds: number;
     status: "FINISHED";
+    imageUrl?: string;
 }
 
 export interface EndWalkResponse {

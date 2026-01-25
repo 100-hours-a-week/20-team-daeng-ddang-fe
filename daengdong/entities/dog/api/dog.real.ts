@@ -22,7 +22,6 @@ export const dogRepositoryReal: DogRepository = {
                 imageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             if ((error as any).response?.status === 404) {
                 return null;
             }
