@@ -1,11 +1,11 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
+import { useWalkControl } from "@/features/walk/model/useWalkControl";
 import { calculateDistance } from "@/shared/utils/geo";
 
 export const WalkManager = () => {
     const { walkMode, incrementTime, addDistance, addPathPoint, setCurrentPos, currentPos } = useWalkStore();
+    const { sendLocation } = useWalkControl();
     const prevPosRef = useRef<{ lat: number; lng: number } | null>(null);
 
     // 산책 복구 시 위치 추적 이어가기
@@ -54,6 +54,9 @@ export const WalkManager = () => {
                     // 경로에 추가
                     addPathPoint(newPos);
 
+                    // 서버로 위치 전송 (WebSocket)
+                    sendLocation(newPos.lat, newPos.lng);
+
                     // 거리 계산
                     if (prevPosRef.current) {
                         const dist = calculateDistance(
@@ -81,7 +84,7 @@ export const WalkManager = () => {
         return () => {
             if (watchId) navigator.geolocation.clearWatch(watchId);
         };
-    }, [walkMode, addPathPoint, addDistance, setCurrentPos]);
+    }, [walkMode, addPathPoint, addDistance, setCurrentPos, sendLocation]);
 
     return null;
 };

@@ -1,10 +1,14 @@
+import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
+import { BlockData } from "@/entities/walk/model/types";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { fileApi } from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
+import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
+import { ServerMessage } from "@/shared/lib/websocket/types";
 
 export const useWalkControl = () => {
     const {
@@ -19,7 +23,12 @@ export const useWalkControl = () => {
         path,
         myBlocks,
         othersBlocks,
-        setWalkResult
+        setWalkResult,
+        setMyBlocks,
+        setOthersBlocks,
+        addMyBlock,
+        removeOthersBlock,
+        updateOthersBlock
     } = useWalkStore();
 
     const { openModal } = useModalStore();
@@ -28,6 +37,81 @@ export const useWalkControl = () => {
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
     const { data: user, isError } = useUserQuery();
+
+    const wsClientRef = useRef<WalkWebSocketClient | null>(null);
+    const userRef = useRef(user);
+
+    // user 상태가 변경될 때마다 ref 업데이트
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
+
+    const handleWebSocketMessage = (message: ServerMessage) => {
+        const currentUser = userRef.current;
+
+        switch (message.type) {
+            case "BLOCK_OCCUPIED":
+                // 점유 성공
+                if (message.data.dogId === currentUser?.dogId) {
+                    addMyBlock({
+                        blockId: message.data.blockId,
+                        dogId: message.data.dogId,
+                        occupiedAt: message.data.occupiedAt
+                    });
+                    // 남의 땅이었다면 제거 
+                    removeOthersBlock(message.data.blockId);
+                } else {
+                    // 남이 점유 
+                    updateOthersBlock({
+                        blockId: message.data.blockId,
+                        dogId: message.data.dogId,
+                        occupiedAt: message.data.occupiedAt
+                    });
+                }
+                break;
+            case "BLOCKS_SYNC":
+                if (!currentUser?.dogId) break;
+
+                const allBlocks = message.data.blocks;
+                const mine: BlockData[] = [];
+                const others: BlockData[] = [];
+
+                allBlocks.forEach((block) => {
+                    if (block.dogId === currentUser.dogId) {
+                        mine.push({
+                            blockId: block.blockId,
+                            dogId: block.dogId,
+                            occupiedAt: new Date().toISOString()
+                        });
+                    } else {
+                        others.push({
+                            blockId: block.blockId,
+                            dogId: block.dogId,
+                            occupiedAt: new Date().toISOString()
+                        });
+                    }
+                });
+
+                setMyBlocks(mine);
+                setOthersBlocks(others);
+                break;
+            // 필요한 경우 추가 메시지 처리
+        }
+    };
+
+    // WebSocket 초기화
+    useEffect(() => {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+        wsClientRef.current = new WalkWebSocketClient(
+            baseUrl,
+            handleWebSocketMessage,
+            (error) => console.error("WebSocket Error:", error)
+        );
+
+        return () => {
+            wsClientRef.current?.disconnect();
+        };
+    }, []);
 
     const handleStart = () => {
         if (!user || isError) {
@@ -43,8 +127,16 @@ export const useWalkControl = () => {
         startWalkMutate(
             { startLat: currentPos.lat, startLng: currentPos.lng },
             {
-                onSuccess: (res) => {
+                onSuccess: async (res) => {
                     startWalk(res.walkId);
+
+                    // WebSocket 연결
+                    try {
+                        await wsClientRef.current?.connect(res.walkId);
+                        console.log("WebSocket 연결 성공:", res.walkId);
+                    } catch (e) {
+                        console.error("WebSocket 연결 실패:", e);
+                    }
                 },
                 onError: () => {
                     alert("산책 시작에 실패했습니다.");
@@ -61,6 +153,7 @@ export const useWalkControl = () => {
             confirmText: "취소하기",
             cancelText: "계속 산책하기",
             onConfirm: () => {
+                wsClientRef.current?.disconnect();
                 reset();
             },
         });
@@ -125,6 +218,7 @@ export const useWalkControl = () => {
                         },
                         {
                             onSuccess: () => {
+                                wsClientRef.current?.disconnect();
                                 setWalkResult({
                                     time: elapsedTime,
                                     distance: distance,
@@ -150,12 +244,20 @@ export const useWalkControl = () => {
         });
     };
 
+    const sendLocation = (lat: number, lng: number) => {
+        if (wsClientRef.current?.getConnectionStatus()) {
+            wsClientRef.current.sendLocation(lat, lng);
+        }
+    };
+
     return {
         walkMode,
         elapsedTime,
         distance,
         handleStart,
         handleEnd,
-        handleCancel
+        handleCancel,
+        sendLocation,
+        wsClient: wsClientRef.current
     };
 };
