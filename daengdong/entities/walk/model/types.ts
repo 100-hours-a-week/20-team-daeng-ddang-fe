@@ -14,7 +14,7 @@ export interface WalkState {
     walkMode: "idle" | "walking";
     currentPos: LatLng | null;
     walkId: number | null;
-    startTime: Date | null;
+    startTime: number | null;
     elapsedTime: number;
     distance: number;
     path: LatLng[];
