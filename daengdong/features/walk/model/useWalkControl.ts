@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
+import { BlockData } from "@/entities/walk/model/types";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
@@ -72,10 +73,10 @@ export const useWalkControl = () => {
                 if (!currentUser?.dogId) break;
 
                 const allBlocks = message.data.blocks;
-                const mine: any[] = [];
-                const others: any[] = [];
+                const mine: BlockData[] = [];
+                const others: BlockData[] = [];
 
-                allBlocks.forEach((block: any) => {
+                allBlocks.forEach((block) => {
                     if (block.dogId === currentUser.dogId) {
                         mine.push({
                             blockId: block.blockId,
