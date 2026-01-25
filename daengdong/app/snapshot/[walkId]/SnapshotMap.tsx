@@ -1,5 +1,6 @@
 "use client";
 
+import styled from "@emotion/styled";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { BlockData } from "@/entities/walk/model/types";
@@ -145,13 +146,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
                 src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=wt3yosmtpj&submodules=gl&callback=initNaverMap"
                 strategy="afterInteractive"
             />
-            <div
-                id="map"
-                style={{
-                    width: "100%",
-                    height: "100vh",
-                }}
-            />
+            <MapContainer id="map" />
             {map && (
                 <>
                     <MyBlocksOverlay map={map} myBlocks={myBlocks} />
@@ -161,3 +156,8 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
         </>
     );
 };
+
+const MapContainer = styled.div`
+    width: 100%;
+    height: 100vh;
+`;

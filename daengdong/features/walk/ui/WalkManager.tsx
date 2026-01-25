@@ -13,7 +13,7 @@ export const WalkManager = () => {
         if (walkMode === "walking" && currentPos && !prevPosRef.current) {
             prevPosRef.current = currentPos;
         }
-    }, [walkMode, currentPos]); // mount or mode change only
+    }, [walkMode, currentPos]); // 마운트 또는 모드변경
 
     // 시간 추적
     useEffect(() => {

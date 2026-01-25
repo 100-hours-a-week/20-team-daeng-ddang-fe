@@ -1,5 +1,7 @@
 "use client";
 
+import styled from "@emotion/styled";
+
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
@@ -54,7 +56,7 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
                     position: naver.maps.Position.TOP_RIGHT,
                 },
             });
-
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setMap(newMap);
         } else {
             map.panTo(location);
@@ -77,52 +79,15 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
                 strategy="afterInteractive"
             />
 
-            <div
-                id="walk-map-container"
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    position: "relative",
-                }}
-            >
-                <div
-                    id="map"
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                    }}
-                />
-            </div>
+            <MapContainer id="walk-map-container">
+                <MapElement id="map" />
+            </MapContainer>
 
-            <div
-                style={{
-                    position: "fixed",
-                    top: "300px",
-                    right: "10px",
-                    zIndex: 1000,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                }}
-            >
-                <button
-                    onClick={recenterToCurrentLocation}
-                    style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        background: "white",
-                        border: "1px solid #ccc",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                        cursor: "pointer",
-                    }}
-                >
+            <RecenterButtonWrapper>
+                <RecenterButton onClick={recenterToCurrentLocation}>
                     📍
-                </button>
-            </div>
+                </RecenterButton>
+            </RecenterButtonWrapper>
 
             <CurrentLocationMarker map={map} position={currentPos} />
 
@@ -135,4 +100,42 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
         </>
     );
 };
+
+const MapContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    position: relative;
+`;
+
+const MapElement = styled.div`
+    width: 100%;
+    height: 100%;
+`;
+
+const RecenterButtonWrapper = styled.div`
+    position: fixed;
+    top: 300px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;
+
+const RecenterButton = styled.button`
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    cursor: pointer;
+
+    &:active {
+        background-color: #f0f0f0;
+    }
+`;
 
