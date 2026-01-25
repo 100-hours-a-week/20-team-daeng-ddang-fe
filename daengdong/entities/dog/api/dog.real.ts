@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { http } from '@/shared/api/http';
 import { DogInfo, DogResponse, CreateDogParams, UpdateDogParams } from '../model/types';
 import { ApiResponse } from '@/shared/api/types';
@@ -22,7 +23,7 @@ export const dogRepositoryReal: DogRepository = {
                 imageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {
-            if ((error as any).response?.status === 404) {
+            if (isAxiosError(error) && error.response?.status === 404) {
                 return null;
             }
             throw error;
