@@ -1,7 +1,7 @@
 import { Header } from '@/widgets/Header/Header';
 import { useSaveDogMutation } from '@/features/dog/api/useSaveDogInfo';
 import { useDogInfoQuery } from '@/features/dog/api/useDogInfoQuery';
-import { uploadImage } from '@/shared/api/files';
+import { fileApi } from '@/shared/api/file';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { DogForm } from '@/features/dog/ui/DogForm';
 import { DogFormValues, DogInfo } from '@/entities/dog/model/types';
@@ -37,7 +37,9 @@ export function DogInfoScreen() {
 
         try {
             if (data.imageFile) {
-                profileImageUrl = await uploadImage(data.imageFile);
+                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", data.imageFile.type, "DOG_PROFILE");
+                await fileApi.uploadFile(presignedUrl, data.imageFile, data.imageFile.type);
+                profileImageUrl = objectKey;
             }
 
             const isUpdate = !!dogInfo?.id;

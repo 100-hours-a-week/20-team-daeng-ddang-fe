@@ -55,7 +55,6 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
                 },
             });
 
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setMap(newMap);
         } else {
             map.panTo(location);

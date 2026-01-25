@@ -55,7 +55,6 @@ export interface EndWalkRequest {
     totalDistanceKm: number;
     durationSeconds: number;
     status: "FINISHED";
-    imageUrl?: string;
 }
 
 export interface EndWalkResponse {
@@ -71,6 +70,7 @@ export interface EndWalkResponse {
 export interface WriteWalkDiaryRequest {
     walkId: number;
     memo: string;
+    mapImageUrl?: string;
 }
 
 export interface WriteWalkDiaryResponse {
