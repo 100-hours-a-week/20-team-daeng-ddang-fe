@@ -1,96 +1,18 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { useModalStore } from "@/shared/stores/useModalStore";
-import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { colors } from "@/shared/styles/tokens";
-import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
-import { useRouter } from "next/navigation";
+import { useWalkControl } from "@/features/walk/model/useWalkControl";
 
 export const WalkStatusPanel = () => {
-    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
-    const { openModal } = useModalStore();
-    const { showLoading, hideLoading } = useLoadingStore();
-    const { mutate: startWalkMutate } = useStartWalk();
-    const { mutate: endWalkMutate } = useEndWalk();
-    const router = useRouter();
-
-    const handleStart = () => {
-        if (!currentPos) {
-            alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
-            return;
-        }
-
-        startWalkMutate(
-            { startLat: currentPos.lat, startLng: currentPos.lng },
-            {
-                onSuccess: (res) => {
-                    startWalk(res.walkId);
-                },
-                onError: () => {
-                    alert("산책 시작에 실패했습니다.");
-                }
-            }
-        );
-    };
-
-    const handleCancel = () => {
-        openModal({
-            title: "산책 취소",
-            message: "산책을 취소하시겠습니까? 기록은 저장되지 않습니다.",
-            type: "confirm",
-            confirmText: "취소하기",
-            cancelText: "계속 산책하기",
-            onConfirm: () => {
-                reset();
-            },
-        });
-    };
-
-    const handleEnd = () => {
-        if (!currentPos || !walkId) {
-            if (!walkId) {
-                endWalk();
-                return;
-            }
-            return;
-        }
-
-        openModal({
-            title: "산책 종료",
-            message: "산책을 종료하시겠습니까? 기록이 저장됩니다.",
-            type: "confirm",
-            confirmText: "종료하기",
-            cancelText: "계속 산책하기",
-            onConfirm: async () => {
-                showLoading("산책 결과를 저장하고 스냅샷을 생성 중입니다...");
-
-                endWalkMutate(
-                    {
-                        walkId: walkId,
-                        endLat: currentPos.lat,
-                        endLng: currentPos.lng,
-                        totalDistanceKm: Number(distance.toFixed(4)),
-                        durationSeconds: elapsedTime,
-                        status: "FINISHED"
-                    },
-                    {
-                        onSuccess: () => {
-                            router.push(`/walk/complete/${walkId}`);
-                            endWalk();
-                            hideLoading();
-                        },
-                        onError: () => {
-                            hideLoading();
-                            alert("산책 종료 저장에 실패했습니다.");
-                            endWalk();
-                        }
-                    }
-                )
-            },
-        });
-    };
+    const {
+        walkMode,
+        elapsedTime,
+        distance,
+        handleStart,
+        handleEnd,
+        handleCancel
+    } = useWalkControl();
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);

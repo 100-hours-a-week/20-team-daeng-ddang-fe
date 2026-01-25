@@ -5,8 +5,15 @@ import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { calculateDistance } from "@/shared/utils/geo";
 
 export const WalkManager = () => {
-    const { walkMode, incrementTime, addDistance, addPathPoint, setCurrentPos } = useWalkStore();
+    const { walkMode, incrementTime, addDistance, addPathPoint, setCurrentPos, currentPos } = useWalkStore();
     const prevPosRef = useRef<{ lat: number; lng: number } | null>(null);
+
+    // 산책 복구 시 위치 추적 이어가기
+    useEffect(() => {
+        if (walkMode === "walking" && currentPos && !prevPosRef.current) {
+            prevPosRef.current = currentPos;
+        }
+    }, [walkMode, currentPos]); // 마운트 또는 모드변경
 
     // 시간 추적
     useEffect(() => {
