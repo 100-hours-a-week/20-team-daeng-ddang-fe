@@ -71,8 +71,9 @@ export function WebSocketTest() {
       setClient(newClient);
       setIsConnected(true);
       console.log('✅ 연결 성공! (자동으로 /topic/walks/999 구독됨)');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setError((err as any).message);
       setIsConnected(false);
     }
   };

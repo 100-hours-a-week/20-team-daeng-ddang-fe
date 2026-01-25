@@ -9,11 +9,11 @@ import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations
 import { useRouter } from "next/navigation";
 
 export const WalkStatusPanel = () => {
-    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset, setWalkResult } = useWalkStore();
+    const { walkMode, elapsedTime, distance, currentPos, walkId, startWalk, endWalk, reset } = useWalkStore();
     const { openModal } = useModalStore();
     const { showLoading, hideLoading } = useLoadingStore();
-    const { mutate: startWalkMutate, isPending: isStarting } = useStartWalk();
-    const { mutate: endWalkMutate, isPending: isEnding } = useEndWalk();
+    const { mutate: startWalkMutate } = useStartWalk();
+    const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
 
     const handleStart = () => {

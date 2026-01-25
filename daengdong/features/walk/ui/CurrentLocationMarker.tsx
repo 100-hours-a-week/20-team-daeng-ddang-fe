@@ -1,13 +1,15 @@
 import { useEffect, useRef } from "react";
 import { colors } from "@/shared/styles/tokens";
 
+import { NaverMap, NaverMarker } from "@/types/naver-maps";
+
 interface CurrentLocationMarkerProps {
-    map: any;
+    map: NaverMap | null;
     position: { lat: number; lng: number } | null;
 }
 
 export const CurrentLocationMarker = ({ map, position }: CurrentLocationMarkerProps) => {
-    const markerRef = useRef<any>(null);
+    const markerRef = useRef<NaverMarker | null>(null);
 
     useEffect(() => {
         if (!map || !position || !window.naver) return;

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         try {
             const body = await req.json();
             snapshotData = body.data;
-        } catch (e) {
+        } catch {
         }
 
         if (snapshotData) {
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
             await page.waitForFunction("window.snapshotReady === true", {
                 timeout: 5000,
             });
-        } catch (e) {
+        } catch {
             console.warn("스냅샷 생성 타임아웃");
         }
 

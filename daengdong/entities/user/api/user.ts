@@ -1,11 +1,5 @@
-import { http } from '@/shared/api/http';
-import { ApiResponse } from '@/shared/api/types';
 import { Region, UserInfo, CreateUserParams, UpdateUserParams, UserResponse } from '@/entities/user/model/types';
 import { userApi } from './index';
-
-interface RegionsResponse {
-    regions: Region[];
-}
 
 export const getRegions = async (parentId?: number): Promise<Region[]> => {
     return userApi.getRegions(parentId);

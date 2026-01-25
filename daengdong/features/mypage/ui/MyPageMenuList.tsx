@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { colors, radius, spacing } from '@/shared/styles/tokens';
+import { colors, spacing } from '@/shared/styles/tokens';
 import { ReactNode } from 'react';
 
 interface MyPageMenuItemProps {

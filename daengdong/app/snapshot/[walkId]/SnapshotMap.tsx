@@ -6,6 +6,8 @@ import { BlockData } from "@/entities/walk/model/types";
 import { MyBlocksOverlay } from "@/features/walk/ui/MyBlocksOverlay";
 import { OthersBlocksOverlay } from "@/features/walk/ui/OthersBlocksOverlay";
 
+import { NaverMap } from "@/types/naver-maps";
+
 interface SnapshotMapProps {
     path: { lat: number; lng: number }[];
     myBlocks: BlockData[];
@@ -15,7 +17,6 @@ interface SnapshotMapProps {
 declare global {
     interface Window {
         initNaverMap?: () => void;
-        naver: any;
         snapshotReady?: boolean;
         SNAPSHOT_DATA?: {
             path: { lat: number; lng: number }[];
@@ -27,7 +28,7 @@ declare global {
 
 export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othersBlocks: initialOthersBlocks }: SnapshotMapProps) => {
     const [loaded, setLoaded] = useState(false);
-    const [map, setMap] = useState<any>(null);
+    const [map, setMap] = useState<NaverMap | null>(null);
 
     const [path, setPath] = useState(initialPath);
     const [myBlocks, setMyBlocks] = useState(initialMyBlocks);
@@ -35,8 +36,11 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
 
     useEffect(() => {
         if (typeof window !== "undefined" && window.SNAPSHOT_DATA) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (window.SNAPSHOT_DATA.path) setPath(window.SNAPSHOT_DATA.path);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (window.SNAPSHOT_DATA.myBlocks) setMyBlocks(window.SNAPSHOT_DATA.myBlocks);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             if (window.SNAPSHOT_DATA.othersBlocks) setOthersBlocks(window.SNAPSHOT_DATA.othersBlocks);
         }
     }, []);
@@ -46,9 +50,11 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
 
     useEffect(() => {
         if (typeof window !== "undefined" && window.naver && window.naver.maps) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoaded(true);
         } else {
             window.initNaverMap = () => {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setLoaded(true);
             };
         }
@@ -72,6 +78,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
                 logoControl: false,
             });
 
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setMap(newMap);
         }
     }, [loaded, centerLat, centerLng]);

@@ -1,6 +1,6 @@
 import { SnapshotMap } from "./SnapshotMap";
 
-const generateMockData = (walkId: string) => {
+const generateMockData = () => {
     const centerLat = 37.3868;
     const centerLng = 127.1247;
 
@@ -25,8 +25,8 @@ const generateMockData = (walkId: string) => {
 };
 
 export default async function SnapshotPage({ params }: { params: Promise<{ walkId: string }> }) {
-    const { walkId } = await params;
-    const { path, myBlocks, othersBlocks } = generateMockData(walkId);
+    await params; // params is unused but required for page structure, await to satisfy async
+    const { path, myBlocks, othersBlocks } = generateMockData();
 
     return (
         <div style={{ width: "100vw", height: "100vh", overflow: "hidden", position: "relative", zIndex: 9999, background: "white" }}>

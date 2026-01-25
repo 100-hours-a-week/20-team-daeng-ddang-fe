@@ -21,14 +21,12 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
     const getDaysInMonth = (year: number, month: number) => dayjs(`${year}-${month}-01`).daysInMonth();
-    const days = Array.from({ length: getDaysInMonth(selectedYear, selectedMonth) }, (_, i) => i + 1);
+    const maxDaysInMonth = getDaysInMonth(selectedYear, selectedMonth);
 
-    useEffect(() => {
-        const maxDays = getDaysInMonth(selectedYear, selectedMonth);
-        if (selectedDay > maxDays) {
-            setSelectedDay(maxDays);
-        }
-    }, [selectedYear, selectedMonth]);
+    // Use derived state instead of effect to validate day
+    const validatedDay = Math.min(selectedDay, maxDaysInMonth);
+
+    const days = Array.from({ length: maxDaysInMonth }, (_, i) => i + 1);
 
     useEffect(() => {
         if (isOpen) {
@@ -45,7 +43,7 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     }, [isOpen]);
 
     const handleConfirm = () => {
-        const dateStr = dayjs(`${selectedYear}-${selectedMonth}-${selectedDay}`).format('YYYY-MM-DD');
+        const dateStr = dayjs(`${selectedYear}-${selectedMonth}-${validatedDay}`).format('YYYY-MM-DD');
         onConfirm(dateStr);
         onClose();
     };
@@ -89,7 +87,7 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
                             />
                             <WheelColumn
                                 items={days}
-                                selectedValue={selectedDay}
+                                selectedValue={validatedDay}
                                 onSelect={setSelectedDay}
                                 label="일"
                             />

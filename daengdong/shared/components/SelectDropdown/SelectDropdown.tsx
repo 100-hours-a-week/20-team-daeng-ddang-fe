@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { colors, radius, spacing } from '@/shared/styles/tokens';
+import { colors, radius } from '@/shared/styles/tokens';
 import { useState, useRef, useEffect } from 'react';
 
 interface SelectDropdownProps {

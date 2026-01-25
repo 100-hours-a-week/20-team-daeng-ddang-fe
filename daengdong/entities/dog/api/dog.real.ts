@@ -21,8 +21,9 @@ export const dogRepositoryReal: DogRepository = {
                 isNeutered: data.isNeutered,
                 imageUrl: data.profileImageUrl ?? null,
             };
-        } catch (error: any) {
-            if (error.response?.status === 404) {
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((error as any).response?.status === 404) {
                 return null;
             }
             throw error;

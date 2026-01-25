@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { InputHTMLAttributes, forwardRef } from 'react';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> { }
+type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ disabled, ...props }, ref) => {

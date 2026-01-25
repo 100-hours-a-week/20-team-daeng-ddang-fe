@@ -1,7 +1,7 @@
 "use client";
 
 import styled from '@emotion/styled';
-import { radius, spacing, colors } from "@/shared/styles/tokens";
+import { spacing, colors } from "@/shared/styles/tokens";
 import { PathMapImage } from '@/features/walk/ui/PathMapImage';
 import { WalkSummarySection } from '@/features/walk/ui/WalkSummarySection';
 import { MissionResultSection } from '@/features/missions/ui/MissionResultSection';

@@ -2,15 +2,17 @@ import { useEffect, useRef } from "react";
 import { BlockData } from "@/entities/walk/model/types";
 import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 
+import { NaverMap, NaverPolygon } from "@/types/naver-maps";
+
 interface BlockPolygonProps {
-    map: any;
+    map: NaverMap | null;
     block: BlockData;
     isMine?: boolean;
     blockSize?: number;
 }
 
 export const BlockPolygon = ({ map, block, isMine = false, blockSize = 80 }: BlockPolygonProps) => {
-    const polygonRef = useRef<any>(null);
+    const polygonRef = useRef<NaverPolygon | null>(null);
 
     useEffect(() => {
         if (!map || !window.naver) return;

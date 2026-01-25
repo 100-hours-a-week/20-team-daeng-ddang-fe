@@ -31,7 +31,6 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
     const {
         control,
         handleSubmit,
-        watch,
         setValue,
         formState: { errors, isValid },
     } = useForm<UserFormValues & { regionId: number }>({

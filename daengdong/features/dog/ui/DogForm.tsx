@@ -76,7 +76,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const birthDate = watch('birthDate');
     const isBirthDateUnknown = watch('isBirthDateUnknown');
-    const breedName = watch('breedName');
+
 
     // 견종 검색 State
     const [breedSearchKeyword, setBreedSearchKeyword] = useState('');

@@ -6,30 +6,22 @@ import { CurrentLocationMarker } from "./CurrentLocationMarker";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
 import { BlockData } from "@/entities/walk/model/types";
+import { NaverMap } from "@/types/naver-maps";
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
-    path?: { lat: number; lng: number }[];
     myBlocks?: BlockData[];
     othersBlocks?: BlockData[];
 }
 
-declare global {
-    interface Window {
-        initNaverMap?: () => void;
-        naver: any;
-    }
-}
-
-export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [] }: WalkMapProps) => {
+export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
-    const [map, setMap] = useState<any>(null);
-
-    const [zoom, setZoom] = useState(15);
+    const [map, setMap] = useState<NaverMap | null>(null);
 
     // 이미 스크립트가 로드되어 있는 경우 확인
     useEffect(() => {
         if (typeof window !== "undefined" && window.naver && window.naver.maps) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoaded(true);
         }
     }, []);
@@ -37,6 +29,7 @@ export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.initNaverMap = () => {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setLoaded(true);
             };
         }
@@ -62,10 +55,7 @@ export const WalkMap = ({ currentPos, path = [], myBlocks = [], othersBlocks = [
                 },
             });
 
-            naver.maps.Event.addListener(newMap, 'zoom_changed', () => {
-                setZoom(newMap.getZoom());
-            });
-
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setMap(newMap);
         } else {
             map.panTo(location);
