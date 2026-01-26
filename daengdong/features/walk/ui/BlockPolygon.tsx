@@ -4,7 +4,7 @@ import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 
 import { NaverMap, NaverPolygon } from "@/types/naver-maps";
 
-import { BLOCK_SIZE_METERS } from "@/entities/walk/model/constants";
+import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
 
 interface BlockPolygonProps {
     map: NaverMap | null;
@@ -13,7 +13,7 @@ interface BlockPolygonProps {
     blockSize?: number;
 }
 
-export const BlockPolygon = ({ map, block, isMine = false, blockSize = BLOCK_SIZE_METERS }: BlockPolygonProps) => {
+export const BlockPolygon = ({ map, block, isMine = false, blockSize = BLOCK_SIZE_DEGREES }: BlockPolygonProps) => {
     const polygonRef = useRef<NaverPolygon | null>(null);
 
     useEffect(() => {

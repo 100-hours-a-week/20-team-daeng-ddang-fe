@@ -100,6 +100,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
     // 메시지 타입별 처리
     private handleMessage(message: ServerMessage) {
+        console.log("DEBUG: WS Client handleMessage", message);
         switch (message.type) {
             case 'BLOCK_OCCUPIED':
                 console.log('🟢 블록 점유 성공:', message.data);
@@ -180,6 +181,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         };
 
         const destination = `/app/walks/${this.walkId}/location`;
+        console.log(`DEBUG: Sending Location to ${destination}`, { lat, lng });
         console.log(`📤 위치 전송: ${destination}`, message);
 
         this.client.publish({

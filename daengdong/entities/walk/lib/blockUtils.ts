@@ -1,6 +1,6 @@
-import { BLOCK_SIZE_METERS } from "@/entities/walk/model/constants";
+import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
 
-export const calculateBlockCoordinates = (blockId: string, blockSize: number = BLOCK_SIZE_METERS) => {
+export const calculateBlockCoordinates = (blockId: string, blockSize: number = BLOCK_SIZE_DEGREES) => {
     const parts = blockId.split("_");
     if (parts.length !== 3) return null;
 
@@ -9,9 +9,9 @@ export const calculateBlockCoordinates = (blockId: string, blockSize: number = B
 
     if (isNaN(blLat) || isNaN(blLng)) return null;
 
-    const sizeKm = blockSize / 1000;
-    const latDelta = sizeKm / 111;
-    const lngDelta = sizeKm / (111 * Math.cos(blLat * (Math.PI / 180)));
+    // Use degrees directly for perfect tiling
+    const latDelta = blockSize;
+    const lngDelta = blockSize;
 
     const coordinates = [
         { lat: blLat + latDelta, lng: blLng }, // Top-Left

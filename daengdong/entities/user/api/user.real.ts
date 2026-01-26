@@ -19,6 +19,7 @@ export const userRepositoryReal: UserRepository = {
                 parentRegionId: data.parentRegionId,
                 region: data.region,
                 kakaoEmail: data.kakaoEmail,
+                dogId: data.dogId,
             };
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

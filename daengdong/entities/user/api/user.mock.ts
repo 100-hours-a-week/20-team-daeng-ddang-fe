@@ -7,6 +7,7 @@ const mockUserData: UserInfo = {
     parentRegionId: 1,
     region: "경기도 성남시",
     kakaoEmail: "user@kakao.com",
+    dogId: 1,
 };
 
 const mockRegions: Region[] = [

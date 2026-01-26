@@ -3,7 +3,7 @@ import { BlockPolygon } from "./BlockPolygon";
 
 import { NaverMap } from "@/types/naver-maps";
 
-import { BLOCK_SIZE_METERS } from "@/entities/walk/model/constants";
+import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
 
 interface MyBlocksOverlayProps {
     map: NaverMap | null;
@@ -11,7 +11,7 @@ interface MyBlocksOverlayProps {
     blockSize?: number;
 }
 
-export const MyBlocksOverlay = ({ map, myBlocks, blockSize = BLOCK_SIZE_METERS }: MyBlocksOverlayProps) => {
+export const MyBlocksOverlay = ({ map, myBlocks, blockSize = BLOCK_SIZE_DEGREES }: MyBlocksOverlayProps) => {
     return (
         <>
             {myBlocks.map((block) => (

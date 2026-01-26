@@ -64,6 +64,7 @@ export const useWalkControl = () => {
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentUser = userRef.current;
+        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
 
         switch (message.type) {
             case "BLOCK_OCCUPIED":
