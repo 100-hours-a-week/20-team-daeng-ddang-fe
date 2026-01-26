@@ -101,6 +101,8 @@ export type ClientMessage = LocationUpdateMessage;
 export interface IWalkWebSocketClient {
     connect(walkId: number, accessToken?: string): Promise<void>;
     sendLocation(lat: number, lng: number): void;
+    subscribeToArea(areaKey: string): void;
+    unsubscribeFromArea(): void;
     disconnect(): void;
     getConnectionStatus(): boolean;
 }

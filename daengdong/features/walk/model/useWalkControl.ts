@@ -12,6 +12,8 @@ import { MockWalkWebSocketClient } from "@/shared/lib/websocket/MockWalkWebSocke
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
 import { ENV } from "@/shared/config/env";
 
+import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
+
 export const useWalkControl = () => {
     const {
         setCurrentPos,
@@ -215,7 +217,7 @@ export const useWalkControl = () => {
         }
 
         startWalkMutate(
-            { latitude: currentPos.lat, longitude: currentPos.lng },
+            { startLat: currentPos.lat, startLng: currentPos.lng },
             {
                 onSuccess: async (res) => {
                     startWalk(res.walkId);
@@ -342,6 +344,9 @@ export const useWalkControl = () => {
             wsClientRef.current.sendLocation(lat, lng);
         }
     };
+
+    // Area 구독 관리 Hook
+    useAreaSubscription(currentPos, wsClientRef.current);
 
     return {
         walkMode,

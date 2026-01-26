@@ -70,16 +70,29 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
         }, 500);
     }
 
-    disconnect(): void {
-        console.log('[MockWS] Disconnected');
+    disconnect() {
         this.isConnected = false;
-        if (this.mockInterval) {
-            clearInterval(this.mockInterval);
-            this.mockInterval = null;
-        }
+        console.log("🔌 [Mock] WebSocket 연결 해제");
     }
 
-    getConnectionStatus(): boolean {
+    subscribeToArea(areaKey: string) {
+        if (!this.isConnected) return;
+        console.log(`📡 [Mock] Area 구독 시작: ${areaKey}`);
+
+        // Mock: 구독 즉시 테스트용 메시지 전송 (선택 사항)
+        // setTimeout(() => {
+        //     this.onMessage({
+        //         type: 'BLOCKS_SYNC',
+        //         data: { blocks: [] }
+        //     });
+        // }, 1000);
+    }
+
+    unsubscribeFromArea() {
+        console.log('🔕 [Mock] Area 구독 해제');
+    }
+
+    getConnectionStatus() {
         return this.isConnected;
     }
 }

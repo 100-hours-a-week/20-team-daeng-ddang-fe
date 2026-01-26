@@ -6,6 +6,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
     private walkId: number | null = null;
     private isConnected = false;
     private subscription: StompSubscription | null = null;
+    private areaSubscription: StompSubscription | null = null;
 
     constructor(
         private baseUrl: string,
@@ -124,6 +125,42 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
         // 상위 콜백 호출
         this.onMessage(message);
+    }
+
+    // Area 구독
+    subscribeToArea(areaKey: string) {
+        if (!this.client || !this.isConnected) {
+            console.warn('⚠️ WebSocket이 연결되지 않아 Area 구독을 할 수 없습니다.');
+            return;
+        }
+
+        // 이미 같은 Area를 구독 중이면 패스
+        if (this.areaSubscription) {
+            console.warn('⚠️ 이미 Area를 구독 중입니다. 먼저 구독을 해제해주세요.');
+            return;
+        }
+
+        const topic = `/topic/blocks/${areaKey}`;
+        console.log(`📡 Area 구독 시작: ${topic}`);
+
+        this.areaSubscription = this.client.subscribe(topic, (message: IMessage) => {
+            try {
+                const data = JSON.parse(message.body) as ServerMessage;
+                console.log(`📨 Area 메시지 수신 [${data.type}]:`, data);
+                this.handleMessage(data);
+            } catch (error) {
+                console.error('❌ Area 메시지 파싱 에러:', error);
+            }
+        });
+    }
+
+    // Area 구독 해제
+    unsubscribeFromArea() {
+        if (this.areaSubscription) {
+            console.log('🔕 Area 구독 해제');
+            this.areaSubscription.unsubscribe();
+            this.areaSubscription = null;
+        }
     }
 
     // 위치 전송
