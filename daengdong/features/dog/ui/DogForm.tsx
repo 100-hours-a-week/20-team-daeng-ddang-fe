@@ -88,242 +88,241 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             // 데이터 로드 후 유효성 검사 실행 (저장 버튼 활성화 위해)
             trigger();
         }
-    }
     }, [initialData, reset, trigger]);
 
-const [imagePreview, setImagePreview] = useState<string | null>(null);
-const birthDate = watch('birthDate');
-const isBirthDateUnknown = watch('isBirthDateUnknown');
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const birthDate = watch('birthDate');
+    const isBirthDateUnknown = watch('isBirthDateUnknown');
 
 
-// 견종 검색 State
-const [breedSearchKeyword, setBreedSearchKeyword] = useState(initialData?.breedName || '');
-const [isBreedListOpen, setIsBreedListOpen] = useState(false);
-const { data: breedList } = useBreedsQuery(breedSearchKeyword);
-const breedInputRef = useRef<HTMLInputElement>(null);
+    // 견종 검색 State
+    const [breedSearchKeyword, setBreedSearchKeyword] = useState(initialData?.breedName || '');
+    const [isBreedListOpen, setIsBreedListOpen] = useState(false);
+    const { data: breedList } = useBreedsQuery(breedSearchKeyword);
+    const breedInputRef = useRef<HTMLInputElement>(null);
 
-// 이미지 변경
-const handleImageChange = (file: File | null) => {
-    setValue('imageFile', file, { shouldDirty: true });
-    if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        setImagePreview(null);
-    }
-};
+    // 이미지 변경
+    const handleImageChange = (file: File | null) => {
+        setValue('imageFile', file, { shouldDirty: true });
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
+    };
 
-// 나이 계산
-const getAgeString = () => {
-    if (isBirthDateUnknown || !birthDate) return '모름';
-    const birth = dayjs(birthDate);
-    const now = dayjs();
-    if (birth.isAfter(now)) return '-';
+    // 나이 계산
+    const getAgeString = () => {
+        if (isBirthDateUnknown || !birthDate) return '모름';
+        const birth = dayjs(birthDate);
+        const now = dayjs();
+        if (birth.isAfter(now)) return '-';
 
-    const years = now.diff(birth, 'year');
-    const months = now.diff(birth, 'month') % 12;
+        const years = now.diff(birth, 'year');
+        const months = now.diff(birth, 'month') % 12;
 
-    if (years === 0 && months === 0) return '0개월';
-    if (years === 0) return `${months}개월`;
-    return `${years}년 ${months}개월`;
-};
+        if (years === 0 && months === 0) return '0개월';
+        if (years === 0) return `${months}개월`;
+        return `${years}년 ${months}개월`;
+    };
 
-const [isDateOpen, setIsDateOpen] = useState(false);
+    const [isDateOpen, setIsDateOpen] = useState(false);
 
-const handleBreedSelect = (id: number, name: string) => {
-    setValue('breedId', Number(id), { shouldValidate: true });
-    setValue('breedName', name, { shouldValidate: true });
-    setBreedSearchKeyword(name);
-    setIsBreedListOpen(false);
-};
+    const handleBreedSelect = (id: number, name: string) => {
+        setValue('breedId', Number(id), { shouldValidate: true });
+        setValue('breedName', name, { shouldValidate: true });
+        setBreedSearchKeyword(name);
+        setIsBreedListOpen(false);
+    };
 
-return (
-    <FormWrapper onSubmit={handleSubmit(onSubmit)}>
-        <Section>
-            <ProfileImageUploader
-                imagePreview={imagePreview}
-                onImageChange={handleImageChange}
-                onImageRemove={() => handleImageChange(null)}
-            />
-        </Section>
-
-        <FieldGroup>
-            <Label>이름 <Required>*</Required></Label>
-            <Controller
-                name="name"
-                control={control}
-                render={({ field }) => (
-                    <Input {...field} placeholder="ex) 댕동이" disabled={isSubmitting} />
-                )}
-            />
-            {errors.name && <ErrorText>{errors.name.message}</ErrorText>}
-        </FieldGroup>
-
-        <FieldGroup>
-            <Label>견종 <Required>*</Required></Label>
-            <div style={{ position: 'relative' }}>
-                <Input
-                    value={breedSearchKeyword}
-                    onChange={(e) => {
-                        const value = e.target.value;
-
-                        setBreedSearchKeyword(value);
-                        setIsBreedListOpen(true);
-                    }}
-                    onFocus={() => {
-                        setBreedSearchKeyword('');
-                        setIsBreedListOpen(true);
-                    }}
-                    placeholder="견종 검색 (목록에서 선택해주세요)"
-                    disabled={isSubmitting}
-                    ref={breedInputRef}
+    return (
+        <FormWrapper onSubmit={handleSubmit(onSubmit)}>
+            <Section>
+                <ProfileImageUploader
+                    imagePreview={imagePreview}
+                    onImageChange={handleImageChange}
+                    onImageRemove={() => handleImageChange(null)}
                 />
-                {isBreedListOpen && breedList && breedList.length > 0 && (
-                    <BreedList>
-                        {breedList.map((breed) => (
-                            <BreedItem
-                                key={breed.breedId}
-                                onClick={() => handleBreedSelect(breed.breedId, breed.name)}
-                            >
-                                {breed.name}
-                            </BreedItem>
-                        ))}
-                    </BreedList>
-                )}
-            </div>
-            {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
-            {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
-        </FieldGroup>
+            </Section>
 
-        <FieldGroup>
-            <LabelRow>
-                <Label>생년월일 <Required>*</Required></Label>
-                <AgeText>{getAgeString()}</AgeText>
-            </LabelRow>
-
-            <CheckboxWrapper>
-                <input
-                    type="checkbox"
-                    id="unknown-birth"
-                    checked={isBirthDateUnknown}
-                    onChange={(e) => {
-                        setValue('isBirthDateUnknown', e.target.checked);
-                        if (e.target.checked) {
-                            setValue('birthDate', '');
-                        } else {
-                            setValue('birthDate', dayjs().format('YYYY-MM-DD'));
-                        }
-                        trigger('birthDate');
-                    }}
-                />
-                <CheckboxLabel htmlFor="unknown-birth">생년월일 모름</CheckboxLabel>
-            </CheckboxWrapper>
-
-            <Controller
-                name="birthDate"
-                control={control}
-                render={({ field }) => (
-                    <div onClick={() => !isBirthDateUnknown && !isSubmitting && setIsDateOpen(true)}>
-                        <StyledDateInput
-                            type="text"
-                            value={field.value || ''}
-                            readOnly
-                            placeholder="YYYY-MM-DD"
-                            disabled={isBirthDateUnknown || isSubmitting}
-                            isPlaceholder={!field.value}
-                            style={{ pointerEvents: 'none' }} // Let div handle click
-                        />
-                    </div>
-                )}
-            />
-            {errors.birthDate && <ErrorText>{errors.birthDate.message}</ErrorText>}
-        </FieldGroup>
-
-        <ScrollDatePicker
-            isOpen={isDateOpen}
-            onClose={() => setIsDateOpen(false)}
-            onConfirm={(date) => {
-                setValue('birthDate', date);
-                trigger('birthDate');
-            }}
-            initialDate={birthDate}
-        />
-
-        <FieldGroup>
-            <Label>몸무게 <Required>*</Required></Label>
-            <WeightWrapper>
+            <FieldGroup>
+                <Label>이름 <Required>*</Required></Label>
                 <Controller
-                    name="weight"
+                    name="name"
                     control={control}
                     render={({ field }) => (
-                        <Input
-                            {...field}
-                            type="number"
-                            step="0.1"
-                            placeholder="ex) 3.6"
-                            inputMode="decimal"
+                        <Input {...field} placeholder="ex) 댕동이" disabled={isSubmitting} />
+                    )}
+                />
+                {errors.name && <ErrorText>{errors.name.message}</ErrorText>}
+            </FieldGroup>
+
+            <FieldGroup>
+                <Label>견종 <Required>*</Required></Label>
+                <div style={{ position: 'relative' }}>
+                    <Input
+                        value={breedSearchKeyword}
+                        onChange={(e) => {
+                            const value = e.target.value;
+
+                            setBreedSearchKeyword(value);
+                            setIsBreedListOpen(true);
+                        }}
+                        onFocus={() => {
+                            setBreedSearchKeyword('');
+                            setIsBreedListOpen(true);
+                        }}
+                        placeholder="견종 검색 (목록에서 선택해주세요)"
+                        disabled={isSubmitting}
+                        ref={breedInputRef}
+                    />
+                    {isBreedListOpen && breedList && breedList.length > 0 && (
+                        <BreedList>
+                            {breedList.map((breed) => (
+                                <BreedItem
+                                    key={breed.breedId}
+                                    onClick={() => handleBreedSelect(breed.breedId, breed.name)}
+                                >
+                                    {breed.name}
+                                </BreedItem>
+                            ))}
+                        </BreedList>
+                    )}
+                </div>
+                {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
+                {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
+            </FieldGroup>
+
+            <FieldGroup>
+                <LabelRow>
+                    <Label>생년월일 <Required>*</Required></Label>
+                    <AgeText>{getAgeString()}</AgeText>
+                </LabelRow>
+
+                <CheckboxWrapper>
+                    <input
+                        type="checkbox"
+                        id="unknown-birth"
+                        checked={isBirthDateUnknown}
+                        onChange={(e) => {
+                            setValue('isBirthDateUnknown', e.target.checked);
+                            if (e.target.checked) {
+                                setValue('birthDate', '');
+                            } else {
+                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
+                            }
+                            trigger('birthDate');
+                        }}
+                    />
+                    <CheckboxLabel htmlFor="unknown-birth">생년월일 모름</CheckboxLabel>
+                </CheckboxWrapper>
+
+                <Controller
+                    name="birthDate"
+                    control={control}
+                    render={({ field }) => (
+                        <div onClick={() => !isBirthDateUnknown && !isSubmitting && setIsDateOpen(true)}>
+                            <StyledDateInput
+                                type="text"
+                                value={field.value || ''}
+                                readOnly
+                                placeholder="YYYY-MM-DD"
+                                disabled={isBirthDateUnknown || isSubmitting}
+                                isPlaceholder={!field.value}
+                                style={{ pointerEvents: 'none' }} // Let div handle click
+                            />
+                        </div>
+                    )}
+                />
+                {errors.birthDate && <ErrorText>{errors.birthDate.message}</ErrorText>}
+            </FieldGroup>
+
+            <ScrollDatePicker
+                isOpen={isDateOpen}
+                onClose={() => setIsDateOpen(false)}
+                onConfirm={(date) => {
+                    setValue('birthDate', date);
+                    trigger('birthDate');
+                }}
+                initialDate={birthDate}
+            />
+
+            <FieldGroup>
+                <Label>몸무게 <Required>*</Required></Label>
+                <WeightWrapper>
+                    <Controller
+                        name="weight"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                {...field}
+                                type="number"
+                                step="0.1"
+                                placeholder="ex) 3.6"
+                                inputMode="decimal"
+                                disabled={isSubmitting}
+                            />
+                        )}
+                    />
+                    <UnitSuffix>kg</UnitSuffix>
+                </WeightWrapper>
+                {errors.weight && <ErrorText>{errors.weight.message}</ErrorText>}
+            </FieldGroup>
+
+            <FieldGroup>
+                <Label>성별 <Required>*</Required></Label>
+                <Controller
+                    name="gender"
+                    control={control}
+                    render={({ field }) => (
+                        <SelectDropdown
+                            options={['수컷', '암컷']}
+                            value={field.value || ''}
+                            onChange={(val) => field.onChange(val)}
+                            placeholder="성별 선택"
                             disabled={isSubmitting}
                         />
                     )}
                 />
-                <UnitSuffix>kg</UnitSuffix>
-            </WeightWrapper>
-            {errors.weight && <ErrorText>{errors.weight.message}</ErrorText>}
-        </FieldGroup>
+                {errors.gender && <ErrorText>{errors.gender.message}</ErrorText>}
+            </FieldGroup>
 
-        <FieldGroup>
-            <Label>성별 <Required>*</Required></Label>
-            <Controller
-                name="gender"
-                control={control}
-                render={({ field }) => (
-                    <SelectDropdown
-                        options={['수컷', '암컷']}
-                        value={field.value || ''}
-                        onChange={(val) => field.onChange(val)}
-                        placeholder="성별 선택"
-                        disabled={isSubmitting}
-                    />
-                )}
-            />
-            {errors.gender && <ErrorText>{errors.gender.message}</ErrorText>}
-        </FieldGroup>
+            <FieldGroup>
+                <Label>중성화 <Required>*</Required></Label>
+                <Controller
+                    name="neutered"
+                    control={control}
+                    render={({ field }) => (
+                        <SelectDropdown
+                            options={['O', 'X']}
+                            value={field.value === true ? 'O' : field.value === false ? 'X' : ''}
+                            onChange={(val) => field.onChange(val === 'O')}
+                            placeholder="중성화 여부 선택"
+                            disabled={isSubmitting}
+                        />
+                    )}
+                />
+                {errors.neutered && <ErrorText>{errors.neutered.message}</ErrorText>}
+            </FieldGroup>
 
-        <FieldGroup>
-            <Label>중성화 <Required>*</Required></Label>
-            <Controller
-                name="neutered"
-                control={control}
-                render={({ field }) => (
-                    <SelectDropdown
-                        options={['O', 'X']}
-                        value={field.value === true ? 'O' : field.value === false ? 'X' : ''}
-                        onChange={(val) => field.onChange(val === 'O')}
-                        placeholder="중성화 여부 선택"
-                        disabled={isSubmitting}
-                    />
-                )}
-            />
-            {errors.neutered && <ErrorText>{errors.neutered.message}</ErrorText>}
-        </FieldGroup>
+            <div style={{ height: '80px' }} />
 
-        <div style={{ height: '80px' }} />
-
-        <SaveButtonWrapper>
-            <Button
-                type="submit"
-                variant="primary"
-                fullWidth
-                disabled={!isValid || isSubmitting}
-            >
-                저장
-            </Button>
-        </SaveButtonWrapper>
-    </FormWrapper>
-);
+            <SaveButtonWrapper>
+                <Button
+                    type="submit"
+                    variant="primary"
+                    fullWidth
+                    disabled={!isValid || isSubmitting}
+                >
+                    저장
+                </Button>
+            </SaveButtonWrapper>
+        </FormWrapper>
+    );
 }
 
 const FormWrapper = styled.form`
