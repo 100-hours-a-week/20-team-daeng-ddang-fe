@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/entities/session/model/store";
 import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../api/user";
+import { dogRepositoryReal } from "@/entities/dog/api/dog.real";
 
 export const useUserQuery = () => {
     const { isLoggedIn } = useAuthStore();
@@ -8,9 +9,22 @@ export const useUserQuery = () => {
 
     return useQuery({
         queryKey: ["user", "info"],
-        queryFn: getUserInfo,
+        queryFn: async () => {
+            const [userInfo, dogInfo] = await Promise.all([
+                getUserInfo(),
+                dogRepositoryReal.getDogInfo()
+            ]);
+
+            if (!userInfo) return null;
+
+            return {
+                ...userInfo,
+                dogId: dogInfo?.id,
+                dogName: dogInfo?.name
+            };
+        },
         retry: 0,
-        enabled: isLoggedIn && hasToken, // 전역 로그인 상태와 토큰이 모두 있을 때만 요청
-        staleTime: 1000 * 60 * 5, // 5분간 캐시 유지 (불필요한 재요청 방지)
+        enabled: isLoggedIn && hasToken,
+        staleTime: 1000 * 60 * 5,
     });
 };

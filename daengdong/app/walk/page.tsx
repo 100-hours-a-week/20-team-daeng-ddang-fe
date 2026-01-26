@@ -10,7 +10,7 @@ import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { useEffect } from "react";
 
 export default function WalkPage() {
-  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks } = useWalkStore();
+  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode } = useWalkStore();
 
   useIdleLocation();
 
@@ -27,7 +27,8 @@ export default function WalkPage() {
 
   useEffect(() => {
     if (nearbyBlocks && user) {
-      const myDogId = user.dogId || user.userId;
+      // 이제 useUserQuery가 실제 dogId를 가져오므로, 정확한 dogId 비교 사용
+      const myDogId = user.dogId;
 
       const myBlocksData = nearbyBlocks.filter(b => b.dogId === myDogId);
       const othersBlocksData = nearbyBlocks.filter(b => b.dogId !== myDogId);
@@ -35,7 +36,7 @@ export default function WalkPage() {
       setMyBlocks(myBlocksData);
       setOthersBlocks(othersBlocksData);
     }
-  }, [nearbyBlocks, user, setMyBlocks, setOthersBlocks]);
+  }, [nearbyBlocks, user, setMyBlocks, setOthersBlocks, walkMode]);
 
   return (
     <div

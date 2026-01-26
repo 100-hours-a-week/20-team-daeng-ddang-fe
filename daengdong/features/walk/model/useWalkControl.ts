@@ -64,10 +64,13 @@ export const useWalkControl = () => {
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentUser = userRef.current;
-        const myId = currentUser?.userId;
+        const myDogId = currentUser?.dogId;
+
+        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
+
         switch (message.type) {
             case "BLOCK_OCCUPIED":
-                if (message.data.dogId === myId) {
+                if (message.data.dogId === myDogId) {
                     addMyBlock({
                         blockId: message.data.blockId,
                         dogId: message.data.dogId,
@@ -85,14 +88,14 @@ export const useWalkControl = () => {
                 }
                 break;
             case "BLOCKS_SYNC":
-                if (!myId) break;
+                if (!myDogId) break;
 
                 const allBlocks = message.data.blocks;
                 const mine: BlockData[] = [];
                 const others: BlockData[] = [];
 
                 allBlocks.forEach((block) => {
-                    if (block.dogId === myId) {
+                    if (block.dogId === myDogId) {
                         mine.push({
                             blockId: block.blockId,
                             dogId: block.dogId,
@@ -114,7 +117,7 @@ export const useWalkControl = () => {
                 const { blockId, previousDogId, newDogId, takenAt } = message.data;
 
                 // 1. 내가 뺏은 경우
-                if (newDogId === myId) {
+                if (newDogId === myDogId) {
                     addMyBlock({
                         blockId,
                         dogId: newDogId,
@@ -123,7 +126,7 @@ export const useWalkControl = () => {
                     removeOthersBlock(blockId);
                 }
                 // 2. 내가 뺏긴 경우
-                else if (previousDogId === myId) {
+                else if (previousDogId === myDogId) {
                     removeMyBlock(blockId);
                     // 뺏어간 사람 정보로 others에 추가
                     updateOthersBlock({
