@@ -9,8 +9,8 @@ const mockDogData: DogInfo = {
     birthDate: "2023-12-23",
     isBirthDateUnknown: false,
     weight: 20.2,
-    gender: "MALE",
-    isNeutered: true,
+    gender: "수컷",
+    neutered: true,
     imageUrl: "https://cdn.example.com/dogs/choco.png",
 };
 
@@ -35,8 +35,8 @@ export const dogRepositoryMock: DogRepository = {
             name: params.name,
             breed: "진돗개",
             breedId: params.breedId,
-            gender: params.gender || "MALE",
-            isNeutered: params.isNeutered || false,
+            gender: params.gender || "수컷",
+            neutered: params.neutered || false,
             birthDate: params.birthDate,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
@@ -50,7 +50,7 @@ export const dogRepositoryMock: DogRepository = {
         mockDogData.birthDate = newDog.birthDate ?? null;
         mockDogData.weight = newDog.weight;
         mockDogData.gender = newDog.gender;
-        mockDogData.isNeutered = newDog.isNeutered;
+        mockDogData.neutered = newDog.neutered;
         mockDogData.imageUrl = newDog.profileImageUrl ?? undefined;
 
         return newDog;
@@ -65,7 +65,7 @@ export const dogRepositoryMock: DogRepository = {
             breed: "진돗개",
             breedId: params.breedId,
             gender: params.gender,
-            isNeutered: params.isNeutered,
+            neutered: params.neutered,
             birthDate: params.birthDate,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
@@ -78,7 +78,7 @@ export const dogRepositoryMock: DogRepository = {
             birthDate: updatedDog.birthDate,
             weight: updatedDog.weight,
             gender: updatedDog.gender,
-            isNeutered: updatedDog.isNeutered,
+            neutered: updatedDog.neutered,
             imageUrl: updatedDog.profileImageUrl,
         });
 

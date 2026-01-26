@@ -19,7 +19,7 @@ export const dogRepositoryReal: DogRepository = {
                 isBirthDateUnknown: false,
                 weight: data.weight,
                 gender: data.gender,
-                isNeutered: data.isNeutered,
+                neutered: data.neutered,
                 imageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {

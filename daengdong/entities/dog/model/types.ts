@@ -1,4 +1,4 @@
-export type Gender = 'MALE' | 'FEMALE';
+export type Gender = string;
 
 export interface Breed {
     breedId: number;
@@ -12,7 +12,7 @@ export interface DogResponse {
     breed: string;
     breedId?: number;
     gender: Gender;
-    isNeutered: boolean;
+    neutered: boolean;
     birthDate: string; // "2021-01-01"
     weight: number;
     profileImageUrl: string | null;
@@ -28,7 +28,7 @@ export interface DogInfo {
     isBirthDateUnknown: boolean;
     weight: number;
     gender: Gender;
-    isNeutered: boolean;
+    neutered: boolean;
     imageUrl?: string | null;
 }
 
@@ -41,7 +41,7 @@ export interface DogFormValues {
     isBirthDateUnknown: boolean;
     weight: string;
     gender: Gender;
-    isNeutered: boolean;
+    neutered: boolean;
     imageFile?: File | null;
 }
 
@@ -52,7 +52,7 @@ export interface CreateDogParams {
     weight: number;
     profileImageUrl?: string;
     gender?: Gender;
-    isNeutered?: boolean;
+    neutered?: boolean;
 }
 
 export interface UpdateDogParams {
@@ -60,7 +60,7 @@ export interface UpdateDogParams {
     breedId: number;
     birthDate: string;
     gender: Gender;
-    isNeutered: boolean;
+    neutered: boolean;
     weight: number;
     profileImageUrl?: string;
 }

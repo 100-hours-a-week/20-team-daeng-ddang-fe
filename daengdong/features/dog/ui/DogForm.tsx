@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFormState } from 'react-hook-form';
 import { z } from 'zod';
 import styled from '@emotion/styled';
 import { spacing, colors, radius } from '@/shared/styles/tokens';
@@ -8,7 +8,7 @@ import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdow
 import { Input } from '@/shared/components/Input/Input';
 import { DogFormValues } from '@/entities/dog/model/types';
 import { ProfileImageUploader } from './ProfileImageUploader';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { ScrollDatePicker } from '@/widgets/ScrollDatePicker/ScrollDatePicker';
 import { useBreedsQuery } from '@/features/dog/api/useBreedsQuery';
@@ -27,8 +27,8 @@ const DogSchema = z.object({
         .string()
         .min(1, '몸무게를 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
-    gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
-    isNeutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
+    gender: z.string({ message: '성별을 선택해주세요.' }).min(1, '성별을 선택해주세요.'),
+    neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
@@ -55,6 +55,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         watch,
         setValue,
         trigger,
+        reset,
         formState: { errors, isValid },
     } = useForm<DogFormValues>({
         resolver: zodResolver(DogSchema),
@@ -66,12 +67,26 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             isBirthDateUnknown: false,
             weight: '',
             gender: undefined,
-            isNeutered: undefined,
+            neutered: undefined,
             imageFile: null,
             ...initialData,
         },
         mode: 'onChange',
     });
+
+    // initialData 변경 시 폼 업데이트 
+    useEffect(() => {
+        if (initialData) {
+            reset((formValues) => ({
+                ...formValues,
+                ...initialData,
+            }));
+
+            if (initialData.breedName) {
+                setBreedSearchKeyword(initialData.breedName);
+            }
+        }
+    }, [initialData, reset]);
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const birthDate = watch('birthDate');
@@ -79,7 +94,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
 
 
     // 견종 검색 State
-    const [breedSearchKeyword, setBreedSearchKeyword] = useState('');
+    const [breedSearchKeyword, setBreedSearchKeyword] = useState(initialData?.breedName || '');
     const [isBreedListOpen, setIsBreedListOpen] = useState(false);
     const { data: breedList } = useBreedsQuery(breedSearchKeyword);
     const breedInputRef = useRef<HTMLInputElement>(null);
@@ -261,8 +276,8 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                     render={({ field }) => (
                         <SelectDropdown
                             options={['수컷', '암컷']}
-                            value={field.value === 'MALE' ? '수컷' : field.value === 'FEMALE' ? '암컷' : ''}
-                            onChange={(val) => field.onChange(val === '수컷' ? 'MALE' : 'FEMALE')}
+                            value={field.value || ''}
+                            onChange={(val) => field.onChange(val)}
                             placeholder="성별 선택"
                             disabled={isSubmitting}
                         />
@@ -274,7 +289,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             <FieldGroup>
                 <Label>중성화 <Required>*</Required></Label>
                 <Controller
-                    name="isNeutered"
+                    name="neutered"
                     control={control}
                     render={({ field }) => (
                         <SelectDropdown
@@ -286,7 +301,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                         />
                     )}
                 />
-                {errors.isNeutered && <ErrorText>{errors.isNeutered.message}</ErrorText>}
+                {errors.neutered && <ErrorText>{errors.neutered.message}</ErrorText>}
             </FieldGroup>
 
             <div style={{ height: '80px' }} />
