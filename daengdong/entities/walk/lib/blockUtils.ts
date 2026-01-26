@@ -2,20 +2,20 @@ export const calculateBlockCoordinates = (blockId: string, blockSize: number = 7
     const parts = blockId.split("_");
     if (parts.length !== 3) return null;
 
-    const tlLat = parseFloat(parts[1]);
-    const tlLng = parseFloat(parts[2]);
+    const blLat = parseFloat(parts[1]);
+    const blLng = parseFloat(parts[2]);
 
-    if (isNaN(tlLat) || isNaN(tlLng)) return null;
+    if (isNaN(blLat) || isNaN(blLng)) return null;
 
     const sizeKm = blockSize / 1000;
     const latDelta = sizeKm / 111;
-    const lngDelta = sizeKm / (111 * Math.cos(tlLat * (Math.PI / 180)));
+    const lngDelta = sizeKm / (111 * Math.cos(blLat * (Math.PI / 180)));
 
     const coordinates = [
-        { lat: tlLat, lng: tlLng }, // Top-Left
-        { lat: tlLat, lng: tlLng + lngDelta }, // Top-Right
-        { lat: tlLat - latDelta, lng: tlLng + lngDelta }, // Bottom-Right
-        { lat: tlLat - latDelta, lng: tlLng }, // Bottom-Left
+        { lat: blLat + latDelta, lng: blLng }, // Top-Left
+        { lat: blLat + latDelta, lng: blLng + lngDelta }, // Top-Right
+        { lat: blLat, lng: blLng + lngDelta }, // Bottom-Right
+        { lat: blLat, lng: blLng }, // Bottom-Left
     ];
 
     return coordinates;

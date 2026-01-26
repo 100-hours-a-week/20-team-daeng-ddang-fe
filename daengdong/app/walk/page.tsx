@@ -6,6 +6,7 @@ import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { Header } from "@/widgets/Header/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
+import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { useEffect } from "react";
 
 export default function WalkPage() {
@@ -22,17 +23,19 @@ export default function WalkPage() {
     1000
   );
 
+  const { data: user } = useUserQuery();
+
   // nearbyBlocks를 myBlocks와 othersBlocks로 분리
   useEffect(() => {
-    if (nearbyBlocks) {
-      const myDogId = 1;
+    if (nearbyBlocks && user) {
+      const myDogId = user.dogId;
       const myBlocksData = nearbyBlocks.filter(b => b.dogId === myDogId);
       const othersBlocksData = nearbyBlocks.filter(b => b.dogId !== myDogId);
 
       setMyBlocks(myBlocksData);
       setOthersBlocks(othersBlocksData);
     }
-  }, [nearbyBlocks, setMyBlocks, setOthersBlocks]);
+  }, [nearbyBlocks, user, setMyBlocks, setOthersBlocks]);
 
   return (
     <div
