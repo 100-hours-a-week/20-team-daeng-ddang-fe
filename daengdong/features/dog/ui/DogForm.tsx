@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller, useFormState } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import styled from '@emotion/styled';
 import { spacing, colors, radius } from '@/shared/styles/tokens';
@@ -29,6 +29,7 @@ const DogSchema = z.object({
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
     neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
+    regionId: z.number().optional(),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
@@ -52,7 +53,6 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const {
         control,
         handleSubmit,
-        watch,
         setValue,
         trigger,
         reset,
@@ -74,6 +74,12 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         mode: 'onChange',
     });
 
+    // 견종 검색 State
+    const [breedSearchKeyword, setBreedSearchKeyword] = useState(initialData?.breedName || '');
+    const [isBreedListOpen, setIsBreedListOpen] = useState(false);
+    const { data: breedList } = useBreedsQuery(breedSearchKeyword);
+    const breedInputRef = useRef<HTMLInputElement>(null);
+
     // initialData 변경 시 폼 업데이트 
     useEffect(() => {
         if (initialData) {
@@ -91,6 +97,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             });
 
             if (initialData.breedName) {
+                // eslint-disable-next-line
                 setBreedSearchKeyword(initialData.breedName);
             }
             // 데이터 로드 후 유효성 검사 실행 (저장 버튼 활성화 위해)
@@ -99,15 +106,8 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     }, [initialData, reset, trigger]);
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const birthDate = watch('birthDate');
-    const isBirthDateUnknown = watch('isBirthDateUnknown');
-
-
-    // 견종 검색 State
-    const [breedSearchKeyword, setBreedSearchKeyword] = useState(initialData?.breedName || '');
-    const [isBreedListOpen, setIsBreedListOpen] = useState(false);
-    const { data: breedList } = useBreedsQuery(breedSearchKeyword);
-    const breedInputRef = useRef<HTMLInputElement>(null);
+    const birthDate = useWatch({ control, name: 'birthDate' });
+    const isBirthDateUnknown = useWatch({ control, name: 'isBirthDateUnknown' });
 
     // 이미지 변경
     const handleImageChange = (file: File | null) => {
