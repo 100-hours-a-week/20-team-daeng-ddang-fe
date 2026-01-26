@@ -13,9 +13,12 @@ export default function WalkPage() {
 
   useIdleLocation();
 
+  // GPS 미세 떨림 방지: 소수점 4자리(약 10m)까지만 사용하여 쿼리 키 고정
+  const roundCoord = (val: number | undefined) => (val ? Math.round(val * 10000) / 10000 : null);
+
   const { data: nearbyBlocks } = useNearbyBlocksQuery(
-    currentPos?.lat ?? null,
-    currentPos?.lng ?? null,
+    roundCoord(currentPos?.lat),
+    roundCoord(currentPos?.lng),
     1000
   );
 
