@@ -25,10 +25,10 @@ export default function WalkPage() {
 
   const { data: user } = useUserQuery();
 
-  // nearbyBlocks를 myBlocks와 othersBlocks로 분리
   useEffect(() => {
     if (nearbyBlocks && user) {
-      const myDogId = user.dogId;
+      const myDogId = user.dogId || user.userId;
+
       const myBlocksData = nearbyBlocks.filter(b => b.dogId === myDogId);
       const othersBlocksData = nearbyBlocks.filter(b => b.dogId !== myDogId);
 

@@ -64,12 +64,10 @@ export const useWalkControl = () => {
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentUser = userRef.current;
-        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
-
+        const myId = currentUser?.userId;
         switch (message.type) {
             case "BLOCK_OCCUPIED":
-                // 점유 성공
-                if (message.data.dogId === currentUser?.dogId) {
+                if (message.data.dogId === myId) {
                     addMyBlock({
                         blockId: message.data.blockId,
                         dogId: message.data.dogId,
@@ -87,14 +85,14 @@ export const useWalkControl = () => {
                 }
                 break;
             case "BLOCKS_SYNC":
-                if (!currentUser?.dogId) break;
+                if (!myId) break;
 
                 const allBlocks = message.data.blocks;
                 const mine: BlockData[] = [];
                 const others: BlockData[] = [];
 
                 allBlocks.forEach((block) => {
-                    if (block.dogId === currentUser.dogId) {
+                    if (block.dogId === myId) {
                         mine.push({
                             blockId: block.blockId,
                             dogId: block.dogId,
@@ -115,8 +113,8 @@ export const useWalkControl = () => {
             case "BLOCK_TAKEN":
                 const { blockId, previousDogId, newDogId, takenAt } = message.data;
 
-                // 1. 내가 뺏은 경우 (남 -> 나)
-                if (newDogId === currentUser?.dogId) {
+                // 1. 내가 뺏은 경우
+                if (newDogId === myId) {
                     addMyBlock({
                         blockId,
                         dogId: newDogId,
@@ -124,8 +122,8 @@ export const useWalkControl = () => {
                     });
                     removeOthersBlock(blockId);
                 }
-                // 2. 내가 뺏긴 경우 (나 -> 남)
-                else if (previousDogId === currentUser?.dogId) {
+                // 2. 내가 뺏긴 경우
+                else if (previousDogId === myId) {
                     removeMyBlock(blockId);
                     // 뺏어간 사람 정보로 others에 추가
                     updateOthersBlock({
@@ -134,7 +132,7 @@ export const useWalkControl = () => {
                         occupiedAt: takenAt
                     });
                 }
-                // 3. 남끼리 뺏고 뺏긴 경우 (남 -> 남)
+                // 3. 남끼리 뺏고 뺏긴 경우
                 else {
                     updateOthersBlock({
                         blockId,
@@ -143,11 +141,10 @@ export const useWalkControl = () => {
                     });
                 }
                 break;
-            // 필요한 경우 추가 메시지 처리
         }
     }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock]);
 
-    // 거리 계산 함수 (Haversine formula)
+    // 거리 계산
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
         const R = 6371; // Earth's radius in km
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -166,11 +163,11 @@ export const useWalkControl = () => {
 
         let watchId: number;
 
-        // Initialize last known position for distance calculation
+        // 마지막 위치 저장
         lastLatRef.current = currentPos?.lat || undefined;
         lastLngRef.current = currentPos?.lng || undefined;
 
-        // 1. 위치 추적 (상태 업데이트용)
+        // 위치 추적
         if ('geolocation' in navigator) {
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
@@ -201,7 +198,7 @@ export const useWalkControl = () => {
             );
         }
 
-        // 2. 주기적 전송 (점유 판정용, 3초마다)
+        // 주기적 전송 (점유 판정용, 3초마다)
         const intervalId = setInterval(() => {
             const current = currentPosRef.current;
             if (current && wsClientRef.current?.getConnectionStatus()) {
@@ -214,7 +211,7 @@ export const useWalkControl = () => {
             clearInterval(intervalId);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [walkMode]); // Dependency에 함수들을 넣으면 무한루프 가능성 있으므로 최소화, handleWebSocketMessage는 제외
+    }, [walkMode]);
 
     // WebSocket 초기화
     useEffect(() => {
