@@ -1,4 +1,4 @@
-export const calculateBlockCoordinates = (blockId: string, blockSize: number = 80) => {
+export const calculateBlockCoordinates = (blockId: string, blockSize: number = 72) => {
     const parts = blockId.split("_");
     if (parts.length !== 3) return null;
 

@@ -39,8 +39,8 @@ export interface WalkState {
 }
 
 export interface StartWalkRequest {
-    startLat: number;
-    startLng: number;
+    latitude: number;
+    longitude: number;
 }
 
 export interface StartWalkResponse {

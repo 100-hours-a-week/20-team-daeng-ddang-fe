@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import { EmotionProvider } from "@/shared/lib/emotion-provider";
 import Providers from "./providers";
 import { LayoutClient } from "./layout-client";
+import { AuthInitializer } from "@/widgets/Init/AuthInitializer";
 
 const cafe24 = localFont({
   src: [
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <EmotionProvider>
           <Providers>
+            <AuthInitializer />
             <LayoutClient>{children}</LayoutClient>
           </Providers>
         </EmotionProvider>

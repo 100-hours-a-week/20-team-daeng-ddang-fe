@@ -215,7 +215,7 @@ export const useWalkControl = () => {
         }
 
         startWalkMutate(
-            { startLat: currentPos.lat, startLng: currentPos.lng },
+            { latitude: currentPos.lat, longitude: currentPos.lng },
             {
                 onSuccess: async (res) => {
                     startWalk(res.walkId);

@@ -153,6 +153,7 @@ http.interceptors.response.use(
                 if (typeof window !== 'undefined') {
                     console.error("❌ Token Refresh Failed. Logging out.");
                     localStorage.removeItem('accessToken');
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
                     window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);
