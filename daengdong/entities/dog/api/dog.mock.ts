@@ -9,7 +9,7 @@ const mockDogData: DogInfo = {
     birthDate: "2023-12-23",
     isBirthDateUnknown: false,
     weight: 20.2,
-    gender: "수컷",
+    gender: "MALE",
     neutered: true,
     imageUrl: "https://cdn.example.com/dogs/choco.png",
 };
@@ -35,7 +35,7 @@ export const dogRepositoryMock: DogRepository = {
             name: params.name,
             breed: "진돗개",
             breedId: params.breedId,
-            gender: params.gender || "수컷",
+            gender: params.gender || "MALE",
             neutered: params.neutered || false,
             birthDate: params.birthDate,
             weight: params.weight,

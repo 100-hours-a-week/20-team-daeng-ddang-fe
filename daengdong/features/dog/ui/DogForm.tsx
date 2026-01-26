@@ -27,7 +27,7 @@ const DogSchema = z.object({
         .string()
         .min(1, '몸무게를 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
-    gender: z.string({ message: '성별을 선택해주세요.' }).min(1, '성별을 선택해주세요.'),
+    gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
     neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
@@ -77,10 +77,18 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     // initialData 변경 시 폼 업데이트 
     useEffect(() => {
         if (initialData) {
-            reset((formValues) => ({
-                ...formValues,
+            reset({
+                name: '',
+                breedId: 0,
+                breedName: '',
+                birthDate: '',
+                isBirthDateUnknown: false,
+                weight: '',
+                gender: undefined,
+                neutered: undefined,
+                imageFile: null,
                 ...initialData,
-            }));
+            });
 
             if (initialData.breedName) {
                 setBreedSearchKeyword(initialData.breedName);
@@ -137,6 +145,16 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
         setValue('breedName', name, { shouldValidate: true });
         setBreedSearchKeyword(name);
         setIsBreedListOpen(false);
+    };
+
+    const genderMap: { [key: string]: 'MALE' | 'FEMALE' } = {
+        '수컷': 'MALE',
+        '암컷': 'FEMALE'
+    };
+
+    const genderReverseMap: { [key: string]: string } = {
+        'MALE': '수컷',
+        'FEMALE': '암컷'
     };
 
     return (
@@ -281,8 +299,13 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
                     render={({ field }) => (
                         <SelectDropdown
                             options={['수컷', '암컷']}
-                            value={field.value || ''}
-                            onChange={(val) => field.onChange(val)}
+                            value={field.value ? genderReverseMap[field.value] : ''}
+                            onChange={(val) => {
+                                const mappedValue = genderMap[val];
+                                if (mappedValue) {
+                                    field.onChange(mappedValue);
+                                }
+                            }}
                             placeholder="성별 선택"
                             disabled={isSubmitting}
                         />
