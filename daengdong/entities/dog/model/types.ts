@@ -1,4 +1,4 @@
-export type Gender = string;
+export type Gender = 'MALE' | 'FEMALE';
 
 export interface Breed {
     breedId: number;
