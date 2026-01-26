@@ -16,6 +16,7 @@ export interface DogResponse {
     birthDate: string; // "2021-01-01"
     weight: number;
     profileImageUrl: string | null;
+    region: string;
 }
 
 // 프론트
@@ -29,6 +30,7 @@ export interface DogInfo {
     weight: number;
     gender: Gender;
     neutered: boolean;
+    region?: string;
     imageUrl?: string | null;
 }
 
@@ -42,6 +44,7 @@ export interface DogFormValues {
     weight: string;
     gender: Gender;
     neutered: boolean;
+    regionId?: number;
     imageFile?: File | null;
 }
 
@@ -53,6 +56,7 @@ export interface CreateDogParams {
     profileImageUrl?: string;
     gender?: Gender;
     neutered?: boolean;
+    regionId: number;
 }
 
 export interface UpdateDogParams {
@@ -63,4 +67,5 @@ export interface UpdateDogParams {
     neutered: boolean;
     weight: number;
     profileImageUrl?: string;
+    regionId: number;
 }
