@@ -274,13 +274,38 @@ export const useWalkControl = () => {
     const handleCancel = () => {
         openModal({
             title: "산책 취소",
-            message: "산책을 취소하시겠습니까? 기록은 저장되지 않습니다.",
+            message: "산책을 취소하시겠습니까?",
             type: "confirm",
             confirmText: "취소하기",
             cancelText: "계속 산책하기",
             onConfirm: () => {
-                wsClientRef.current?.disconnect();
-                reset();
+                if (walkId && currentPos) {
+                    endWalkMutate(
+                        {
+                            walkId: walkId,
+                            endLat: currentPos.lat,
+                            endLng: currentPos.lng,
+                            totalDistanceKm: Number(distance.toFixed(4)),
+                            durationSeconds: elapsedTime,
+                            status: "FINISHED",
+                        },
+                        {
+                            onSuccess: () => {
+                                wsClientRef.current?.disconnect();
+                                reset();
+                            },
+                            onError: () => {
+                                alert("산책 취소 처리에 실패했습니다.");
+                                wsClientRef.current?.disconnect();
+                                reset();
+                            }
+                        }
+                    );
+                } else {
+                    // walkId가 없으면 로컬 리셋만 수행
+                    wsClientRef.current?.disconnect();
+                    reset();
+                }
             },
         });
     };
@@ -327,12 +352,17 @@ export const useWalkControl = () => {
                     const blob = await snapshotResponse.blob();
 
                     if (blob) {
-                        if (ENV.USE_MOCK) {
-                            storedImageUrl = URL.createObjectURL(blob);
-                        } else {
-                            const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
-                            await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                            storedImageUrl = objectKey;
+                        // 결과 페이지 표시용 임시 URL 생성 (Blob URL)
+                        storedImageUrl = URL.createObjectURL(blob);
+
+                        if (!ENV.USE_MOCK) {
+                            try {
+                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                await fileApi.uploadFile(presignedUrl, blob, "image/png");
+                                console.log("스냅샷 S3 업로드 성공:", objectKey);
+                            } catch (e) {
+                                console.error("S3 업로드 실패:", e);
+                            }
                         }
                     }
                 } catch (error) {
