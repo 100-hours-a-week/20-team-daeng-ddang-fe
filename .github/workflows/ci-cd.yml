@@ -112,6 +112,7 @@ jobs:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_NAVER_MAP_CLIENT_ID: ${{ vars.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID }}
           NEXT_PUBLIC_USE_MOCK: ${{ vars.NEXT_PUBLIC_USE_MOCK }}
+          NAVER_MAP_CLIENT_SECRET: ${{ secrets.NAVER_MAP_CLIENT_SECRET }}
         run: |
           start=$(date +%s)
           pnpm build
