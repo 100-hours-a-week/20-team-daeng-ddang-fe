@@ -20,7 +20,7 @@ export interface GetPresignedUrlResponse {
 const realFileApi = {
     // Presigned URL 발급 요청
     getPresignedUrl: async (fileType: FileType, contentType: string, uploadContext: UploadContext) => {
-        const response = await http.post<ApiResponse<GetPresignedUrlResponse>>("/files/presigned-url", {
+        const response = await http.post<ApiResponse<GetPresignedUrlResponse>>("/presigned-url", {
             fileType,
             contentType,
             uploadContext,
