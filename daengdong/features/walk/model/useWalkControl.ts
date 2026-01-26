@@ -331,7 +331,7 @@ export const useWalkControl = () => {
                 let storedImageUrl = "";
 
                 try {
-                    const snapshotResponse = await fetch(`/api/snapshot?walkId=${walkId}`, {
+                    const snapshotResponse = await fetch(`/generate-snapshot?walkId=${walkId}`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
