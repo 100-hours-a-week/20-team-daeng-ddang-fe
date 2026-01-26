@@ -22,7 +22,7 @@ const transformDogInfoToForm = (dogInfo: DogInfo): Partial<DogFormValues> => {
         isBirthDateUnknown: dogInfo.isBirthDateUnknown,
         weight: dogInfo.weight.toString(),
         gender: dogInfo.gender,
-        isNeutered: dogInfo.isNeutered,
+        neutered: dogInfo.neutered,
     };
 };
 
@@ -52,7 +52,7 @@ export function DogInfoScreen() {
                     birthDate: data.birthDate,
                     weight: parseFloat(data.weight),
                     gender: data.gender,
-                    isNeutered: data.isNeutered,
+                    neutered: data.neutered,
                     profileImageUrl: profileImageUrl,
                 },
             }, {
