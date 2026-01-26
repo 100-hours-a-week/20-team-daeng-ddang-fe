@@ -1,4 +1,6 @@
-export const calculateBlockCoordinates = (blockId: string, blockSize: number = 72) => {
+import { BLOCK_SIZE_METERS } from "@/entities/walk/model/constants";
+
+export const calculateBlockCoordinates = (blockId: string, blockSize: number = BLOCK_SIZE_METERS) => {
     const parts = blockId.split("_");
     if (parts.length !== 3) return null;
 

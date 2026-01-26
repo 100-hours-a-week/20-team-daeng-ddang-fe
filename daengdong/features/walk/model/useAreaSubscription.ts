@@ -1,8 +1,7 @@
 import { useRef, useEffect } from "react";
 import { IWalkWebSocketClient } from "@/shared/lib/websocket/types";
 
-const BLOCK_SIZE = 0.00072;
-const AREA_SIZE = 7;
+import { BLOCK_SIZE_DEGREES, AREA_BLOCK_COUNT } from "@/entities/walk/model/constants";
 
 export const useAreaSubscription = (
     currentPos: { lat: number; lng: number } | null,
@@ -16,10 +15,10 @@ export const useAreaSubscription = (
         const { lat, lng } = currentPos;
 
         // Block & Area Calculation
-        const blockX = Math.floor(lat / BLOCK_SIZE);
-        const blockY = Math.floor(lng / BLOCK_SIZE);
-        const areaX = Math.floor(blockX / AREA_SIZE);
-        const areaY = Math.floor(blockY / AREA_SIZE);
+        const blockX = Math.floor(lat / BLOCK_SIZE_DEGREES);
+        const blockY = Math.floor(lng / BLOCK_SIZE_DEGREES);
+        const areaX = Math.floor(blockX / AREA_BLOCK_COUNT);
+        const areaY = Math.floor(blockY / AREA_BLOCK_COUNT);
 
         const newAreaKey = `${areaX}_${areaY}`;
 
