@@ -65,9 +65,9 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                     >
                         <Header>
-                            <CancelButton onClick={onClose}>취소</CancelButton>
+                            <CancelButton type="button" onClick={onClose}>취소</CancelButton>
                             <Title>생년월일 선택</Title>
-                            <ConfirmButton onClick={handleConfirm}>확인</ConfirmButton>
+                            <ConfirmButton type="button" onClick={handleConfirm}>확인</ConfirmButton>
                         </Header>
 
                         <PickerContainer>
