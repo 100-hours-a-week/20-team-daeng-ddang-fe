@@ -34,6 +34,7 @@ export const useWalkControl = () => {
         setMyBlocks,
         setOthersBlocks,
         addMyBlock,
+        removeMyBlock,
         removeOthersBlock,
         updateOthersBlock
     } = useWalkStore();
@@ -110,9 +111,40 @@ export const useWalkControl = () => {
                 setMyBlocks(mine);
                 setOthersBlocks(others);
                 break;
+            case "BLOCK_TAKEN":
+                const { blockId, previousDogId, newDogId, takenAt } = message.data;
+
+                // 1. 내가 뺏은 경우 (남 -> 나)
+                if (newDogId === currentUser?.dogId) {
+                    addMyBlock({
+                        blockId,
+                        dogId: newDogId,
+                        occupiedAt: takenAt
+                    });
+                    removeOthersBlock(blockId);
+                }
+                // 2. 내가 뺏긴 경우 (나 -> 남)
+                else if (previousDogId === currentUser?.dogId) {
+                    removeMyBlock(blockId);
+                    // 뺏어간 사람 정보로 others에 추가
+                    updateOthersBlock({
+                        blockId,
+                        dogId: newDogId,
+                        occupiedAt: takenAt
+                    });
+                }
+                // 3. 남끼리 뺏고 뺏긴 경우 (남 -> 남)
+                else {
+                    updateOthersBlock({
+                        blockId,
+                        dogId: newDogId,
+                        occupiedAt: takenAt
+                    });
+                }
+                break;
             // 필요한 경우 추가 메시지 처리
         }
-    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks]);
+    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock]);
 
     // 거리 계산 함수 (Haversine formula)
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
