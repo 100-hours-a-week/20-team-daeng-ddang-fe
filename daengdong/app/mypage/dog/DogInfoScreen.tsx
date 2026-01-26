@@ -11,10 +11,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import PawPrintIcon from '@/shared/assets/icons/paw-print.svg';
-import { useRegionsQuery } from '@/features/user/api/useRegionsQuery';
-
 // DogInfo → DogFormValues 변환
-const transformDogInfoToForm = (dogInfo: DogInfo, regions: { regionId: number; name: string }[] = []): Partial<DogFormValues> => {
+const transformDogInfoToForm = (dogInfo: DogInfo): Partial<DogFormValues> => {
     // 성별 매핑: "수컷" -> "MALE", "암컷" -> "FEMALE"
     const GENDER_MAP = {
         수컷: 'MALE',
@@ -28,11 +26,6 @@ const transformDogInfoToForm = (dogInfo: DogInfo, regions: { regionId: number; n
             ? GENDER_MAP[dogInfo.gender as keyof typeof GENDER_MAP]
             : undefined;
 
-    const regionMap = Object.fromEntries(
-        regions.map(r => [r.name, r])
-    );
-
-    const region = regionMap[dogInfo.region];
     return {
         name: dogInfo.name,
         breedId: dogInfo.breedId || 0,
@@ -42,7 +35,6 @@ const transformDogInfoToForm = (dogInfo: DogInfo, regions: { regionId: number; n
         weight: dogInfo.weight.toString(),
         gender: gender,
         neutered: dogInfo.neutered,
-        regionId: region?.regionId,
     };
 };
 
@@ -50,9 +42,8 @@ export function DogInfoScreen() {
     const router = useRouter();
     const { showToast } = useToastStore();
     const { data: dogInfo, isLoading: isDogLoading } = useDogInfoQuery();
-    const { data: regions, isLoading: isRegionsLoading } = useRegionsQuery();
 
-    const isLoading = isDogLoading || isRegionsLoading;
+    const isLoading = isDogLoading;
     const saveMutation = useSaveDogMutation();
 
     const handleSave = async (data: DogFormValues) => {
@@ -76,7 +67,6 @@ export function DogInfoScreen() {
                     weight: parseFloat(data.weight),
                     gender: data.gender,
                     neutered: data.neutered,
-                    regionId: data.regionId!, // regionId 추가
                     profileImageUrl: profileImageUrl,
                 },
             }, {
@@ -137,7 +127,7 @@ export function DogInfoScreen() {
             <Header title="반려견 정보" showBackButton={true} onBack={() => router.back()} />
             <Content>
                 <DogForm
-                    initialData={dogInfo ? transformDogInfoToForm(dogInfo, regions) : undefined}
+                    initialData={dogInfo ? transformDogInfoToForm(dogInfo) : undefined}
                     onSubmit={handleSave}
                     isSubmitting={saveMutation.isPending}
                 />

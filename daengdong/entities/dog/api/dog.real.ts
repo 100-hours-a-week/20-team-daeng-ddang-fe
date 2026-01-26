@@ -20,7 +20,6 @@ export const dogRepositoryReal: DogRepository = {
                 weight: data.weight,
                 gender: data.gender,
                 neutered: data.neutered,
-                region: data.region,
                 imageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {

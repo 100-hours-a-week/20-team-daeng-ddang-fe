@@ -29,7 +29,6 @@ const DogSchema = z.object({
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
     neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
-    regionId: z.number().optional(),
     imageFile: z.any().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
