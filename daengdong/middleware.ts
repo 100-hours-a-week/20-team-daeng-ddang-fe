@@ -10,6 +10,7 @@ export function middleware(request: NextRequest) {
         '/oauth/kakao/callback',
         '/walk',
         '/snapshot',
+        '/generate-snapshot',
         '/_next',
         '/favicon.ico',
         '/images',
