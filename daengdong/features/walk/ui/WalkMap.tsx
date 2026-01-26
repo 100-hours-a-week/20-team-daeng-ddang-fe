@@ -23,7 +23,6 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
     // 이미 스크립트가 로드되어 있는 경우 확인
     useEffect(() => {
         if (typeof window !== "undefined" && window.naver && window.naver.maps) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoaded(true);
         }
     }, []);
@@ -31,7 +30,6 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.initNaverMap = () => {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setLoaded(true);
             };
         }
@@ -41,8 +39,7 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
     useEffect(() => {
         if (!loaded || map || !window.naver) return; // map이 이미 있으면 스킵
 
-        // 초기 중심값 설정 (현재 위치가 없으면 기본값 서울시청 사용)
-        // currentPos가 올 때까지 기다리면 깜빡일 수 있으므로 일단 그림
+        // 초기 중심값 설정 (현재 위치가 없으면 기본값 사용)
         const centerLat = currentPos?.lat ?? 37.5665;
         const centerLng = currentPos?.lng ?? 126.9780;
 
@@ -61,9 +58,9 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
             },
         });
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMap(newMap);
-    }, [loaded, map]); // loaded가 true가 되면 실행, map이 생기면 더 이상 실행 안 함
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loaded, map]);
 
     // 위치 변경 시 지도 이동
     useEffect(() => {

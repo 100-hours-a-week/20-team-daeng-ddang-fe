@@ -14,7 +14,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
     ) { }
 
     // WebSocket 연결 및 자동 구독
-    connect(walkId: number): Promise<void> {
+    connect(walkId: number, accessToken?: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.walkId = walkId;
 
@@ -26,6 +26,10 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
             this.client = new Client({
                 brokerURL: `${wsUrl}/ws/walks`,
+                connectHeaders: {
+                    Authorization: accessToken ? `Bearer ${accessToken}` : '',
+                    walkId: walkId.toString(),
+                },
                 debug: (str) => {
 
                     console.log('[STOMP Debug]', str);

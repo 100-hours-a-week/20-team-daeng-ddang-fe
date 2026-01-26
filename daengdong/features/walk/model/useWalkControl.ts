@@ -142,7 +142,8 @@ export const useWalkControl = () => {
 
                     // WebSocket 연결
                     try {
-                        await wsClientRef.current?.connect(res.walkId);
+                        const token = localStorage.getItem('accessToken') || undefined;
+                        await wsClientRef.current?.connect(res.walkId, token);
                         console.log("WebSocket 연결 성공:", res.walkId);
                     } catch (e) {
                         console.error("WebSocket 연결 실패:", e);

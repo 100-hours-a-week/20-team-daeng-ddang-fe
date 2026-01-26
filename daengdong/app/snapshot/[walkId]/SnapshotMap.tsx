@@ -31,23 +31,29 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<NaverMap | null>(null);
 
-    const [path, setPath] = useState(initialPath);
-    const [myBlocks, setMyBlocks] = useState(initialMyBlocks);
-    const [othersBlocks, setOthersBlocks] = useState(initialOthersBlocks);
-
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            const data = window.SNAPSHOT_DATA;
-            if (data) {
-                console.log("[SnapshotMap] Loaded data from window:", data);
-                if (data.path && data.path.length > 0) setPath(data.path);
-                if (data.myBlocks && data.myBlocks.length > 0) setMyBlocks(data.myBlocks);
-                if (data.othersBlocks && data.othersBlocks.length > 0) setOthersBlocks(data.othersBlocks);
-            } else {
-                console.warn("[SnapshotMap] No SNAPSHOT_DATA found in window");
-            }
+    const [path, setPath] = useState(() => {
+        if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.path) {
+            console.log("[SnapshotMap] Loaded path from window");
+            return window.SNAPSHOT_DATA.path;
         }
-    }, []);
+        return initialPath;
+    });
+
+    const [myBlocks, setMyBlocks] = useState(() => {
+        if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.myBlocks) {
+            console.log("[SnapshotMap] Loaded myBlocks from window");
+            return window.SNAPSHOT_DATA.myBlocks;
+        }
+        return initialMyBlocks;
+    });
+
+    const [othersBlocks, setOthersBlocks] = useState(() => {
+        if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.othersBlocks) {
+            console.log("[SnapshotMap] Loaded othersBlocks from window");
+            return window.SNAPSHOT_DATA.othersBlocks;
+        }
+        return initialOthersBlocks;
+    });
 
     const centerLat = path.length > 0 ? path[path.length - 1].lat : 37.3868;
     const centerLng = path.length > 0 ? path[path.length - 1].lng : 127.1247;
