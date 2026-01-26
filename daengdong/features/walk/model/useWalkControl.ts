@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { BlockData } from "@/entities/walk/model/types";
@@ -43,13 +43,21 @@ export const useWalkControl = () => {
 
     const wsClientRef = useRef<WalkWebSocketClient | null>(null);
     const userRef = useRef(user);
+    const currentPosRef = useRef(currentPos);
+    const lastLatRef = useRef<number | undefined>(undefined);
+    const lastLngRef = useRef<number | undefined>(undefined);
 
     // user 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
         userRef.current = user;
     }, [user]);
 
-    const handleWebSocketMessage = (message: ServerMessage) => {
+    // currentPos ref 업데이트
+    useEffect(() => {
+        currentPosRef.current = currentPos;
+    }, [currentPos]);
+
+    const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentUser = userRef.current;
 
         switch (message.type) {
@@ -100,7 +108,7 @@ export const useWalkControl = () => {
                 break;
             // 필요한 경우 추가 메시지 처리
         }
-    };
+    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks]);
 
     // 거리 계산 함수 (Haversine formula)
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -120,50 +128,53 @@ export const useWalkControl = () => {
         if (walkMode !== 'walking') return;
 
         let watchId: number;
-        let lastLat = currentPos?.lat;
-        let lastLng = currentPos?.lng;
 
+        // Initialize last known position for distance calculation
+        lastLatRef.current = currentPos?.lat || undefined;
+        lastLngRef.current = currentPos?.lng || undefined;
+
+        // 1. 위치 추적 (상태 업데이트용)
         if ('geolocation' in navigator) {
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
 
-                    // 1. 위치 업데이트
+                    // 위치 업데이트
                     setCurrentPos({ lat: latitude, lng: longitude });
 
-                    // 2. 경로 추가
+                    // 경로 추가
                     addPathPoint({ lat: latitude, lng: longitude });
 
-                    // 3. 거리 계산 및 업데이트
-                    if (lastLat && lastLng) {
-                        const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
-                        // 너무 작은 이동(GPS 튀는 현상 방지)이나 너무 큰 이동(에러) 필터링 가능하지만 일단 기본 적용
-                        if (dist > 0.0005) { // 약 0.5m 이상 이동 시
+                    // 거리 계산 및 업데이트
+                    const currentLastLat = lastLatRef.current;
+                    const currentLastLng = lastLngRef.current;
+
+                    if (currentLastLat && currentLastLng) {
+                        const dist = calculateDistance(currentLastLat, currentLastLng, latitude, longitude);
+                        if (dist > 0.0005) {
                             addDistance(dist);
                         }
                     }
 
-                    lastLat = latitude;
-                    lastLng = longitude;
-
-                    // 4. WebSocket 전송
-                    if (wsClientRef.current?.getConnectionStatus()) {
-                        wsClientRef.current.sendLocation(latitude, longitude);
-                    }
+                    lastLatRef.current = latitude;
+                    lastLngRef.current = longitude;
                 },
-                (error) => {
-                    console.error("Location tracking error:", error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
+                (error) => console.error("Location tracking error:", error),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
 
+        // 2. 주기적 전송 (점유 판정용, 3초마다)
+        const intervalId = setInterval(() => {
+            const current = currentPosRef.current;
+            if (current && wsClientRef.current?.getConnectionStatus()) {
+                wsClientRef.current.sendLocation(current.lat, current.lng);
+            }
+        }, 3000);
+
         return () => {
             if (watchId) navigator.geolocation.clearWatch(watchId);
+            clearInterval(intervalId);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walkMode]); // Dependency에 함수들을 넣으면 무한루프 가능성 있으므로 최소화, handleWebSocketMessage는 제외
