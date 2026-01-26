@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { BlockData } from "@/entities/walk/model/types";
@@ -48,7 +48,7 @@ export const useWalkControl = () => {
         userRef.current = user;
     }, [user]);
 
-    const handleWebSocketMessage = (message: ServerMessage) => {
+    const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentUser = userRef.current;
 
         switch (message.type) {
@@ -99,7 +99,7 @@ export const useWalkControl = () => {
                 break;
             // 필요한 경우 추가 메시지 처리
         }
-    };
+    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks]);
 
     // WebSocket 초기화
     useEffect(() => {
@@ -121,7 +121,7 @@ export const useWalkControl = () => {
         return () => {
             wsClientRef.current?.disconnect();
         };
-    }, []); // 의존성 없음
+    }, [handleWebSocketMessage]);
 
     const handleStart = () => {
         if (!user || isError) {
@@ -190,8 +190,6 @@ export const useWalkControl = () => {
                 let storedImageUrl = "";
 
                 try {
-                    // 서버 사이드 스냅샷 생성 요청
-                    // 실패하더라도 산책 종료는 진행해야 하므로 별도 try-catch로 감쌈
                     const snapshotResponse = await fetch(`/api/snapshot?walkId=${walkId}`, {
                         method: "POST",
                         headers: {
@@ -214,9 +212,7 @@ export const useWalkControl = () => {
 
                     if (blob) {
                         if (ENV.USE_MOCK) {
-                            // Mock 모드일 때는 로컬 blob URL 사용 (이미지 바로 보임)
                             storedImageUrl = URL.createObjectURL(blob);
-                            console.log("[Mock] Local Object URL created:", storedImageUrl);
                         } else {
                             const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                             await fileApi.uploadFile(presignedUrl, blob, "image/png");
@@ -225,7 +221,6 @@ export const useWalkControl = () => {
                     }
                 } catch (error) {
                     console.error("Snapshot creation/upload failed:", error);
-                    // 스냅샷 실패해도 산책 종료는 계속 진행 (이미지 없이)
                 }
 
                 // 산책 종료 API 호출
