@@ -12,6 +12,7 @@ import { spacing } from '@/shared/styles/tokens';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import PawPrintIcon from '@/shared/assets/icons/paw-print.svg';
+import { useAuthStore } from '@/entities/session/model/store';
 
 export default function MyPage() {
   const router = useRouter();
@@ -26,6 +27,10 @@ export default function MyPage() {
       confirmText: "확인",
       cancelText: "취소",
       onConfirm: () => {
+        localStorage.removeItem('accessToken');
+        document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
+        useAuthStore.getState().setLoggedIn(false);
+
         showToast({
           message: "로그아웃되었습니다!",
           type: "success",

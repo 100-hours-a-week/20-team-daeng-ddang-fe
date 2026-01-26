@@ -13,23 +13,19 @@ export function middleware(request: NextRequest) {
         '/_next',
         '/favicon.ico',
         '/images',
-        '/mypage',
-        '/mypage/dog',
-        '/mypage/user',
-        '/walk/complete',
     ];
 
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
 
-    const hasRefreshToken = request.cookies.has('refreshToken'); // TODO: 백엔드 리프레시 토큰 이름 확인 필요
+    const hasAuthCookie = request.cookies.has('isLoggedIn');
 
-    if (!isPublicPath && !hasRefreshToken) {
+    if (!isPublicPath && !hasAuthCookie) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         return NextResponse.redirect(url);
     }
 
-    if (pathname === '/login' && hasRefreshToken) {
+    if (pathname === '/login' && hasAuthCookie) {
         const url = request.nextUrl.clone();
         url.pathname = '/walk';
         return NextResponse.redirect(url);

@@ -105,6 +105,7 @@ http.interceptors.response.use(
                 if (typeof window !== 'undefined') {
                     console.warn("🚨 Reuse of expired token detected. Forcing logout.");
                     localStorage.removeItem('accessToken');
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
                     window.location.href = '/login';
                 }
                 return Promise.reject(error);

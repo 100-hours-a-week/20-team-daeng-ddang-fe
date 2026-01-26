@@ -40,6 +40,7 @@ export const useWalkStore = create<WalkState>()(
                     path: [],
                     myBlocks: [],
                     othersBlocks: [],
+                    // walkResult preserved for summary page
                 }),
 
             reset: () =>
