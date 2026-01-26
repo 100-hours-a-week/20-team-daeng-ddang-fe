@@ -352,8 +352,14 @@ export const useWalkControl = () => {
                     const blob = await snapshotResponse.blob();
 
                     if (blob) {
-                        // 결과 페이지 표시용 임시 URL 생성 (Blob URL)
-                        storedImageUrl = URL.createObjectURL(blob);
+                        // TODO: 임시 처리 - 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
+                        // 추후 S3 조회 URL 정책이 확정되면 해당 URL을 사용하는 방식으로 교체 필요
+                        const base64Url = await new Promise<string>((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result as string);
+                            reader.readAsDataURL(blob);
+                        });
+                        storedImageUrl = base64Url;
 
                         if (!ENV.USE_MOCK) {
                             try {

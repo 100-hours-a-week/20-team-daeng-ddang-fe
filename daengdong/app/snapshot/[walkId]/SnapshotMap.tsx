@@ -31,7 +31,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<NaverMap | null>(null);
 
-    const [path, setPath] = useState(() => {
+    const [path] = useState(() => {
         if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.path) {
             console.log("[SnapshotMap] Loaded path from window");
             return window.SNAPSHOT_DATA.path;
@@ -39,7 +39,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
         return initialPath;
     });
 
-    const [myBlocks, setMyBlocks] = useState(() => {
+    const [myBlocks] = useState(() => {
         if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.myBlocks) {
             console.log("[SnapshotMap] Loaded myBlocks from window");
             return window.SNAPSHOT_DATA.myBlocks;
@@ -47,7 +47,7 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
         return initialMyBlocks;
     });
 
-    const [othersBlocks, setOthersBlocks] = useState(() => {
+    const [othersBlocks] = useState(() => {
         if (typeof window !== "undefined" && window.SNAPSHOT_DATA?.othersBlocks) {
             console.log("[SnapshotMap] Loaded othersBlocks from window");
             return window.SNAPSHOT_DATA.othersBlocks;
@@ -64,7 +64,6 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
             setLoaded(true);
         } else {
             window.initNaverMap = () => {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setLoaded(true);
             };
         }

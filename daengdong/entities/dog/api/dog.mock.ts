@@ -40,6 +40,7 @@ export const dogRepositoryMock: DogRepository = {
             birthDate: params.birthDate,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
+            region: "경기도 성남시",
         };
 
         // Mock 상태 업데이트
@@ -69,6 +70,7 @@ export const dogRepositoryMock: DogRepository = {
             birthDate: params.birthDate,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
+            region: "경기도 성남시",
         };
 
         // Mock 상태 업데이트
