@@ -14,6 +14,9 @@ import { ENV } from "@/shared/config/env";
 
 export const useWalkControl = () => {
     const {
+        setCurrentPos,
+        addPathPoint,
+        addDistance,
         walkMode,
         elapsedTime,
         distance,
@@ -100,6 +103,72 @@ export const useWalkControl = () => {
             // 필요한 경우 추가 메시지 처리
         }
     }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks]);
+
+    // 거리 계산 함수 (Haversine formula)
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
+
+    // 산책 중 위치 추적 및 전송
+    useEffect(() => {
+        if (walkMode !== 'walking') return;
+
+        let watchId: number;
+        let lastLat = currentPos?.lat;
+        let lastLng = currentPos?.lng;
+
+        if ('geolocation' in navigator) {
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+
+                    // 1. 위치 업데이트
+                    setCurrentPos({ lat: latitude, lng: longitude });
+
+                    // 2. 경로 추가
+                    addPathPoint({ lat: latitude, lng: longitude });
+
+                    // 3. 거리 계산 및 업데이트
+                    if (lastLat && lastLng) {
+                        const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
+                        // 너무 작은 이동(GPS 튀는 현상 방지)이나 너무 큰 이동(에러) 필터링 가능하지만 일단 기본 적용
+                        if (dist > 0.0005) { // 약 0.5m 이상 이동 시
+                            addDistance(dist);
+                        }
+                    }
+
+                    lastLat = latitude;
+                    lastLng = longitude;
+
+                    // 4. WebSocket 전송
+                    if (wsClientRef.current?.getConnectionStatus()) {
+                        wsClientRef.current.sendLocation(latitude, longitude);
+                    }
+                },
+                (error) => {
+                    console.error("Location tracking error:", error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        return () => {
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [walkMode]); // Dependency에 함수들을 넣으면 무한루프 가능성 있으므로 최소화, handleWebSocketMessage는 제외
 
     // WebSocket 초기화
     useEffect(() => {
