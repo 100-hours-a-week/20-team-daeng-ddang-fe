@@ -13,6 +13,7 @@ export function middleware(request: NextRequest) {
         '/_next',
         '/favicon.ico',
         '/images',
+        '/test/websocket'
     ];
 
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
