@@ -1,7 +1,7 @@
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
-import { ServerMessage, ClientMessage } from './types';
+import { ServerMessage, ClientMessage, IWalkWebSocketClient } from './types';
 
-export class WalkWebSocketClient {
+export class WalkWebSocketClient implements IWalkWebSocketClient {
     private client: Client | null = null;
     private walkId: number | null = null;
     private isConnected = false;

@@ -36,13 +36,16 @@ export const SnapshotMap = ({ path: initialPath, myBlocks: initialMyBlocks, othe
     const [othersBlocks, setOthersBlocks] = useState(initialOthersBlocks);
 
     useEffect(() => {
-        if (typeof window !== "undefined" && window.SNAPSHOT_DATA) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            if (window.SNAPSHOT_DATA.path) setPath(window.SNAPSHOT_DATA.path);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            if (window.SNAPSHOT_DATA.myBlocks) setMyBlocks(window.SNAPSHOT_DATA.myBlocks);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            if (window.SNAPSHOT_DATA.othersBlocks) setOthersBlocks(window.SNAPSHOT_DATA.othersBlocks);
+        if (typeof window !== "undefined") {
+            const data = window.SNAPSHOT_DATA;
+            if (data) {
+                console.log("[SnapshotMap] Loaded data from window:", data);
+                if (data.path && data.path.length > 0) setPath(data.path);
+                if (data.myBlocks && data.myBlocks.length > 0) setMyBlocks(data.myBlocks);
+                if (data.othersBlocks && data.othersBlocks.length > 0) setOthersBlocks(data.othersBlocks);
+            } else {
+                console.warn("[SnapshotMap] No SNAPSHOT_DATA found in window");
+            }
         }
     }, []);
 

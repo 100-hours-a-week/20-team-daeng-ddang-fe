@@ -9,9 +9,14 @@ export function middleware(request: NextRequest) {
         '/login',
         '/oauth/kakao/callback',
         '/walk',
+        '/snapshot',
         '/_next',
         '/favicon.ico',
         '/images',
+        '/mypage',
+        '/mypage/dog',
+        '/mypage/user',
+        '/walk/complete',
     ];
 
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));

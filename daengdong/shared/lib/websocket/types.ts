@@ -97,3 +97,10 @@ export type ServerMessage =
 
 // 클라이언트 메시지 타입
 export type ClientMessage = LocationUpdateMessage;
+
+export interface IWalkWebSocketClient {
+    connect(walkId: number, accessToken?: string): Promise<void>;
+    sendLocation(lat: number, lng: number): void;
+    disconnect(): void;
+    getConnectionStatus(): boolean;
+}

@@ -8,7 +8,9 @@ import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations
 import { fileApi } from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
-import { ServerMessage } from "@/shared/lib/websocket/types";
+import { MockWalkWebSocketClient } from "@/shared/lib/websocket/MockWalkWebSocketClient";
+import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
+import { ENV } from "@/shared/config/env";
 
 export const useWalkControl = () => {
     const {
@@ -38,7 +40,7 @@ export const useWalkControl = () => {
     const router = useRouter();
     const { data: user, isError } = useUserQuery();
 
-    const wsClientRef = useRef<WalkWebSocketClient | null>(null);
+    const wsClientRef = useRef<IWalkWebSocketClient | null>(null);
     const userRef = useRef(user);
 
     // user 상태가 변경될 때마다 ref 업데이트
@@ -102,16 +104,24 @@ export const useWalkControl = () => {
     // WebSocket 초기화
     useEffect(() => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
-        wsClientRef.current = new WalkWebSocketClient(
-            baseUrl,
-            handleWebSocketMessage,
-            (error) => console.error("WebSocket Error:", error)
-        );
+
+        if (ENV.USE_MOCK) {
+            wsClientRef.current = new MockWalkWebSocketClient(
+                handleWebSocketMessage,
+                (error) => console.error("Mock WebSocket Error:", error)
+            );
+        } else {
+            wsClientRef.current = new WalkWebSocketClient(
+                baseUrl,
+                handleWebSocketMessage,
+                (error) => console.error("WebSocket Error:", error)
+            );
+        }
 
         return () => {
             wsClientRef.current?.disconnect();
         };
-    }, []);
+    }, []); // 의존성 없음
 
     const handleStart = () => {
         if (!user || isError) {
@@ -177,8 +187,11 @@ export const useWalkControl = () => {
             onConfirm: async () => {
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
 
+                let storedImageUrl = "";
+
                 try {
                     // 서버 사이드 스냅샷 생성 요청
+                    // 실패하더라도 산책 종료는 진행해야 하므로 별도 try-catch로 감쌈
                     const snapshotResponse = await fetch(`/api/snapshot?walkId=${walkId}`, {
                         method: "POST",
                         headers: {
@@ -198,48 +211,52 @@ export const useWalkControl = () => {
                     }
 
                     const blob = await snapshotResponse.blob();
-                    let storedImageUrl = "";
 
                     if (blob) {
-                        const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
-                        await fileApi.uploadFile(presignedUrl, blob, "image/png");
-
-                        storedImageUrl = objectKey;
-                    }
-
-                    endWalkMutate(
-                        {
-                            walkId: walkId,
-                            endLat: currentPos.lat,
-                            endLng: currentPos.lng,
-                            totalDistanceKm: Number(distance.toFixed(4)),
-                            durationSeconds: elapsedTime,
-                            status: "FINISHED",
-                        },
-                        {
-                            onSuccess: () => {
-                                wsClientRef.current?.disconnect();
-                                setWalkResult({
-                                    time: elapsedTime,
-                                    distance: distance,
-                                    imageUrl: storedImageUrl,
-                                });
-
-                                router.push(`/walk/complete/${walkId}`);
-                                endWalk();
-                                hideLoading();
-                            },
-                            onError: () => {
-                                hideLoading();
-                                alert("산책 종료 저장에 실패했습니다.");
-                            }
+                        if (ENV.USE_MOCK) {
+                            // Mock 모드일 때는 로컬 blob URL 사용 (이미지 바로 보임)
+                            storedImageUrl = URL.createObjectURL(blob);
+                            console.log("[Mock] Local Object URL created:", storedImageUrl);
+                        } else {
+                            const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                            await fileApi.uploadFile(presignedUrl, blob, "image/png");
+                            storedImageUrl = objectKey;
                         }
-                    );
+                    }
                 } catch (error) {
-                    console.error("Snapshot creation failed:", error);
-                    hideLoading();
-                    alert("스냅샷 생성 중 오류가 발생했습니다. 산책을 다시 종료해주세요.");
+                    console.error("Snapshot creation/upload failed:", error);
+                    // 스냅샷 실패해도 산책 종료는 계속 진행 (이미지 없이)
                 }
+
+                // 산책 종료 API 호출
+                endWalkMutate(
+                    {
+                        walkId: walkId,
+                        endLat: currentPos.lat,
+                        endLng: currentPos.lng,
+                        totalDistanceKm: Number(distance.toFixed(4)),
+                        durationSeconds: elapsedTime,
+                        status: "FINISHED",
+                    },
+                    {
+                        onSuccess: () => {
+                            wsClientRef.current?.disconnect();
+                            setWalkResult({
+                                time: elapsedTime,
+                                distance: distance,
+                                imageUrl: storedImageUrl,
+                            });
+
+                            router.push(`/walk/complete/${walkId}`);
+                            endWalk();
+                            hideLoading();
+                        },
+                        onError: () => {
+                            hideLoading();
+                            alert("산책 종료 저장에 실패했습니다.");
+                        }
+                    }
+                );
             },
         });
     };

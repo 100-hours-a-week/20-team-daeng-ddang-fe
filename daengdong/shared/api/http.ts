@@ -26,7 +26,8 @@ http.interceptors.request.use(
 
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('accessToken');
-            if (token) {
+            // 토큰 갱신 요청에는 만료된 액세스 토큰을 보내지 않음 (401 유발 방지)
+            if (token && config.url !== '/auth/token') {
                 config.headers.Authorization = `Bearer ${token}`;
             }
         }
