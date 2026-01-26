@@ -13,9 +13,26 @@ export function middleware(request: NextRequest) {
         pathname.startsWith('/static') ||
         pathname.includes('.');
 
-    if (!isPublicPath && !hasAccessToken) {
-        const loginUrl = new URL('/login', request.url);
-        return NextResponse.redirect(loginUrl);
+    // 인증이 필요 없는 경로
+    const publicPaths = [
+        '/login',
+        '/oauth/kakao/callback',
+        '/walk',
+        '/snapshot',
+        '/_next',
+        '/favicon.ico',
+        '/images',
+        '/test/websocket'
+    ];
+
+    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+
+    const hasAuthCookie = request.cookies.has('isLoggedIn');
+
+    if (!isPublicPath && !hasAuthCookie) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
     }
 
     if (hasAccessToken && (pathname === '/login' || pathname.startsWith('/oauth/kakao/callback'))) {
