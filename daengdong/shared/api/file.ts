@@ -3,7 +3,7 @@ import { ApiResponse } from "./types";
 import { ENV } from "@/shared/config/env";
 
 export type FileType = "IMAGE";
-export type UploadContext = "WALK" | "DOG_PROFILE";
+export type UploadContext = "WALK" | "PROFILE";
 
 export interface GetPresignedUrlRequest {
     fileType: FileType;

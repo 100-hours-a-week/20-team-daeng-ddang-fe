@@ -3,6 +3,7 @@ import { startWalkApi, endWalkApi, postWalkDiary } from "@/entities/walk/api/wal
 import { StartWalkRequest, EndWalkRequest, WriteWalkDiaryRequest } from "@/entities/walk/model/types";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
+import { fileApi } from "@/shared/api/file";
 
 export const useStartWalk = () => {
     return useMutation({
@@ -42,7 +43,13 @@ export const useEndWalk = () => {
 
                 if (snapshotRes.ok) {
                     const blob = await snapshotRes.blob();
-                    const imageUrl = URL.createObjectURL(blob);
+                    const { presignedUrl, objectKey } = await fileApi.getPresignedUrl(
+                        "IMAGE",
+                        "image/png",
+                        "WALK"
+                    );
+                    await fileApi.uploadFile(presignedUrl, blob, "image/png");
+                    const imageUrl = `https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/${objectKey}`;
 
                     setWalkResult({
                         time: response.durationSeconds,
