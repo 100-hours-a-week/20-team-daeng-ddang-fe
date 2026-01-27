@@ -117,7 +117,7 @@ const ContentWrapper = styled.div`
 const HintText = styled.p`
   margin: 0;
   font-size: 14px;
-  color: ${colors.gray[600]};
+  color: ${colors.gray[700]};
 `;
 
 const CardWrapper = styled.div`
