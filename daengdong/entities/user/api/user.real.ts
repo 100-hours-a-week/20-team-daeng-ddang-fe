@@ -40,6 +40,10 @@ export const userRepositoryReal: UserRepository = {
         return response.data.data;
     },
 
+    async deleteUser(): Promise<void> {
+        await http.delete('/users');
+    },
+
     async getRegions(parentId?: number): Promise<Region[]> {
         const params = parentId ? { parentId } : {};
         const response = await http.get<ApiResponse<RegionsResponse>>('/users/regions', { params });

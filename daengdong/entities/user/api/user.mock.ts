@@ -89,6 +89,11 @@ export const userRepositoryMock: UserRepository = {
         return updatedUser;
     },
 
+    async deleteUser(): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        hasUserData = false;
+    },
+
     async getRegions(parentId?: number): Promise<Region[]> {
         await new Promise(resolve => setTimeout(resolve, 300));
 
