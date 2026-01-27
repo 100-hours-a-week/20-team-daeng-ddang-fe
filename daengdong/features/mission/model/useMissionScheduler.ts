@@ -10,7 +10,7 @@ export const useMissionScheduler = () => {
     const setActiveMissionAlert = useWalkStore((state) => state.setActiveMissionAlert);
     const activeMissionAlert = useWalkStore((state) => state.activeMissionAlert);
 
-    // Start Scheduling when walk starts and no missions scheduled yet
+    // 산책이 시작되고 아직 예약된 미션이 없을 때 스케줄링 시작
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
         if (scheduledMissions.length > 0) return; // Already scheduled
@@ -20,19 +20,20 @@ export const useMissionScheduler = () => {
                 const response = await missionApi.getMissions();
                 const availableMissions = response.missions;
 
-                // Select 3 random missions
+                // 랜덤 미션 3개 선택
                 const shuffled = [...availableMissions].sort(() => 0.5 - Math.random());
                 const selected = shuffled.slice(0, 3);
 
-                // Rules:
-                // M1: 5-10 min (300-600s)
-                // M2-M3: +10-20 min (600-1200s)
+                // M1: 5-10 분 후
+                // M2-M3: +10-20 분 후
 
                 let currentOffset = 0;
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
 
                 // M1
-                const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
+                // TODO: delay1 랜덤으로 설정
+                //const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
+                const delay1 = 10; // 테스트용 10초후 돌발미션 활성화
                 currentOffset += delay1;
                 if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + currentOffset, triggered: false });
 
@@ -57,7 +58,7 @@ export const useMissionScheduler = () => {
         initializeMissions();
     }, [walkMode, startTime, scheduledMissions.length, setScheduledMissions]);
 
-    // Check triggers
+    // 주기적으로 스케줄 확인
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
 
@@ -70,14 +71,11 @@ export const useMissionScheduler = () => {
                 return item;
             });
 
-            // Is there a newly triggered item?
+            // 새로 트리거된 미션이 있는지 확인
             const newlyTriggered = updated.find((item, idx) => item.triggered && !scheduledMissions[idx].triggered);
             if (newlyTriggered) {
                 console.log("[MissionScheduler] Triggering:", newlyTriggered.mission.title);
-                // Only set alert if no alert is active? 
-                // However, "triggerAt" logic implies we process it. 
-                // If an alert is already active, we might overwrite it or queue? 
-                // Given the interval > 10m, active alerts (10s duration) shouldn't overlap.
+                // TODO: 트리거된 미션을 알림으로 표시
                 setActiveMissionAlert(newlyTriggered.mission);
                 setScheduledMissions(updated);
             }

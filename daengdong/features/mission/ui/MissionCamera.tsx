@@ -4,6 +4,7 @@ import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useRouter } from "next/navigation";
+import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 
 interface MissionCameraProps {
     onComplete: (videoBlob: Blob) => Promise<void>;
@@ -29,6 +30,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
     const { showToast } = useToastStore();
     const { clearCurrentMission } = useMissionStore();
     const router = useRouter();
+    const { showLoading, hideLoading } = useLoadingStore();
 
     // 상태 변경 감지
     useEffect(() => {
@@ -66,6 +68,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
 
     const handleUpload = useCallback(async (blob: Blob) => {
         setFlowState("UPLOADING");
+        showLoading("미션 영상을 업로드 중입니다...");
         try {
             await onComplete(blob);
             showToast({ message: "🎉 돌발미션에 참여했습니다!", type: "success" });
@@ -74,8 +77,10 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
             console.error(e);
             showToast({ message: "❌ 돌발미션에 실패했습니다.", type: "error" });
             router.replace("/walk");
+        } finally {
+            hideLoading();
         }
-    }, [onComplete, showToast, router]);
+    }, [onComplete, showToast, router, showLoading, hideLoading]);
 
     const stopRecording = useCallback(() => {
         if (recorderRef.current && recorderRef.current.state !== "inactive") {
@@ -89,7 +94,12 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
         chunksRef.current = [];
 
         try {
-            const recorder = new MediaRecorder(stream);
+            // Prefer MP4 if supported (Safari/Mobile), else WebM (Chrome)
+            const mimeType = MediaRecorder.isTypeSupported("video/mp4")
+                ? "video/mp4"
+                : "video/webm";
+
+            const recorder = new MediaRecorder(stream, { mimeType });
             recorderRef.current = recorder;
 
             recorder.ondataavailable = (e) => {
@@ -97,7 +107,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
             };
 
             recorder.onstop = () => {
-                const blob = new Blob(chunksRef.current, { type: "video/webm" });
+                const blob = new Blob(chunksRef.current, { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 setPreviewURL(url);
                 handleUpload(blob);
@@ -212,13 +222,6 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                         <RecordingDot />
                         REC (5s)
                     </RecordingBadge>
-                )}
-
-                {flowState === "UPLOADING" && (
-                    <Overlay>
-                        <LoadingSpinner />
-                        <SubText>업로드 중...</SubText>
-                    </Overlay>
                 )}
             </VideoWrapper>
 
@@ -361,17 +364,4 @@ const ErrorMessage = styled.p`
 const ErrorButton = styled(PrimaryButton)`
     width: auto;
     padding: 12px 24px;
-`;
-
-const LoadingSpinner = styled.div`
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
 `;

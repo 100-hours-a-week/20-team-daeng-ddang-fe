@@ -13,6 +13,7 @@ export const useWalkStore = create<WalkState>()(
             distance: 0,
             path: [],
             walkResult: null,
+            missionAnalysis: null,
             myBlocks: [],
             othersBlocks: [],
             scheduledMissions: [],
@@ -27,6 +28,7 @@ export const useWalkStore = create<WalkState>()(
                     distance: 0,
                     path: [],
                     walkResult: null,
+                    missionAnalysis: null,
                     myBlocks: [],
                     othersBlocks: [],
                     scheduledMissions: [],
@@ -47,6 +49,7 @@ export const useWalkStore = create<WalkState>()(
                     scheduledMissions: [],
                     activeMissionAlert: null,
                     // walkResult preserved for summary page
+                    // missionAnalysis preserved for summary page
                 }),
 
             reset: () =>
@@ -59,6 +62,7 @@ export const useWalkStore = create<WalkState>()(
                     distance: 0,
                     path: [],
                     walkResult: null,
+                    missionAnalysis: null,
                     myBlocks: [],
                     othersBlocks: [],
                     scheduledMissions: [],
@@ -87,6 +91,9 @@ export const useWalkStore = create<WalkState>()(
 
             setWalkResult: (result) =>
                 set({ walkResult: result }),
+
+            setMissionAnalysis: (analysis) =>
+                set({ missionAnalysis: analysis }),
 
             setMyBlocks: (blocks) =>
                 set({ myBlocks: blocks }),

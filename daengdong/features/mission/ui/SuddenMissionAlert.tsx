@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Mission } from "@/entities/mission/api/mission";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
@@ -20,9 +21,8 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
-                if (prev <= 1) {
+                if (prev <= 0) {
                     clearInterval(timer);
-                    setActiveMissionAlert(null); // Dismiss on timeout
                     return 0;
                 }
                 return prev - 1;
@@ -31,7 +31,13 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [setActiveMissionAlert]);
+    }, []);
+
+    useEffect(() => {
+        if (timeLeft === 0) {
+            setActiveMissionAlert(null);
+        }
+    }, [timeLeft, setActiveMissionAlert]);
 
     const handleClick = () => {
         // Activate Mission
@@ -44,43 +50,50 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
         router.push("/walk/mission");
     };
 
+    const alertWidth = Math.max(35, progress);
+
     return (
-        <AlertContainer onClick={handleClick}>
-            <ProgressBar style={{ width: `${progress}%` }} />
-            <Content>
-                <Icon>🚨</Icon>
-                <TextWrapper>
-                    <Title>돌발 미션 발생!</Title>
-                    <SubTitle>{timeLeft}초 안에 터치하여 시작하세요</SubTitle>
-                </TextWrapper>
-            </Content>
-        </AlertContainer>
+        <AlertWrapper>
+            <AlertContainer
+                onClick={handleClick}
+                animate={{ width: `${alertWidth}%` }}
+                transition={{ duration: 0.9, ease: "easeInOut" }}
+            >
+                <Content>
+                    <Icon>🚨</Icon>
+                    <TextWrapper>
+                        <Title>돌발 미션 발생!</Title>
+                        <SubTitle>{timeLeft}초 안에 터치하여 시작하세요</SubTitle>
+                    </TextWrapper>
+                </Content>
+            </AlertContainer>
+        </AlertWrapper>
     );
 };
 
-const AlertContainer = styled.button`
-    position: relative;
+const AlertWrapper = styled.div`
     width: 100%;
-    height: 60px;
-    background: ${colors.gray[900]};
+    display: flex;
+    justify-content: center;
+    margin-bottom: ${spacing[3]}px;
+`;
+
+const AlertContainer = styled(motion.button)`
+    position: relative;
+    height: 48px;
+    background: linear-gradient(135deg, #2f6bff, #1c4fd4);
     border-radius: ${radius.lg};
     overflow: hidden;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    margin-bottom: ${spacing[3]}px;
+    box-shadow: 0 6px 16px rgba(28, 79, 212, 0.35);
     padding: 0;
-`;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 
-const ProgressBar = styled.div`
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 100%;
-    background: ${colors.primary[500]};
-    opacity: 0.2;
-    transition: width 1s linear;
+    &:active {
+        transform: scale(0.98);
+        box-shadow: 0 4px 10px rgba(28, 79, 212, 0.25);
+    }
 `;
 
 const Content = styled.div`
@@ -95,7 +108,7 @@ const Content = styled.div`
 `;
 
 const Icon = styled.span`
-    font-size: 24px;
+    font-size: 20px;
 `;
 
 const TextWrapper = styled.div`
@@ -105,12 +118,12 @@ const TextWrapper = styled.div`
 `;
 
 const Title = styled.span`
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     color: white;
 `;
 
 const SubTitle = styled.span`
-    font-size: 12px;
-    color: ${colors.gray[300]};
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.85);
 `;

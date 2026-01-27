@@ -4,7 +4,7 @@ import { walkApi } from "../api";
 export const useWalkMissionQuery = (walkId: number | undefined) => {
     return useQuery({
         queryKey: ["walkMissionAnalysis", walkId],
-        queryFn: () => walkApi.getWalkMissionAnalysis(walkId!),
+        queryFn: () => walkApi.judgeWalkMissions(walkId!),
         enabled: !!walkId,
         retry: false,
     });

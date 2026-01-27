@@ -21,6 +21,7 @@ export interface WalkState {
     distance: number;
     path: LatLng[];
     walkResult: WalkResult | null;
+    missionAnalysis: MissionAnalysisData | null;
     myBlocks: BlockData[];
     othersBlocks: BlockData[];
     scheduledMissions: { mission: Mission; triggerAt: number; triggered: boolean }[];
@@ -34,6 +35,7 @@ export interface WalkState {
     addPathPoint: (pos: LatLng) => void;
     addDistance: (km: number) => void;
     setWalkResult: (result: WalkResult) => void;
+    setMissionAnalysis: (analysis: MissionAnalysisData | null) => void;
     setMyBlocks: (blocks: BlockData[]) => void;
     setOthersBlocks: (blocks: BlockData[]) => void;
     addMyBlock: (block: BlockData) => void;
@@ -102,15 +104,12 @@ export interface NearbyBlocksParams {
 }
 
 export interface MissionRecord {
-    missionRecordId: number;
     missionId: number;
-    title: string;
-    status: "SUCCESS" | "FAIL";
-    confidence: number;
-    message: string;
+    success: boolean;
 }
 
 export interface MissionAnalysisData {
+    analysisId: string;
     walkId: number;
     analyzedAt: string;
     missions: MissionRecord[];
