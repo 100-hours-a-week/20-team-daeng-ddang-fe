@@ -51,7 +51,13 @@ export async function POST(req: NextRequest) {
 
         const protocol = req.nextUrl.protocol;
         const host = req.nextUrl.host;
-        const snapshotUrl = `${protocol}//${host}/snapshot/${walkId}`;
+        const [hostName, hostPort] = host.split(":");
+        const port = hostPort || process.env.PORT || "3000";
+        const isBindAddress = hostName === "0.0.0.0";
+
+        const snapshotUrl = isBindAddress
+            ? `http://127.0.0.1:${port}/snapshot/${walkId}`
+            : `${protocol}//${host}/snapshot/${walkId}`;
 
         console.log(`스냅샷 생성 URL: ${snapshotUrl}`);
 
