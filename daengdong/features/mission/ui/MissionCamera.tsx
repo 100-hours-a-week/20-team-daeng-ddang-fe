@@ -6,13 +6,13 @@ import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useRouter } from "next/navigation";
 
 interface MissionCameraProps {
-    missionId: number;
     onComplete: (videoBlob: Blob) => Promise<void>;
+    onIdleChange: (isIdle: boolean) => void;
 }
 
 type MissionFlowState = "IDLE" | "COUNTDOWN" | "RECORDING" | "PREVIEW" | "UPLOADING";
 
-export const MissionCamera = ({ onComplete }: MissionCameraProps) => {
+export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
     const recorderRef = useRef<MediaRecorder | null>(null);
@@ -29,6 +29,11 @@ export const MissionCamera = ({ onComplete }: MissionCameraProps) => {
     const { showToast } = useToastStore();
     const { clearCurrentMission } = useMissionStore();
     const router = useRouter();
+
+    // 상태 변경 감지
+    useEffect(() => {
+        onIdleChange(flowState === "IDLE");
+    }, [flowState, onIdleChange]);
 
     // -- Handlers --
 
@@ -127,6 +132,7 @@ export const MissionCamera = ({ onComplete }: MissionCameraProps) => {
         }, 1000);
     }, [stream, startRecording]);
 
+    // -- Effects --
 
     // 초기화 및 60초 타이머
     useEffect(() => {
@@ -241,7 +247,7 @@ const Container = styled.div`
 const VideoWrapper = styled.div`
     position: relative;
     width: 100%;
-    height: 420px;
+    height: 360px;
     border-radius: ${radius.lg};
     overflow: hidden;
     background-color: ${colors.gray[900]};
