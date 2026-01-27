@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { spacing, colors } from "@/shared/styles/tokens";
 import { PathMapImage } from '@/features/walk/ui/PathMapImage';
 import { WalkSummarySection } from '@/features/walk/ui/WalkSummarySection';
-import { MissionResultSection } from '@/features/missions/ui/MissionResultSection';
+import { MissionResultSection } from '@/features/mission/ui/MissionResultSection';
 import { WalkLogForm } from '@/features/walk/ui/WalkLogForm';
 
 import { use } from 'react';

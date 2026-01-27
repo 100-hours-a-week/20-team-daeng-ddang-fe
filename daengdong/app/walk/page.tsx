@@ -9,10 +9,15 @@ import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { useEffect } from "react";
 
+import { useMissionScheduler } from "@/features/mission/model/useMissionScheduler";
+import { SuddenMissionAlert } from "@/features/mission/ui/SuddenMissionAlert";
+import styled from "@emotion/styled";
+
 export default function WalkPage() {
-  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode } = useWalkStore();
+  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode, activeMissionAlert } = useWalkStore();
 
   useIdleLocation();
+  useMissionScheduler();
 
   // GPS 미세 떨림 방지: 소수점 4자리(약 10m)까지만 사용하여 쿼리 키 고정
   const roundCoord = (val: number | undefined) => (val ? Math.round(val * 10000) / 10000 : null);
@@ -46,13 +51,28 @@ export default function WalkPage() {
         height: "calc(100vh - 80px)",
       }}
     >
-      <Header title="산책하기" showBackButton={false} />
+      <Header title="댕동여지도" showBackButton={false} />
       <WalkMap
         currentPos={currentPos}
         myBlocks={myBlocks}
         othersBlocks={othersBlocks}
       />
-      <WalkStatusPanel />
+
+      <BottomLayout>
+        {activeMissionAlert && <SuddenMissionAlert mission={activeMissionAlert} />}
+        <WalkStatusPanel />
+      </BottomLayout>
     </div>
   );
 }
+
+const BottomLayout = styled.div`
+  position: fixed;
+  bottom: calc(60px + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;

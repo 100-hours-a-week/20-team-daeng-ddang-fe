@@ -1,9 +1,8 @@
 import { http } from "./http";
 import { ApiResponse } from "./types";
 
-
-export type FileType = "IMAGE";
-export type UploadContext = "WALK" | "PROFILE";
+export type FileType = "IMAGE" | "VIDEO";
+export type UploadContext = "WALK" | "EXPRESSION" | "HEALTHCARE" | "CHATBOT" | "MISSION" | "PROFILE";
 
 export interface GetPresignedUrlRequest {
     fileType: FileType;
@@ -43,5 +42,4 @@ const realFileApi = {
     },
 };
 
-// MOCK 모드여도 파일 업로드는 실제 S3를 사용하도록 강제함
 export const fileApi = realFileApi;
