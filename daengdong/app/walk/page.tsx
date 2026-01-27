@@ -51,7 +51,7 @@ export default function WalkPage() {
         height: "calc(100vh - 80px)",
       }}
     >
-      <Header title="산책하기" showBackButton={false} />
+      <Header title="댕동여지도" showBackButton={false} />
       <WalkMap
         currentPos={currentPos}
         myBlocks={myBlocks}

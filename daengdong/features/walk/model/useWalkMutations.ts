@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { startWalkApi, endWalkApi, postWalkDiary } from "@/entities/walk/api/walk";
 import { StartWalkRequest, EndWalkRequest, WriteWalkDiaryRequest } from "@/entities/walk/model/types";
 import { useToastStore } from "@/shared/stores/useToastStore";
-import { useWalkStore } from "@/entities/walk/model/walkStore";
 
 export const useStartWalk = () => {
     return useMutation({
@@ -22,54 +21,6 @@ export const useStartWalk = () => {
 export const useEndWalk = () => {
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
-        onSuccess: async (response) => {
-            const { walkId } = response;
-            const { setWalkResult, path, myBlocks, othersBlocks } = useWalkStore.getState();
-            const blockCount = myBlocks.length;
-
-            try {
-                const snapshotRes = await fetch(`/api/snapshot?walkId=${walkId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data: {
-                            path: path,
-                            myBlocks: myBlocks,
-                            othersBlocks: othersBlocks,
-                        }
-                    })
-                });
-
-                if (snapshotRes.ok) {
-                    const blob = await snapshotRes.blob();
-                    const imageUrl = URL.createObjectURL(blob);
-
-                    setWalkResult({
-                        time: response.durationSeconds,
-                        distance: response.totalDistanceKm,
-                        imageUrl,
-                        blockCount,
-                    });
-                } else {
-                    console.error("지도 스냅샷 실패");
-                    setWalkResult({
-                        time: response.durationSeconds,
-                        distance: response.totalDistanceKm,
-                        imageUrl: undefined,
-                        blockCount,
-                    });
-                }
-
-            } catch (e) {
-                console.error("지도 스냅샷 생성 실패", e);
-                setWalkResult({
-                    time: response.durationSeconds,
-                    distance: response.totalDistanceKm,
-                    imageUrl: undefined,
-                    blockCount,
-                });
-            }
-        },
         onError: (error) => {
             console.error("산책 종료 실패", error);
             const { showToast } = useToastStore.getState();
