@@ -51,7 +51,7 @@ export function DogInfoScreen() {
 
         try {
             if (data.imageFile) {
-                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", data.imageFile.type, "DOG_PROFILE");
+                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", data.imageFile.type, "PROFILE");
                 await fileApi.uploadFile(presignedUrl, data.imageFile, data.imageFile.type);
                 profileImageUrl = objectKey;
             }

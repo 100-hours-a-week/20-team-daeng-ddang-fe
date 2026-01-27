@@ -15,7 +15,25 @@ export interface UploadMissionVideoResponse {
     uploadedAt: string;
 }
 
+export interface Mission {
+    missionId: number;
+    title: string;
+    description: string;
+    difficulty: "EASY" | "MEDIUM" | "HARD";
+    missionType: "SIT" | "WAIT" | "LOOK" | "TOUCH" | "ETC";
+    createdAt: string;
+}
+
+export interface GetMissionsResponse {
+    missions: Mission[];
+}
+
 export const missionApi = {
+    getMissions: async () => {
+        const response = await http.get<ApiResponse<GetMissionsResponse>>("/missions");
+        return response.data.data;
+    },
+
     uploadMissionVideo: async ({ walkId, missionId, videoUrl }: UploadMissionVideoParams) => {
         const response = await http.post<ApiResponse<UploadMissionVideoResponse>>(
             `/walks/${walkId}/missions/uploads`,

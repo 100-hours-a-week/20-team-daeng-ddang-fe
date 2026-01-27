@@ -1,3 +1,5 @@
+import { Mission } from "@/entities/mission/api/mission";
+
 export interface LatLng {
     lat: number;
     lng: number;
@@ -21,6 +23,8 @@ export interface WalkState {
     walkResult: WalkResult | null;
     myBlocks: BlockData[];
     othersBlocks: BlockData[];
+    scheduledMissions: { mission: Mission; triggerAt: number; triggered: boolean }[];
+    activeMissionAlert: Mission | null;
 
     startWalk: (id?: number) => void;
     endWalk: () => void;
@@ -36,6 +40,8 @@ export interface WalkState {
     removeMyBlock: (blockId: string) => void;
     updateOthersBlock: (block: BlockData) => void;
     removeOthersBlock: (blockId: string) => void;
+    setScheduledMissions: (missions: { mission: Mission; triggerAt: number; triggered: boolean }[]) => void;
+    setActiveMissionAlert: (mission: Mission | null) => void;
 }
 
 export interface StartWalkRequest {
