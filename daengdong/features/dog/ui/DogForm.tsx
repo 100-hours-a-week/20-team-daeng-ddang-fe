@@ -107,7 +107,20 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const birthDate = useWatch({ control, name: 'birthDate' });
     const isBirthDateUnknown = useWatch({ control, name: 'isBirthDateUnknown' });
+    const breedIdValue = useWatch({ control, name: 'breedId' });
+    const breedNameValue = useWatch({ control, name: 'breedName' });
 
+    // 기존 데이터에서 breedId가 없을 때, breedName으로 매칭해서 자동 설정
+    useEffect(() => {
+        if (!breedList || !breedNameValue) return;
+        if (breedIdValue && breedIdValue !== 0) return;
+
+        const matched = breedList.find((breed) => breed.name === breedNameValue);
+        if (matched) {
+            setValue('breedId', matched.breedId, { shouldValidate: true });
+        }
+    }, [breedList, breedNameValue, breedIdValue, setValue]);
+    
     // 이미지 변경
     const handleImageChange = (file: File | null) => {
         setValue('imageFile', file, { shouldDirty: true });
