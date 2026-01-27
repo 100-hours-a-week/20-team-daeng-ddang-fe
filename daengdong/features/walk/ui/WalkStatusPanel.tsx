@@ -51,20 +51,16 @@ export const WalkStatusPanel = () => {
 };
 
 const Container = styled.div`
-  position: fixed;
-  bottom: calc(60px + env(safe-area-inset-bottom));
-  left: 0;
-  right: 0;
   background: white;
   padding: 24px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 16px;
   align-items: center;
+  width: 100%;
 `;
 
 const Message = styled.div`
