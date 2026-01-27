@@ -61,6 +61,12 @@ export async function POST(req: NextRequest) {
 
         console.log(`스냅샷 생성 URL: ${snapshotUrl}`);
 
+        // 네이버 지도 API 인증 우회 (Puppeteer가 헤드리스라 차단될 수 있음)
+        await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        await page.setExtraHTTPHeaders({
+            "Referer": snapshotUrl, // 등록된 도메인(또는 localhost)을 Referer로 전송
+        });
+
         await page.goto(snapshotUrl, {
             waitUntil: "domcontentloaded",
             timeout: 10000,
