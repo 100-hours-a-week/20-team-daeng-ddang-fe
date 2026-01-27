@@ -4,6 +4,7 @@ import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { BlockData } from "@/entities/walk/model/types";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
+import { useToastStore } from "@/shared/stores/useToastStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { fileApi } from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
@@ -41,6 +42,7 @@ export const useWalkControl = () => {
 
     const { openModal } = useModalStore();
     const { showLoading, hideLoading } = useLoadingStore();
+    const { showToast } = useToastStore();
     const { mutate: startWalkMutate } = useStartWalk();
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
@@ -78,6 +80,8 @@ export const useWalkControl = () => {
                     });
                     // 남의 땅이었다면 제거 
                     removeOthersBlock(message.data.blockId);
+
+                    showToast({ message: "새로운 영역을 획득했어요! 🚩", type: "success" });
                 } else {
                     // 남이 점유 
                     updateOthersBlock({
@@ -124,6 +128,8 @@ export const useWalkControl = () => {
                         occupiedAt: takenAt
                     });
                     removeOthersBlock(blockId);
+
+                    showToast({ message: "다른 강아지의 블록을 점령했어요! ⚔️", type: "success" });
                 }
                 // 2. 내가 뺏긴 경우
                 else if (previousDogId === myDogId) {
@@ -134,6 +140,8 @@ export const useWalkControl = () => {
                         dogId: newDogId,
                         occupiedAt: takenAt
                     });
+
+                    showToast({ message: "내 영역을 빼앗겼어요... 🥲", type: "error" });
                 }
                 // 3. 남끼리 뺏고 뺏긴 경우
                 else {
@@ -145,7 +153,7 @@ export const useWalkControl = () => {
                 }
                 break;
         }
-    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock]);
+    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock, showToast]);
 
     // 거리 계산
     const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
