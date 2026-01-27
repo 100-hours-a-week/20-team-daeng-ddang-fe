@@ -401,10 +401,22 @@ export const useWalkControl = () => {
                                 imageUrl: storedImageUrl,
                                 blockCount: myBlocks.length,
                             });
-
-                            router.push(`/walk/complete/${walkId}`);
-                            endWalk();
                             hideLoading();
+                            openModal({
+                                title: "반려견 표정 분석",
+                                message: "산책 종료 시 반려견 표정 분석을 진행할까요?",
+                                type: "confirm",
+                                confirmText: "분석하기",
+                                cancelText: "건너뛰기",
+                                onConfirm: () => {
+                                    router.push(`/walk/expression?walkId=${walkId}`);
+                                    endWalk();
+                                },
+                                onCancel: () => {
+                                    router.push(`/walk/complete/${walkId}`);
+                                    endWalk();
+                                },
+                            });
                         },
                         onError: () => {
                             hideLoading();

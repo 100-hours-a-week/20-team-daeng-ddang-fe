@@ -14,7 +14,7 @@ export const useAreaSubscription = (
 
         const { lat, lng } = currentPos;
 
-        // Block & Area Calculation
+        // 좌표를 블록과 영역으로 변환
         const blockX = Math.floor(lat / BLOCK_SIZE_DEGREES);
         const blockY = Math.floor(lng / BLOCK_SIZE_DEGREES);
         const areaX = Math.floor(blockX / AREA_BLOCK_COUNT);
@@ -23,7 +23,7 @@ export const useAreaSubscription = (
         const newAreaKey = `${areaX}_${areaY}`;
 
         if (subscribedAreaKeyRef.current !== newAreaKey) {
-            // Area Changed: Unsubscribe old -> Subscribe new
+            // 영역 변경 감지: 구독 해제 -> 구독
             if (subscribedAreaKeyRef.current) {
                 console.log(`🔄 Area 변경 감지: ${subscribedAreaKeyRef.current} -> ${newAreaKey}`);
                 wsClient.unsubscribeFromArea();
@@ -35,7 +35,7 @@ export const useAreaSubscription = (
 
     }, [currentPos, wsClient]);
 
-    // Cleanup on unmount or connection loss
+    // 컴포넌트 언마운트 또는 연결 손실 시 구독 해제
     useEffect(() => {
         return () => {
             if (subscribedAreaKeyRef.current && wsClient) {
