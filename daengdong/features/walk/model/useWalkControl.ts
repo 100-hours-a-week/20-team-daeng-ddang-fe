@@ -353,7 +353,6 @@ export const useWalkControl = () => {
 
                     if (blob) {
                         // TODO: 임시 처리 - 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
-                        // 추후 S3 조회 URL 정책이 확정되면 해당 URL을 사용하는 방식으로 교체 필요
                         const base64Url = await new Promise<string>((resolve) => {
                             const reader = new FileReader();
                             reader.onloadend = () => resolve(reader.result as string);
@@ -361,14 +360,12 @@ export const useWalkControl = () => {
                         });
                         storedImageUrl = base64Url;
 
-                        if (!ENV.USE_MOCK) {
-                            try {
-                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
-                                await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                                console.log("스냅샷 S3 업로드 성공:", objectKey);
-                            } catch (e) {
-                                console.error("S3 업로드 실패:", e);
-                            }
+                        try {
+                            const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                            await fileApi.uploadFile(presignedUrl, blob, "image/png");
+                            console.log("스냅샷 S3 업로드 성공:", objectKey);
+                        } catch (e) {
+                            console.error("S3 업로드 실패:", e);
                         }
                     }
                 } catch (error) {
@@ -392,6 +389,7 @@ export const useWalkControl = () => {
                                 time: elapsedTime,
                                 distance: distance,
                                 imageUrl: storedImageUrl,
+                                blockCount: myBlocks.length,
                             });
 
                             router.push(`/walk/complete/${walkId}`);
