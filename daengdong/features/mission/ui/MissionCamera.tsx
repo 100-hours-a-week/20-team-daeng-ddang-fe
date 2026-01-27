@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
@@ -7,171 +7,161 @@ import { useRouter } from "next/navigation";
 
 interface MissionCameraProps {
     missionId: number;
-    onComplete: (videoBlob: Blob) => void;
+    onComplete: (videoBlob: Blob) => Promise<void>;
 }
 
-export const MissionCamera = ({ missionId, onComplete }: MissionCameraProps) => {
+type MissionFlowState = "IDLE" | "COUNTDOWN" | "RECORDING" | "PREVIEW" | "UPLOADING";
+
+export const MissionCamera = ({ onComplete }: MissionCameraProps) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const chunksRef = useRef<Blob[]>([]);
     const recorderRef = useRef<MediaRecorder | null>(null);
-    const countdownTimerRef = useRef<number | null>(null);
+    const flowTimerRef = useRef<number | null>(null);
+    const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [stream, setStream] = useState<MediaStream | null>(null);
-    const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
     const [previewURL, setPreviewURL] = useState<string | null>(null);
-    const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
-    const [isRecording, setIsRecording] = useState(false);
-    const [countdown, setCountdown] = useState(0);
+    const [flowState, setFlowState] = useState<MissionFlowState>("IDLE");
+    const [timeLeft, setTimeLeft] = useState(60);
+    const [countdown, setCountdown] = useState(3);
     const [error, setError] = useState<string | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { showToast } = useToastStore();
     const { clearCurrentMission } = useMissionStore();
     const router = useRouter();
 
-    const initializeCamera = async () => {
+    // -- Handlers --
+
+    const handleCancelMission = useCallback(() => {
+        clearCurrentMission();
+        router.replace("/walk");
+    }, [clearCurrentMission, router]);
+
+    const handleFailTimeout = useCallback(() => {
+        showToast({ message: "시간이 초과되어 미션이 종료되었습니다.", type: "info" });
+        handleCancelMission();
+    }, [showToast, handleCancelMission]);
+
+    const initializeCamera = useCallback(async () => {
         if (!navigator.mediaDevices?.getUserMedia) {
-            const message = "이 브라우저에서는 카메라를 사용할 수 없습니다.";
-            setError(message);
-            showToast({ message, type: "error" });
+            setError("이 브라우저에서는 카메라를 사용할 수 없습니다.");
             return;
         }
-
-        if (!window.isSecureContext) {
-            const message = "보안 연결(HTTPS)에서만 카메라를 사용할 수 있습니다.";
-            setError(message);
-            showToast({ message, type: "error" });
-            return;
-        }
-
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "user" },
                 audio: true,
             });
             setStream(mediaStream);
-            setError(null);
         } catch (err) {
-            console.error("카메라 접근 실패:", err);
-            const message = "카메라 권한이 필요합니다. 권한을 허용해주세요.";
-            setError(message);
-            showToast({ message, type: "error" });
+            console.error(err);
+            setError("카메라 권한이 필요합니다.");
         }
-    };
+    }, []);
 
-    const startCountdown = () => {
-        if (!stream) {
-            initializeCamera();
-            return;
+    const handleUpload = useCallback(async (blob: Blob) => {
+        setFlowState("UPLOADING");
+        try {
+            await onComplete(blob);
+            showToast({ message: "🎉 돌발미션에 참여했습니다!", type: "success" });
+            router.replace("/walk");
+        } catch (e) {
+            console.error(e);
+            showToast({ message: "❌ 돌발미션에 실패했습니다.", type: "error" });
+            router.replace("/walk");
         }
-        if (countdownTimerRef.current) {
-            window.clearInterval(countdownTimerRef.current);
+    }, [onComplete, showToast, router]);
+
+    const stopRecording = useCallback(() => {
+        if (recorderRef.current && recorderRef.current.state !== "inactive") {
+            recorderRef.current.stop();
         }
-        setCountdown(3);
-        countdownTimerRef.current = window.setInterval(() => {
+    }, []);
+
+    const startRecording = useCallback(() => {
+        if (!stream) return;
+        setFlowState("RECORDING");
+        chunksRef.current = [];
+
+        try {
+            const recorder = new MediaRecorder(stream);
+            recorderRef.current = recorder;
+
+            recorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunksRef.current.push(e.data);
+            };
+
+            recorder.onstop = () => {
+                const blob = new Blob(chunksRef.current, { type: "video/webm" });
+                const url = URL.createObjectURL(blob);
+                setPreviewURL(url);
+                handleUpload(blob);
+            };
+
+            recorder.start();
+
+            // 5초 후 자동 종료
+            recordingTimerRef.current = setTimeout(() => {
+                stopRecording();
+            }, 5000);
+        } catch (e) {
+            console.error(e);
+            showToast({ message: "녹화를 시작할 수 없습니다.", type: "error" });
+        }
+    }, [stream, handleUpload, showToast, stopRecording]);
+
+    const handleStartClick = useCallback(() => {
+        if (!stream) return;
+        if (flowTimerRef.current) window.clearInterval(flowTimerRef.current);
+        setFlowState("COUNTDOWN");
+
+        const countdownInterval = window.setInterval(() => {
             setCountdown((prev) => {
                 if (prev <= 1) {
-                    window.clearInterval(countdownTimerRef.current!);
-                    countdownTimerRef.current = null;
+                    window.clearInterval(countdownInterval);
                     startRecording();
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
-    };
+    }, [stream, startRecording]);
 
-    const startRecording = () => {
-        if (!stream) return;
-        if (!("MediaRecorder" in window)) {
-            const message = "이 브라우저에서는 녹화를 지원하지 않습니다.";
-            setError(message);
-            showToast({ message, type: "error" });
-            return;
-        }
 
-        chunksRef.current = [];
-        const newRecorder = new MediaRecorder(stream);
-        recorderRef.current = newRecorder;
-        setRecorder(newRecorder);
-
-        newRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                chunksRef.current.push(event.data);
-            }
-        };
-
-        newRecorder.onstop = () => {
-            const blob = new Blob(chunksRef.current, { type: newRecorder.mimeType });
-            const url = URL.createObjectURL(blob);
-            setRecordedBlob(blob);
-            setPreviewURL(url);
-            setIsRecording(false);
-        };
-
-        newRecorder.start();
-        setIsRecording(true);
-    };
-
-    const stopRecording = () => {
-        if (recorderRef.current && recorderRef.current.state !== "inactive") {
-            recorderRef.current.stop();
-        }
-    };
-
-    const resetRecording = () => {
-        if (previewURL) {
-            URL.revokeObjectURL(previewURL);
-        }
-        setPreviewURL(null);
-        setRecordedBlob(null);
-        setIsRecording(false);
-        setCountdown(0);
-    };
-
-    const handleSubmit = async () => {
-        if (!recordedBlob) return;
-        setIsSubmitting(true);
-        try {
-            await Promise.resolve(onComplete(recordedBlob));
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleCancelMission = () => {
-        clearCurrentMission();
-        router.replace("/walk");
-    };
-
+    // 초기화 및 60초 타이머
     useEffect(() => {
-        initializeCamera();
+        setTimeout(() => { initializeCamera().catch(console.error); }, 0);
+        const timer = window.setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    window.clearInterval(timer);
+                    handleFailTimeout();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        flowTimerRef.current = timer;
+
         return () => {
-            if (countdownTimerRef.current) {
-                window.clearInterval(countdownTimerRef.current);
-            }
+            if (flowTimerRef.current) window.clearInterval(flowTimerRef.current);
+            if (recordingTimerRef.current) clearTimeout(recordingTimerRef.current);
         };
-    }, []);
+    }, [initializeCamera, handleFailTimeout]);
 
+    // 비디오 스트림 연결
     useEffect(() => {
-        if (!videoRef.current) return;
-
-        if (previewURL) {
+        if (videoRef.current && stream && !previewURL) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(() => { });
+        } else if (videoRef.current && previewURL) {
             videoRef.current.srcObject = null;
             videoRef.current.src = previewURL;
-            videoRef.current.controls = true;
-            videoRef.current.play().catch(() => undefined);
-            return;
-        }
-
-        if (stream) {
-            videoRef.current.srcObject = stream;
-            videoRef.current.controls = false;
-            videoRef.current.muted = true;
-            videoRef.current.play().catch(() => undefined);
+            videoRef.current.play().catch(() => { });
         }
     }, [stream, previewURL]);
 
+    // 클린업
     useEffect(() => {
         return () => {
             if (stream) {
@@ -187,8 +177,7 @@ export const MissionCamera = ({ missionId, onComplete }: MissionCameraProps) => 
         return (
             <ErrorContainer>
                 <ErrorMessage>{error}</ErrorMessage>
-                <ErrorButton onClick={initializeCamera}>권한 다시 요청</ErrorButton>
-                <ErrorOutlineButton onClick={handleCancelMission}>미션 취소</ErrorOutlineButton>
+                <ErrorButton onClick={handleCancelMission}>돌아가기</ErrorButton>
             </ErrorContainer>
         );
     }
@@ -196,31 +185,46 @@ export const MissionCamera = ({ missionId, onComplete }: MissionCameraProps) => 
     return (
         <Container>
             <VideoWrapper>
-                <VideoElement ref={videoRef} playsInline />
-                <GuideBox />
-                {countdown > 0 && <CountdownOverlay>{countdown}</CountdownOverlay>}
-                {isRecording && (
+                <VideoElement ref={videoRef} playsInline muted />
+
+                {flowState === "IDLE" && (
+                    <Overlay>
+                        <TimerText>{timeLeft}</TimerText>
+                        <SubText>초 안에 시작해주세요!</SubText>
+                    </Overlay>
+                )}
+
+                {flowState === "COUNTDOWN" && (
+                    <Overlay>
+                        <CountdownText>{countdown}</CountdownText>
+                        <SubText>잠시 후 촬영이 시작됩니다</SubText>
+                    </Overlay>
+                )}
+
+                {flowState === "RECORDING" && (
                     <RecordingBadge>
                         <RecordingDot />
-                        REC
+                        REC (5s)
                     </RecordingBadge>
+                )}
+
+                {flowState === "UPLOADING" && (
+                    <Overlay>
+                        <LoadingSpinner />
+                        <SubText>업로드 중...</SubText>
+                    </Overlay>
                 )}
             </VideoWrapper>
 
             <CTASection>
-                {!previewURL && !isRecording && (
-                    <PrimaryButton onClick={startCountdown}>촬영 시작</PrimaryButton>
+                {flowState === "IDLE" && (
+                    <PrimaryButton onClick={handleStartClick}>촬영하기</PrimaryButton>
                 )}
-                {isRecording && (
-                    <DangerButton onClick={stopRecording}>정지(완료)</DangerButton>
+                {flowState === "RECORDING" && (
+                    <InfoBox>촬영 중입니다...</InfoBox>
                 )}
-                {previewURL && !isRecording && (
-                    <ButtonRow>
-                        <SecondaryButton onClick={resetRecording}>다시 촬영</SecondaryButton>
-                        <PrimaryButton onClick={handleSubmit} disabled={isSubmitting}>
-                            제출하기
-                        </PrimaryButton>
-                    </ButtonRow>
+                {flowState === "UPLOADING" && (
+                    <InfoBox>업로드 중...</InfoBox>
                 )}
             </CTASection>
         </Container>
@@ -249,28 +253,33 @@ const VideoElement = styled.video`
     object-fit: cover;
 `;
 
-const GuideBox = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 70%;
-    height: 55%;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    border-radius: ${radius.lg};
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-`;
-
-const CountdownOverlay = styled.div`
+const Overlay = styled.div`
     position: absolute;
     inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 64px;
-    font-weight: 800;
-    color: white;
     background: rgba(0, 0, 0, 0.4);
+    gap: 8px;
+`;
+
+const TimerText = styled.span`
+    font-size: 48px;
+    font-weight: 800;
+    color: ${colors.primary[500]};
+`;
+
+const CountdownText = styled.span`
+    font-size: 80px;
+    font-weight: 800;
+    color: #fff;
+`;
+
+const SubText = styled.span`
+    font-size: 16px;
+    color: #fff;
+    font-weight: 500;
 `;
 
 const RecordingBadge = styled.div`
@@ -280,19 +289,24 @@ const RecordingBadge = styled.div`
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.6);
+    padding: 6px 12px;
+    background: rgba(229, 115, 115, 0.9);
     color: white;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     border-radius: 999px;
 `;
 
 const RecordingDot = styled.span`
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: ${colors.semantic.error};
+    background: white;
+    animation: blink 1s infinite;
+    
+    @keyframes blink {
+        50% { opacity: 0.5; }
+    }
 `;
 
 const CTASection = styled.div`
@@ -301,77 +315,57 @@ const CTASection = styled.div`
     gap: ${spacing[2]}px;
 `;
 
-const ButtonRow = styled.div`
-    display: flex;
-    gap: ${spacing[2]}px;
-`;
-
 const BaseButton = styled.button`
-    flex: 1;
-    padding: 14px 16px;
+    width: 100%;
+    padding: 16px;
     border-radius: ${radius.md};
     border: none;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+    transition: all 0.2s;
 `;
 
 const PrimaryButton = styled(BaseButton)`
     background: ${colors.primary[500]};
     color: white;
-
-    &:active {
-        background: ${colors.primary[600]};
-    }
+    &:active { background: ${colors.primary[600]}; }
 `;
 
-const SecondaryButton = styled(BaseButton)`
+const InfoBox = styled.div`
+    width: 100%;
+    padding: 16px;
+    text-align: center;
     background: ${colors.gray[100]};
-    color: ${colors.gray[900]};
-`;
-
-const DangerButton = styled(BaseButton)`
-    background: ${colors.semantic.error};
-    color: white;
+    color: ${colors.gray[700]};
+    border-radius: ${radius.md};
+    font-weight: 600;
 `;
 
 const ErrorContainer = styled.div`
-    padding: ${spacing[6]}px ${spacing[4]}px;
-    display: flex;
-    flex-direction: column;
-    gap: ${spacing[3]}px;
-    align-items: center;
+    padding: 40px 20px;
     text-align: center;
 `;
 
 const ErrorMessage = styled.p`
-    margin: 0;
     color: ${colors.gray[800]};
-    font-size: 15px;
+    margin-bottom: 20px;
 `;
 
-const ErrorButton = styled.button`
-    padding: 12px 16px;
-    border-radius: ${radius.md};
-    border: none;
-    background: ${colors.primary[500]};
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
+const ErrorButton = styled(PrimaryButton)`
+    width: auto;
+    padding: 12px 24px;
 `;
 
-const ErrorOutlineButton = styled.button`
-    padding: 12px 16px;
-    border-radius: ${radius.md};
-    border: 1px solid ${colors.gray[300]};
-    background: transparent;
-    color: ${colors.gray[700]};
-    font-weight: 600;
-    cursor: pointer;
+const LoadingSpinner = styled.div`
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 `;

@@ -13,9 +13,12 @@ export const colors = {
     },
     gray: {
         900: '#212121', // Main Text
+        800: '#424242', // Sub Text (Darker)
         700: '#616161', // Sub Text
         500: '#9E9E9E', // Disabled / Placeholder
+        300: '#E0E0E0', // Border (Darker)
         200: '#EEEEEE', // Border / Divider
+        100: '#F5F5F5', // Background (Darker)
         50: '#FAFAFA',  // Background
     },
     semantic: {
