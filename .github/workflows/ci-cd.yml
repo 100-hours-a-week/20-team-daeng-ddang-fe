@@ -141,6 +141,10 @@ jobs:
           rm -rf .artifact/.next
           cp -a .next .artifact/.next
 
+          cp -a package.json .artifact/
+          cp -a pnpm-lock.yaml .artifact/
+          [ -f pnpm-workspace.yaml ] && cp -a pnpm-workspace.yaml .artifact/ || true
+
           # 3) public 복사
           [ -d public ] && cp -a public .artifact/public || true
 
@@ -348,6 +352,16 @@ jobs:
             # 5) 신규 버전 배포
             pm2 delete "${idle_name}" || true
             cd "${CURRENT_LINK}"
+
+            if ! command -v pnpm >/dev/null 2>&1; then
+            echo "[INFO] pnpm not found. installing..."
+              # node가 설치돼 있다는 전제 (next 서버 돌아가니까 대부분 있음)
+              npm i -g pnpm@10
+            fi
+
+            pnpm -v
+
+            pnpm install --frozen-lockfile --prod
 
             PORT="${idle_port}" NODE_ENV=production pm2 start ./server.js --name "${idle_name}"
             pm2 save
