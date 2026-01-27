@@ -1,6 +1,8 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
-import { useWalkStore } from '@/entities/walk/model/walkStore';
+import { useState } from 'react';
+import { FailureReasonModal } from './FailureReasonModal';
+import { useWalkMissionQuery } from '@/entities/walk/model/useMissionQuery';
 import { MissionRecord } from '@/entities/walk/model/types';
 
 interface MissionResultSectionProps {
@@ -8,13 +10,24 @@ interface MissionResultSectionProps {
 }
 
 export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
-    const missionAnalysis = useWalkStore((state) => state.missionAnalysis);
+    const [selectedFailure, setSelectedFailure] = useState<string | null>(null);
+    const { data: missionData, isLoading, isError } = useWalkMissionQuery(walkId);
 
-    if (!missionAnalysis || missionAnalysis.walkId !== walkId || missionAnalysis.missions.length === 0) {
+    if (isLoading || isError || !missionData || missionData.missions.length === 0) {
         return null;
     }
 
-    const { missions } = missionAnalysis;
+    const { missions } = missionData;
+
+    const handleMissionClick = (mission: MissionRecord) => {
+        if (mission.status === 'FAIL' && mission.message) {
+            setSelectedFailure(mission.message);
+        }
+    };
+
+    const closeModal = () => {
+        setSelectedFailure(null);
+    };
 
     return (
         <Container>
@@ -22,17 +35,24 @@ export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
             <MissionList>
                 {missions.map((mission) => (
                     <MissionItem
-                        key={mission.missionId}
-                        status={mission.success ? 'SUCCESS' : 'FAIL'}
-                        isClickable={false}
+                        key={mission.missionRecordId}
+                        status={mission.status}
+                        onClick={() => handleMissionClick(mission)}
+                        isClickable={mission.status === 'FAIL'}
                     >
-                        <MissionTitle>{`미션 ${mission.missionId}`}</MissionTitle>
-                        <StatusBadge status={mission.success ? 'SUCCESS' : 'FAIL'}>
-                            {mission.success ? '성공' : '실패'}
+                        <MissionTitle>{mission.title}</MissionTitle>
+                        <StatusBadge status={mission.status}>
+                            {mission.status === 'SUCCESS' ? '성공' : '실패'}
                         </StatusBadge>
                     </MissionItem>
                 ))}
             </MissionList>
+
+            <FailureReasonModal
+                isOpen={!!selectedFailure}
+                onClose={closeModal}
+                reason={selectedFailure || ''}
+            />
         </Container>
     );
 };

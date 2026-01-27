@@ -43,22 +43,29 @@ export const walkRepositoryMock: WalkRepository = {
 
         return generateMockBlocks(lat, lng).filter(b => b.dogId === 1);
     },
-    judgeWalkMissions: async (walkId) => {
-        console.log("[MOCK] judgeWalkMissions", { walkId });
+    getWalkMissionAnalysis: async (walkId) => {
+        console.log("[MOCK] getWalkMissionAnalysis", { walkId });
         await new Promise(resolve => setTimeout(resolve, 800));
 
         return {
-            analysisId: "mock-analysis-id",
             walkId,
             analyzedAt: "2026-01-09T17:32:14+09:00",
             missions: [
                 {
+                    missionRecordId: 101,
                     missionId: 1,
-                    success: true,
+                    title: "앉아",
+                    status: "SUCCESS",
+                    confidence: 0.92,
+                    message: "지시에 맞춰 안정적으로 앉는 동작을 수행했습니다."
                 },
                 {
+                    missionRecordId: 102,
                     missionId: 2,
-                    success: false,
+                    title: "손",
+                    status: "FAIL",
+                    confidence: 0.61,
+                    message: "앞발을 들었으나 손 동작으로 보기에는 부족했습니다."
                 }
             ]
         };

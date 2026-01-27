@@ -1,5 +1,3 @@
-import { Mission } from "@/entities/mission/api/mission";
-
 export interface LatLng {
     lat: number;
     lng: number;
@@ -21,11 +19,8 @@ export interface WalkState {
     distance: number;
     path: LatLng[];
     walkResult: WalkResult | null;
-    missionAnalysis: MissionAnalysisData | null;
     myBlocks: BlockData[];
     othersBlocks: BlockData[];
-    scheduledMissions: { mission: Mission; triggerAt: number; triggered: boolean }[];
-    activeMissionAlert: Mission | null;
 
     startWalk: (id?: number) => void;
     endWalk: () => void;
@@ -35,15 +30,12 @@ export interface WalkState {
     addPathPoint: (pos: LatLng) => void;
     addDistance: (km: number) => void;
     setWalkResult: (result: WalkResult) => void;
-    setMissionAnalysis: (analysis: MissionAnalysisData | null) => void;
     setMyBlocks: (blocks: BlockData[]) => void;
     setOthersBlocks: (blocks: BlockData[]) => void;
     addMyBlock: (block: BlockData) => void;
     removeMyBlock: (blockId: string) => void;
     updateOthersBlock: (block: BlockData) => void;
     removeOthersBlock: (blockId: string) => void;
-    setScheduledMissions: (missions: { mission: Mission; triggerAt: number; triggered: boolean }[]) => void;
-    setActiveMissionAlert: (mission: Mission | null) => void;
 }
 
 export interface StartWalkRequest {
@@ -104,12 +96,15 @@ export interface NearbyBlocksParams {
 }
 
 export interface MissionRecord {
+    missionRecordId: number;
     missionId: number;
-    success: boolean;
+    title: string;
+    status: "SUCCESS" | "FAIL";
+    confidence: number;
+    message: string;
 }
 
 export interface MissionAnalysisData {
-    analysisId: string;
     walkId: number;
     analyzedAt: string;
     missions: MissionRecord[];

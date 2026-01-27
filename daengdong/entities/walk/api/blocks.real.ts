@@ -24,10 +24,8 @@ export const walkRepositoryReal: WalkRepository = {
         });
         return data.data.blocks;
     },
-    judgeWalkMissions: async (walkId) => {
-        const { data } = await http.post<ApiResponse<MissionAnalysisData>>(
-            `/walks/${walkId}/missions/judge`
-        );
+    getWalkMissionAnalysis: async (walkId) => {
+        const { data } = await http.get<ApiResponse<MissionAnalysisData>>(`/walks/${walkId}/missions/analysis`);
         return data.data;
     },
     startWalk: async (req) => {

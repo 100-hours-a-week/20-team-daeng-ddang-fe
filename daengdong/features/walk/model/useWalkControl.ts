@@ -7,7 +7,6 @@ import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import { fileApi } from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
-import { walkApi } from "@/entities/walk/api";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
 import { MockWalkWebSocketClient } from "@/shared/lib/websocket/MockWalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
@@ -32,7 +31,6 @@ export const useWalkControl = () => {
         myBlocks,
         othersBlocks,
         setWalkResult,
-        setMissionAnalysis,
         setMyBlocks,
         setOthersBlocks,
         addMyBlock,
