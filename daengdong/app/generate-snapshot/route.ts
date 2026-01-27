@@ -3,6 +3,7 @@ import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium";
 
 export const maxDuration = 60;
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
@@ -50,9 +51,21 @@ export async function POST(req: NextRequest) {
 
         const protocol = req.nextUrl.protocol;
         const host = req.nextUrl.host;
-        const snapshotUrl = `${protocol}//${host}/snapshot/${walkId}`;
+        const [hostName, hostPort] = host.split(":");
+        const port = hostPort || process.env.PORT || "3000";
+        const isBindAddress = hostName === "0.0.0.0";
+
+        const snapshotUrl = isBindAddress
+            ? `http://127.0.0.1:${port}/snapshot/${walkId}`
+            : `${protocol}//${host}/snapshot/${walkId}`;
 
         console.log(`스냅샷 생성 URL: ${snapshotUrl}`);
+
+        // 네이버 지도 API 인증 우회 (Puppeteer가 헤드리스라 차단될 수 있음)
+        await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        await page.setExtraHTTPHeaders({
+            "Referer": snapshotUrl, // 등록된 도메인(또는 localhost)을 Referer로 전송
+        });
 
         await page.goto(snapshotUrl, {
             waitUntil: "domcontentloaded",

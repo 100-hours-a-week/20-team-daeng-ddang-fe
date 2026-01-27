@@ -8,6 +8,7 @@ const mockUserData: UserInfo = {
     region: "경기도 성남시",
     kakaoEmail: "user@kakao.com",
     dogId: 1,
+    profileImageUrl: "https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/profile/mock-user.png",
 };
 
 const mockRegions: Region[] = [
@@ -87,6 +88,11 @@ export const userRepositoryMock: UserRepository = {
         Object.assign(mockUserData, updatedUser);
 
         return updatedUser;
+    },
+
+    async deleteUser(): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        hasUserData = false;
     },
 
     async getRegions(parentId?: number): Promise<Region[]> {
