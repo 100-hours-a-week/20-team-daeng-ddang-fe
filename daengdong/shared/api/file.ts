@@ -1,9 +1,8 @@
 import { http } from "./http";
 import { ApiResponse } from "./types";
-import { ENV } from "@/shared/config/env";
 
-export type FileType = "IMAGE";
-export type UploadContext = "WALK" | "DOG_PROFILE";
+export type FileType = "IMAGE" | "VIDEO";
+export type UploadContext = "WALK" | "EXPRESSION" | "HEALTHCARE" | "CHATBOT" | "MISSION" | "PROFILE";
 
 export interface GetPresignedUrlRequest {
     fileType: FileType;
@@ -43,32 +42,4 @@ const realFileApi = {
     },
 };
 
-const mockFileApi = {
-    getPresignedUrl: async (fileType: FileType, contentType: string, uploadContext: UploadContext) => {
-        console.log("[MockAPI] getPresignedUrl called", { fileType, contentType, uploadContext });
-
-        // 가짜 응답 반환
-        return new Promise<GetPresignedUrlResponse>((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    presignedUrl: "https://mock-s3-bucket.com/upload/mock-image.png",
-                    objectKey: "mock/images/walk-snapshot.png",
-                    expiresIn: 3600
-                });
-            }, 500);
-        });
-    },
-
-    uploadFile: async (url: string, file: Blob, contentType: string) => {
-        console.log("[MockAPI] uploadFile called", { url, contentType });
-
-        // 가짜 업로드 성공
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, 1000);
-        });
-    }
-};
-
-export const fileApi = ENV.USE_MOCK ? mockFileApi : realFileApi;
+export const fileApi = realFileApi;
