@@ -141,14 +141,14 @@ jobs:
           rm -rf .artifact/.next
           cp -a .next .artifact/.next
 
-          cp -a package.json .artifact/
-          cp -a pnpm-lock.yaml .artifact/
-          [ -f pnpm-workspace.yaml ] && cp -a pnpm-workspace.yaml .artifact/ || true
-
           # 3) public 복사
           [ -d public ] && cp -a public .artifact/public || true
 
-          # 4) 압축
+          # 4) 의존성 설치용 파일 복사
+          cp -a package.json .artifact/
+          cp -a pnpm-lock.yaml .artifact/
+
+          # 5) 압축
           tar -czf ${{ env.ARTIFACT_FILE }} -C .artifact .
 
           end=$(date +%s)
@@ -353,6 +353,7 @@ jobs:
             pm2 delete "${idle_name}" || true
             cd "${CURRENT_LINK}"
 
+            # 6) 의존성 설치
             pnpm install --frozen-lockfile --prod
 
             PORT="${idle_port}" NODE_ENV=production pm2 start ./server.js --name "${idle_name}"
