@@ -25,6 +25,7 @@ export interface UserResponse {
     region: string; // "경기도 성남시"
     kakaoEmail: string;
     dogId?: number;
+    profileImageUrl?: string | null;
 }
 
 export interface UserInfo {
@@ -34,4 +35,5 @@ export interface UserInfo {
     region: string; // "경기도 성남시"
     kakaoEmail: string;
     dogId?: number;
+    profileImageUrl?: string | null;
 }

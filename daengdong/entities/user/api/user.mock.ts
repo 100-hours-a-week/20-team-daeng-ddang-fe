@@ -8,6 +8,7 @@ const mockUserData: UserInfo = {
     region: "경기도 성남시",
     kakaoEmail: "user@kakao.com",
     dogId: 1,
+    profileImageUrl: "https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/profile/mock-user.png",
 };
 
 const mockRegions: Region[] = [

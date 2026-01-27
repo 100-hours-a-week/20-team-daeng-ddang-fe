@@ -20,6 +20,7 @@ export const userRepositoryReal: UserRepository = {
                 region: data.region,
                 kakaoEmail: data.kakaoEmail,
                 dogId: data.dogId,
+                profileImageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
