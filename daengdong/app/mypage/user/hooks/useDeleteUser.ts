@@ -2,11 +2,9 @@ import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/entities/user/model/userStore';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useRouter } from 'next/navigation';
+import { deleteUser } from '@/entities/user/api/user';
 
-// Mock API 요청
-const deleteUser = async (): Promise<void> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-};
+
 
 export const useDeleteUser = () => {
     const router = useRouter();
@@ -16,7 +14,9 @@ export const useDeleteUser = () => {
     return useMutation({
         mutationFn: deleteUser,
         onSuccess: () => {
-            document.cookie = 'accessToken=; Max-Age=0; path=/;';
+            localStorage.removeItem('accessToken');
+            document.cookie = 'refreshToken=; Max-Age=0; path=/;';
+            document.cookie = 'isLoggedIn=; Max-Age=0; path=/;';
             resetUser();
             setLoggedIn(false);
             router.replace('/login');

@@ -20,6 +20,7 @@ export const userRepositoryReal: UserRepository = {
                 region: data.region,
                 kakaoEmail: data.kakaoEmail,
                 dogId: data.dogId,
+                profileImageUrl: data.profileImageUrl ?? null,
             };
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,6 +39,10 @@ export const userRepositoryReal: UserRepository = {
     async updateUser(params: UpdateUserParams): Promise<UserResponse> {
         const response = await http.patch<ApiResponse<UserResponse>>('/users', params);
         return response.data.data;
+    },
+
+    async deleteUser(): Promise<void> {
+        await http.delete('/users');
     },
 
     async getRegions(parentId?: number): Promise<Region[]> {
