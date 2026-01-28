@@ -41,6 +41,13 @@ export default function ExpressionResultPage() {
     };
   }, [analysis]);
 
+  const scores = result.emotionScores ?? {
+    happy: 0,
+    relaxed: 0,
+    sad: 0,
+    angry: 0,
+  };
+
   const handleComplete = () => {
     clearAnalysis();
     if (result.walkId) {
@@ -70,19 +77,19 @@ export default function ExpressionResultPage() {
               <BackTitle>감정 점수</BackTitle>
               <ScoreRow>
                 <ScoreLabel>행복</ScoreLabel>
-                <ScoreValue>{Math.round(result.emotionScores.happy * 100)}%</ScoreValue>
+                <ScoreValue>{Math.round(scores.happy * 100)}%</ScoreValue>
               </ScoreRow>
               <ScoreRow>
                 <ScoreLabel>편안</ScoreLabel>
-                <ScoreValue>{Math.round(result.emotionScores.relaxed * 100)}%</ScoreValue>
+                <ScoreValue>{Math.round(scores.relaxed * 100)}%</ScoreValue>
               </ScoreRow>
               <ScoreRow>
                 <ScoreLabel>슬픔</ScoreLabel>
-                <ScoreValue>{Math.round(result.emotionScores.sad * 100)}%</ScoreValue>
+                <ScoreValue>{Math.round(scores.sad * 100)}%</ScoreValue>
               </ScoreRow>
               <ScoreRow>
                 <ScoreLabel>화남</ScoreLabel>
-                <ScoreValue>{Math.round(result.emotionScores.angry * 100)}%</ScoreValue>
+                <ScoreValue>{Math.round(scores.angry * 100)}%</ScoreValue>
               </ScoreRow>
             </CardBack>
           </motion.div>
