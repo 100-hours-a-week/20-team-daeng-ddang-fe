@@ -10,7 +10,7 @@ interface ExpressionCameraProps {
   guideContent?: ReactNode;
 }
 
-type ExpressionFlowState = "IDLE" | "COUNTDOWN" | "RECORDING" | "PREVIEW" | "ANALYZING";
+type ExpressionFlowState = "IDLE" | "COUNTDOWN" | "RECORDING" | "ANALYZING";
 
 export const ExpressionCamera = ({
   onAnalyze,
@@ -29,7 +29,6 @@ export const ExpressionCamera = ({
   const [flowState, setFlowState] = useState<ExpressionFlowState>("IDLE");
   const [countdown, setCountdown] = useState(3);
   const [error, setError] = useState<string | null>(null);
-  const [lastBlob, setLastBlob] = useState<Blob | null>(null);
 
   const { showToast } = useToastStore();
 
@@ -84,8 +83,12 @@ export const ExpressionCamera = ({
         const blob = new Blob(chunksRef.current, { type: mimeType });
         const url = URL.createObjectURL(blob);
         setPreviewURL(url);
-        setLastBlob(blob);
-        setFlowState("PREVIEW");
+        setFlowState("ANALYZING");
+        onAnalyze(blob).catch((e) => {
+          console.error(e);
+          showToast({ message: "분석에 실패했습니다. 잠시 후 다시 시도해주세요.", type: "error" });
+          setFlowState("IDLE");
+        });
       };
 
       recorder.start();
@@ -118,25 +121,6 @@ export const ExpressionCamera = ({
     countdownTimerRef.current = countdownInterval;
   }, [stream, startRecording]);
 
-  const handleReset = useCallback(() => {
-    if (previewURL) {
-      URL.revokeObjectURL(previewURL);
-    }
-    setPreviewURL(null);
-    setLastBlob(null);
-    setFlowState("IDLE");
-  }, [previewURL]);
-
-  const handleAnalyze = useCallback(async () => {
-    if (!lastBlob) return;
-    setFlowState("ANALYZING");
-    try {
-      await onAnalyze(lastBlob);
-    } catch (e) {
-      console.error(e);
-      setFlowState("PREVIEW");
-    }
-  }, [lastBlob, onAnalyze]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -207,12 +191,6 @@ export const ExpressionCamera = ({
           <PrimaryButton onClick={handleStartClick}>촬영하기</PrimaryButton>
         )}
         {flowState === "RECORDING" && <InfoBox>촬영 중입니다...</InfoBox>}
-        {flowState === "PREVIEW" && (
-          <ButtonRow>
-            <SecondaryButton onClick={handleReset}>재촬영하기</SecondaryButton>
-            <PrimaryButton onClick={handleAnalyze}>분석하기</PrimaryButton>
-          </ButtonRow>
-        )}
         {flowState === "ANALYZING" && <InfoBox>분석 중...</InfoBox>}
       </CTASection>
     </Container>
@@ -298,12 +276,6 @@ const CTASection = styled.div`
   gap: ${spacing[2]}px;
 `;
 
-const ButtonRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${spacing[2]}px;
-`;
-
 const BaseButton = styled.button`
   width: 100%;
   padding: 16px;
@@ -323,10 +295,6 @@ const PrimaryButton = styled(BaseButton)`
   }
 `;
 
-const SecondaryButton = styled(BaseButton)`
-  background: ${colors.gray[100]};
-  color: ${colors.gray[800]};
-`;
 
 const InfoBox = styled.div`
   width: 100%;

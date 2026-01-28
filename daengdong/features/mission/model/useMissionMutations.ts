@@ -11,21 +11,22 @@ interface UploadMissionVideoParams {
 export const useUploadMissionVideo = () => {
     return useMutation({
         mutationFn: async ({ walkId, missionId, file }: UploadMissionVideoParams) => {
-            const presignedData = await fileApi.getPresignedUrl(
-                "VIDEO",
-                "video/mp4",
-                "MISSION"
-            );
+            const mockVideoUrl =
+                "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
-            await fileApi.uploadFile(presignedData.presignedUrl, file, "video/mp4");
-
-            // Presigned URL에서 public URL 추출
-            const videoUrl = presignedData.presignedUrl.split("?")[0];
+            // TODO: 실제 촬영 영상 업로드 로직 복구
+            // const presignedData = await fileApi.getPresignedUrl(
+            //     "VIDEO",
+            //     "video/mp4",
+            //     "MISSION"
+            // );
+            // await fileApi.uploadFile(presignedData.presignedUrl, file, "video/mp4");
+            // const videoUrl = presignedData.presignedUrl.split("?")[0];
 
             const response = await missionApi.uploadMissionVideo({
                 walkId,
                 missionId,
-                videoUrl,
+                videoUrl: mockVideoUrl,
             });
 
             return response;

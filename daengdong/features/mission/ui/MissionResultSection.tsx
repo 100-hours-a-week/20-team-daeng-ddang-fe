@@ -8,7 +8,19 @@ interface MissionResultSectionProps {
 }
 
 export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
-  const { data: missionAnalysis } = useWalkMissionQuery(walkId);
+  const { data: missionAnalysis, isLoading } = useWalkMissionQuery(walkId);
+
+  if (isLoading) {
+    return (
+      <Container>
+        <Title>돌발 미션 결과</Title>
+        <LoadingRow>
+          <Spinner />
+          <LoadingText>결과 불러오는 중...</LoadingText>
+        </LoadingRow>
+      </Container>
+    );
+  }
 
   if (!missionAnalysis || missionAnalysis.walkId !== walkId || missionAnalysis.missions.length === 0) {
     return null;
@@ -54,6 +66,32 @@ const MissionList = styled.div`
   flex-direction: column;
   gap: ${spacing[3]}px;
 `;
+
+const LoadingRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${spacing[2]}px;
+  padding: ${spacing[3]}px ${spacing[1]}px;
+  color: ${colors.gray[700]};
+  font-size: 14px;
+`;
+
+const Spinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid ${colors.gray[200]};
+  border-top-color: ${colors.primary[500]};
+  animation: spin 0.8s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.span``;
 
 const MissionItem = styled.div<{ status: 'SUCCESS' | 'FAIL'; isClickable: boolean }>`
   display: flex;
