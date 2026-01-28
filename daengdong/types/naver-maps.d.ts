@@ -44,6 +44,7 @@ export interface NaverMap {
   setZoom: (zoom: number) => void;
   getZoom: () => number;
   panTo: (location: NaverLatLng) => void;
+  setOptions: (options: Partial<NaverMapOptions>) => void;
 }
 
 export interface NaverMarker {
@@ -58,6 +59,7 @@ export interface NaverPolygon {
 }
 
 export interface NaverPolyline {
+  setPaths: (path: NaverLatLng[]) => void;
   setMap: (map: NaverMap | null) => void;
 }
 
@@ -104,6 +106,7 @@ export interface NaverPolylineOptions {
   strokeColor: string;
   strokeOpacity: number;
   strokeWeight: number;
+  strokeStyle?: string;
   strokeLineCap?: string;
   strokeLineJoin?: string;
 }

@@ -28,9 +28,7 @@ export const useWalkControl = () => {
         startWalk,
         endWalk,
         reset,
-        path,
         myBlocks,
-        othersBlocks,
         setWalkResult,
         setMyBlocks,
         setOthersBlocks,
@@ -184,25 +182,32 @@ export const useWalkControl = () => {
                 (position) => {
                     const { latitude, longitude } = position.coords;
 
-                    // 위치 업데이트
+                    // 1. 현재 위치는 UI 반영을 위해 실시간 업데이트 (마커용)
                     setCurrentPos({ lat: latitude, lng: longitude });
 
-                    // 경로 추가
-                    addPathPoint({ lat: latitude, lng: longitude });
+                    // 2. 거리 계산 (이전 유효 위치 기준)
+                    const lastLat = lastLatRef.current;
+                    const lastLng = lastLngRef.current;
 
-                    // 거리 계산 및 업데이트
-                    const currentLastLat = lastLatRef.current;
-                    const currentLastLng = lastLngRef.current;
+                    // 첫 위치이거나, 이전 위치 대비 일정 거리(5m) 이상 이동했을 때만 기록
+                    if (!lastLat || !lastLng) {
+                        // 첫 위치
+                        lastLatRef.current = latitude;
+                        lastLngRef.current = longitude;
+                        addPathPoint({ lat: latitude, lng: longitude });
+                    } else {
+                        const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
 
-                    if (currentLastLat && currentLastLng) {
-                        const dist = calculateDistance(currentLastLat, currentLastLng, latitude, longitude);
-                        if (dist > 0.0005) {
+                        // 5m 이상 이동 시에만 경로/거리 추가 (GPS 튀는 현상 방지)
+                        if (dist > 0.005) {
                             addDistance(dist);
+                            addPathPoint({ lat: latitude, lng: longitude });
+
+                            // 유효 위치 갱신
+                            lastLatRef.current = latitude;
+                            lastLngRef.current = longitude;
                         }
                     }
-
-                    lastLatRef.current = latitude;
-                    lastLngRef.current = longitude;
                 },
                 (error) => console.error("Location tracking error:", error),
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }

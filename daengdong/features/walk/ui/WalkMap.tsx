@@ -8,16 +8,18 @@ import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
-import { BlockData } from "@/entities/walk/model/types";
+import { PathOverlay } from "./PathOverlay";
+import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { NaverMap } from "@/types/naver-maps";
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
     myBlocks?: BlockData[];
     othersBlocks?: BlockData[];
+    path?: LatLng[];
 }
 
-export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMapProps) => {
+export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<NaverMap | null>(null);
 
@@ -72,6 +74,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
         map.panTo(location);
     }, [map, currentPos]);
 
+
+
     const recenterToCurrentLocation = () => {
         if (!currentPos || !map) return;
 
@@ -105,6 +109,7 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
                 <>
                     <MyBlocksOverlay map={map} myBlocks={myBlocks} />
                     <OthersBlocksOverlay map={map} othersBlocks={othersBlocks} />
+                    <PathOverlay map={map} path={path} />
                 </>
             )}
         </>

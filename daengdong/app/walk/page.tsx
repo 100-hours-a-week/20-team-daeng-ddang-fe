@@ -47,17 +47,31 @@ export default function WalkPage() {
   return (
     <div
       style={{
-        position: "relative",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         width: "100%",
-        height: "calc(100vh - 80px)",
+        height: "100dvh",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Header title="댕동여지도" showBackButton={false} />
-      <WalkMap
-        currentPos={currentPos}
-        myBlocks={myBlocks}
-        othersBlocks={othersBlocks}
-      />
+      <div style={{ zIndex: 10 }}>
+        <Header title="댕동여지도" showBackButton={false} />
+      </div>
+
+      <div style={{ flex: 1, position: "relative" }}>
+        <WalkMap
+          currentPos={currentPos}
+          myBlocks={myBlocks}
+          othersBlocks={othersBlocks}
+          path={path}
+        />
+      </div>
+
       <WalkSnapshotRenderer path={path} myBlocks={myBlocks} othersBlocks={othersBlocks} currentPos={currentPos} />
 
       <BottomLayout>
