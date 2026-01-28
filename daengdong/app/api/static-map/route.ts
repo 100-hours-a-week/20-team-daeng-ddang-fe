@@ -7,10 +7,6 @@ const STATIC_MAP_BASE_URL = "https://maps.apigw.ntruss.com/map-static/v2/raster"
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
-    // 1. 쿼리 파라미터 그대로 사용 (w, h, center, level 등)
-    // format, crs 등은 클라이언트에서 안보내면 기본값 사용됨
-
-    // 2. 환경변수 확인
     const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
     const clientSecret = process.env.NAVER_MAP_CLIENT_SECRET;
 
@@ -22,7 +18,6 @@ export async function GET(request: Request) {
     }
 
     try {
-        // 3. 네이버 API 호출
         const apiUrl = `${STATIC_MAP_BASE_URL}?${searchParams.toString()}`;
         console.log("[API] Requesting:", apiUrl);
 
@@ -34,7 +29,6 @@ export async function GET(request: Request) {
             },
         });
 
-        // 4. 에러 처리
         if (!response.ok) {
             const errorText = await response.text();
             console.error("[API] Error:", response.status, errorText);
@@ -44,7 +38,7 @@ export async function GET(request: Request) {
             );
         }
 
-        // 5. 이미지 바이너리 반환 (기본 jpg)
+        // 이미지 바이너리 반환 (기본 jpg)
         const buffer = await response.arrayBuffer();
         const headers = new Headers();
         headers.set("Content-Type", "image/jpeg");

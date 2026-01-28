@@ -72,6 +72,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
         map.panTo(location);
     }, [map, currentPos]);
 
+
+
     const recenterToCurrentLocation = () => {
         if (!currentPos || !map) return;
 

@@ -44,6 +44,7 @@ export interface NaverMap {
   setZoom: (zoom: number) => void;
   getZoom: () => number;
   panTo: (location: NaverLatLng) => void;
+  setOptions: (options: Partial<NaverMapOptions>) => void;
 }
 
 export interface NaverMarker {
