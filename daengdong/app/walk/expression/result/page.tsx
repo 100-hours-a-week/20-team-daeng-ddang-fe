@@ -8,6 +8,7 @@ import { Header } from "@/widgets/Header/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";
+import mascotImage from "@/shared/assets/images/mascot.png";
 
 const EMOTION_LABELS: Record<PredictEmotion, string> = {
   HAPPY: "행복해요",
@@ -24,7 +25,7 @@ export default function ExpressionResultPage() {
   const result = useMemo<ExpressionAnalysis>(() => {
     if (analysis) return analysis;
     return {
-      expressionId: 12,
+      expressionId: "12",
       predictEmotion: "HAPPY",
       emotionScores: {
         happy: 0.82,
@@ -63,7 +64,7 @@ export default function ExpressionResultPage() {
             style={{ width: "100%", height: "100%", transformStyle: "preserve-3d" }}
           >
             <CardFront>
-              <DogImage src={result.imageUrl} alt="반려견 사진" />
+              <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
             </CardFront>
             <CardBack>
               <BackTitle>감정 점수</BackTitle>
@@ -88,7 +89,7 @@ export default function ExpressionResultPage() {
         </CardWrapper>
 
         <Bubble>
-          <BubbleTitle>{EMOTION_LABELS[result.predictEmotion]}</BubbleTitle>
+          <BubbleTitle>{EMOTION_LABELS[result.predictEmotion as PredictEmotion] || result.predictEmotion}</BubbleTitle>
           <BubbleText>{result.summary}</BubbleText>
         </Bubble>
 

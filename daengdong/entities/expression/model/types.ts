@@ -10,12 +10,12 @@ export interface EmotionScores {
 export type PredictEmotion = "HAPPY" | "RELAXED" | "SAD" | "ANGRY";
 
 export interface ExpressionAnalysis {
-  expressionId: number;
-  predictEmotion: PredictEmotion;
+  expressionId: string;
+  predictEmotion: string; // Changed to string to be safe, or keep PredictEmotion if mapped
   emotionScores: EmotionScores;
   summary: string;
-  imageUrl: string;
-  createdAt: string;
-  dogId: number;
-  walkId: number;
+  imageUrl?: string;
+  createdAt?: string;
+  dogId?: number;
+  walkId?: number;
 }

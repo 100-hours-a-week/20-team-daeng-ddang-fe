@@ -51,7 +51,7 @@ const ExpressionContent = () => {
     try {
       if (isMock) {
         setAnalysis({
-          expressionId: 12,
+          expressionId: "12",
           predictEmotion: "HAPPY",
           emotionScores: {
             happy: 0.82,
