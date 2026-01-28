@@ -68,6 +68,7 @@ export default function WalkPage() {
           currentPos={currentPos}
           myBlocks={myBlocks}
           othersBlocks={othersBlocks}
+          path={path}
         />
       </div>
 
