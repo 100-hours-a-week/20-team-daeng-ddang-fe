@@ -1,40 +1,40 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
-import { useWalkStore } from '@/entities/walk/model/walkStore';
-import { MissionRecord } from '@/entities/walk/model/types';
+import { useWalkMissionQuery } from '@/entities/walk/model/useMissionQuery';
+
 
 interface MissionResultSectionProps {
-    walkId: number;
+  walkId: number;
 }
 
 export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
-    const missionAnalysis = useWalkStore((state) => state.missionAnalysis);
+  const { data: missionAnalysis } = useWalkMissionQuery(walkId);
 
-    if (!missionAnalysis || missionAnalysis.walkId !== walkId || missionAnalysis.missions.length === 0) {
-        return null;
-    }
+  if (!missionAnalysis || missionAnalysis.walkId !== walkId || missionAnalysis.missions.length === 0) {
+    return null;
+  }
 
-    const { missions } = missionAnalysis;
+  const { missions } = missionAnalysis;
 
-    return (
-        <Container>
-            <Title>돌발 미션 결과</Title>
-            <MissionList>
-                {missions.map((mission) => (
-                    <MissionItem
-                        key={mission.missionId}
-                        status={mission.success ? 'SUCCESS' : 'FAIL'}
-                        isClickable={false}
-                    >
-                        <MissionTitle>{`미션 ${mission.missionId}`}</MissionTitle>
-                        <StatusBadge status={mission.success ? 'SUCCESS' : 'FAIL'}>
-                            {mission.success ? '성공' : '실패'}
-                        </StatusBadge>
-                    </MissionItem>
-                ))}
-            </MissionList>
-        </Container>
-    );
+  return (
+    <Container>
+      <Title>돌발 미션 결과</Title>
+      <MissionList>
+        {missions.map((mission) => (
+          <MissionItem
+            key={mission.missionId}
+            status={mission.success ? 'SUCCESS' : 'FAIL'}
+            isClickable={false}
+          >
+            <MissionTitle>{`미션 ${mission.missionId}`}</MissionTitle>
+            <StatusBadge status={mission.success ? 'SUCCESS' : 'FAIL'}>
+              {mission.success ? '성공' : '실패'}
+            </StatusBadge>
+          </MissionItem>
+        ))}
+      </MissionList>
+    </Container>
+  );
 };
 
 const Container = styled.section`
