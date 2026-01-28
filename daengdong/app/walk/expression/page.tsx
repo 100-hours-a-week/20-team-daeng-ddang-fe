@@ -9,7 +9,6 @@ import { ExpressionCamera } from "@/features/expression/ui/ExpressionCamera";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { fileApi } from "@/shared/api/file";
 import { expressionApi } from "@/entities/expression/api/expression";
 
 export default function WalkExpressionPage() {
@@ -46,7 +45,7 @@ const ExpressionContent = () => {
     router.replace("/walk");
   };
 
-  const handleAnalyze = async (videoBlob: Blob) => {
+  const handleAnalyze = async (_videoBlob: Blob) => {
     setIsAnalyzing(true);
     try {
       if (isMock) {

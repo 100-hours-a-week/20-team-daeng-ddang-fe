@@ -100,7 +100,7 @@ export const ExpressionCamera = ({
       showToast({ message: "녹화를 시작할 수 없습니다.", type: "error" });
       setFlowState("IDLE");
     }
-  }, [stream, showToast, stopRecording]);
+  }, [stream, showToast, stopRecording, onAnalyze]);
 
   const handleStartClick = useCallback(() => {
     if (!stream) return;

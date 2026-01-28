@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { fileApi } from "@/shared/api/file";
 import { missionApi } from "@/entities/mission/api/mission";
 
 interface UploadMissionVideoParams {
@@ -10,7 +9,7 @@ interface UploadMissionVideoParams {
 
 export const useUploadMissionVideo = () => {
     return useMutation({
-        mutationFn: async ({ walkId, missionId, file }: UploadMissionVideoParams) => {
+        mutationFn: async ({ walkId, missionId }: UploadMissionVideoParams) => {
             const mockVideoUrl =
                 "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
