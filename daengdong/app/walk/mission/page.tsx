@@ -8,7 +8,7 @@ import { MissionHeader } from "@/features/mission/ui/MissionHeader";
 import { MissionCamera } from "@/features/mission/ui/MissionCamera";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { spacing, colors } from "@/shared/styles/tokens";
+import { spacing } from "@/shared/styles/tokens";
 import { useUploadMissionVideo } from "@/features/mission/model/useMissionMutations";
 
 export default function WalkMissionPage() {

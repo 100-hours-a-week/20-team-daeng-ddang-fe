@@ -8,20 +8,10 @@ interface AnalyzeExpressionRequest {
 
 export const expressionApi = {
   analyzeExpression: async (walkId: number, payload: AnalyzeExpressionRequest) => {
-    const response = await http.post<ApiResponse<any>>(
-      `/walks/${walkId}/expressions/analysis`,
+    const response = await http.post<ApiResponse<ExpressionAnalysis>>(
+      `/walks/${walkId}/expressions`,
       payload
     );
-    const data = response.data.data;
-    return {
-      expressionId: data.analysis_id,
-      predictEmotion: data.predicted_emotion?.toUpperCase(),
-      emotionScores: data.emotion_probabilities,
-      summary: data.summary,
-      imageUrl: undefined, // API response doesn't include image URL
-      createdAt: new Date().toISOString(),
-      dogId: 0,
-      walkId,
-    } as ExpressionAnalysis;
+    return response.data.data;
   },
 };

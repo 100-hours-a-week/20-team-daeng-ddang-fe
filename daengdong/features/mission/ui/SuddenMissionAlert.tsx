@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Mission } from "@/entities/mission/api/mission";
-import { colors, radius, spacing } from "@/shared/styles/tokens";
+import { radius, spacing } from "@/shared/styles/tokens";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useRouter } from "next/navigation";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
