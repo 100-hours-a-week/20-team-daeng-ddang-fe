@@ -20,7 +20,7 @@ interface AnalyzeExpressionResponse {
 export const expressionApi = {
   analyzeExpression: async (walkId: number, payload: AnalyzeExpressionRequest) => {
     const response = await http.post<ApiResponse<AnalyzeExpressionResponse>>(
-      `/walks/${walkId}/expressions`,
+      `/walks/${walkId}/expressions/analysis`,
       payload
     );
     const data = response.data.data;
