@@ -9,8 +9,6 @@ export function middleware(request: NextRequest) {
         '/login',
         '/oauth/kakao/callback',
         '/walk',
-        '/snapshot',
-        '/generate-snapshot',
         '/_next',
         '/favicon.ico',
         '/images',

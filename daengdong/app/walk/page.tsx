@@ -8,13 +8,14 @@ import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { useEffect } from "react";
+import { WalkSnapshotRenderer } from "@/features/walk/ui/WalkSnapshotRenderer";
 
 import { useMissionScheduler } from "@/features/mission/model/useMissionScheduler";
 import { SuddenMissionAlert } from "@/features/mission/ui/SuddenMissionAlert";
 import styled from "@emotion/styled";
 
 export default function WalkPage() {
-  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode, activeMissionAlert } = useWalkStore();
+  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode, activeMissionAlert, path } = useWalkStore();
 
   useIdleLocation();
   useMissionScheduler();
@@ -57,6 +58,7 @@ export default function WalkPage() {
         myBlocks={myBlocks}
         othersBlocks={othersBlocks}
       />
+      <WalkSnapshotRenderer path={path} myBlocks={myBlocks} othersBlocks={othersBlocks} currentPos={currentPos} />
 
       <BottomLayout>
         {activeMissionAlert && <SuddenMissionAlert mission={activeMissionAlert} />}

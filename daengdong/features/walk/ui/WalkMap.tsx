@@ -2,6 +2,7 @@
 
 import styled from "@emotion/styled";
 
+
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
@@ -78,6 +79,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [] }: WalkMa
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
         map.setCenter(newCenter);
     };
+
+
 
     return (
         <>

@@ -339,28 +339,13 @@ export const useWalkControl = () => {
                 let storedImageUrl = "";
 
                 try {
-                    const snapshotResponse = await fetch(`/generate-snapshot?walkId=${walkId}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            data: {
-                                path,
-                                myBlocks,
-                                othersBlocks,
-                            },
-                        }),
-                    });
-
-                    if (!snapshotResponse.ok) {
-                        throw new Error("스냅샷 생성에 실패했습니다.");
-                    }
-
-                    const blob = await snapshotResponse.blob();
+                    // WalkMap에서 정의한 getWalkSnapshotBlob 함수를 호출하여 현재 지도 화면을 캡처
+                    // 정적 지도 API(401 오류) 대신 클라이언트 측 캡처 방식을 사용
+                    const snapshotBlob = await window.getWalkSnapshotBlob?.();
+                    const blob = snapshotBlob ?? null;
 
                     if (blob) {
-                        // TODO: 임시 처리 - 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
+                        // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
                         const base64Url = await new Promise<string>((resolve) => {
                             const reader = new FileReader();
                             reader.onloadend = () => resolve(reader.result as string);
@@ -375,6 +360,8 @@ export const useWalkControl = () => {
                         } catch (e) {
                             console.error("S3 업로드 실패:", e);
                         }
+                    } else {
+                        console.warn("지도 스냅샷 생성 실패: getWalkSnapshotBlob이 정의되지 않았거나 null을 반환했습니다.");
                     }
                 } catch (error) {
                     console.error("Snapshot creation/upload failed:", error);
