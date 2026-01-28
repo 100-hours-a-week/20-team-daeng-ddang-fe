@@ -3,6 +3,7 @@ import { http } from '@/shared/api/http';
 import { DogInfo, DogResponse, CreateDogParams, UpdateDogParams } from '../model/types';
 import { ApiResponse } from '@/shared/api/types';
 import { DogRepository } from './types';
+import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 
 export const dogRepositoryReal: DogRepository = {
     async getDogInfo(): Promise<DogInfo | null> {
@@ -20,7 +21,7 @@ export const dogRepositoryReal: DogRepository = {
                 weight: data.weight,
                 gender: data.gender,
                 neutered: data.neutered,
-                imageUrl: data.profileImageUrl ?? null,
+                imageUrl: resolveS3Url(data.profileImageUrl) ?? null,
             };
         } catch (error) {
             if (isAxiosError(error) && error.response?.status === 404) {

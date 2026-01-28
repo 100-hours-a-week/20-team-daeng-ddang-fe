@@ -128,6 +128,7 @@ export function DogInfoScreen() {
             <Content>
                 <DogForm
                     initialData={dogInfo ? transformDogInfoToForm(dogInfo) : undefined}
+                    initialImageUrl={dogInfo?.imageUrl ?? null}
                     onSubmit={handleSave}
                     isSubmitting={saveMutation.isPending}
                 />

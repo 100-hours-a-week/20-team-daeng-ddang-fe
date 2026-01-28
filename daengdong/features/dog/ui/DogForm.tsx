@@ -44,11 +44,12 @@ const DogSchema = z.object({
 
 interface DogFormProps {
     initialData?: Partial<DogFormValues>;
+    initialImageUrl?: string | null;
     onSubmit: (data: DogFormValues) => void;
     isSubmitting: boolean;
 }
 
-export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
+export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }: DogFormProps) {
     const {
         control,
         handleSubmit,
@@ -78,6 +79,7 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
     const [isBreedListOpen, setIsBreedListOpen] = useState(false);
     const { data: breedList } = useBreedsQuery(breedSearchKeyword);
     const breedInputRef = useRef<HTMLInputElement>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // initialData 변경 시 폼 업데이트 
     useEffect(() => {
@@ -102,9 +104,13 @@ export function DogForm({ initialData, onSubmit, isSubmitting }: DogFormProps) {
             // 데이터 로드 후 유효성 검사 실행 (저장 버튼 활성화 위해)
             trigger();
         }
-    }, [initialData, reset, trigger]);
+        if (initialImageUrl) {
+            setImagePreview(initialImageUrl);
+        } else if (!initialData) {
+            setImagePreview(null);
+        }
+    }, [initialData, initialImageUrl, reset, trigger]);
 
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const birthDate = useWatch({ control, name: 'birthDate' });
     const isBirthDateUnknown = useWatch({ control, name: 'isBirthDateUnknown' });
     const breedIdValue = useWatch({ control, name: 'breedId' });
