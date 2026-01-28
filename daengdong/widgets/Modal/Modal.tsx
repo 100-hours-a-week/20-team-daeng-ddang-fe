@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import styled from "@emotion/styled";
+import { colors } from "@/shared/styles/tokens";
 import { useModalStore } from "@/shared/stores/useModalStore";
 
 export function Modal() {
@@ -67,10 +68,11 @@ const Overlay = styled.div`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1500;
 `;
 
 const ModalContainer = styled.div`
@@ -133,7 +135,7 @@ const Button = styled.button<{ variant: "primary" | "secondary" }>`
   ${({ variant }) =>
     variant === "primary"
       ? `
-    background-color: #000;
+    background-color: ${colors.primary[500]};
     color: white;
   `
       : `

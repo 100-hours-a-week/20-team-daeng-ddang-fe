@@ -111,10 +111,12 @@ export const WalkSnapshotRenderer = ({
 
     const blocks = useMemo(() => [...myBlocks, ...othersBlocks], [myBlocks, othersBlocks]);
     const bounds = useMemo(() => getBounds(path, blocks, currentPos), [path, blocks, currentPos]);
+
+    // 지도 흔들림 방지: 중심좌표 반올림 (약 10m 단위)
     const center = useMemo(
         () => ({
-            lat: (bounds.minLat + bounds.maxLat) / 2,
-            lng: (bounds.minLng + bounds.maxLng) / 2,
+            lat: Math.round(((bounds.minLat + bounds.maxLat) / 2) * 10000) / 10000,
+            lng: Math.round(((bounds.minLng + bounds.maxLng) / 2) * 10000) / 10000,
         }),
         [bounds]
     );
@@ -152,6 +154,8 @@ export const WalkSnapshotRenderer = ({
         ctx.clearRect(0, 0, SNAPSHOT_SIZE, SNAPSHOT_SIZE);
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, SNAPSHOT_SIZE, SNAPSHOT_SIZE);
+
+        // 지도 배경 그리기
         if (
             imageStatus === "loaded" &&
             imageRef.current &&
@@ -164,7 +168,6 @@ export const WalkSnapshotRenderer = ({
                 console.error("Failed to draw map image", e);
             }
         } else if (imageStatus === "error") {
-            // 지도 로드 실패 시 대체 텍스트/배경
             ctx.fillStyle = "#f5f5f5";
             ctx.fillRect(0, 0, SNAPSHOT_SIZE, SNAPSHOT_SIZE);
             ctx.fillStyle = "#ccc";
@@ -225,14 +228,22 @@ export const WalkSnapshotRenderer = ({
         return true;
     }, [path, myBlocks, othersBlocks, center, zoom, imageStatus]);
 
+    // URL 변경 시 이미지 로딩
     useEffect(() => {
+        setTimeout(() => {
+            setIsReady(false);
+            setImageStatus("loading");
+        }, 0);
+
         const img = new Image();
         img.onload = () => {
-            imageRef.current = img;
-            setImageStatus("loaded");
+            // 이미지가 현재 URL과 일치하는지 확인
+            if (img.src.includes(staticMapUrl)) {
+                imageRef.current = img;
+                setImageStatus("loaded");
+            }
         };
         img.onerror = () => {
-            imageRef.current = img;
             setImageStatus("error");
         };
         img.src = staticMapUrl;
@@ -242,24 +253,16 @@ export const WalkSnapshotRenderer = ({
         };
     }, [staticMapUrl]);
 
+    // 이미지 상태가 변경되거나, 경로/블록 데이터가 변경 시 캔버스 다시 그리기
     useEffect(() => {
         if (imageStatus === "loading") return;
-        // error 상태여도 그리기는 시도 (경로만이라도 그림)
+
         const success = drawSnapshot();
 
-        // setTimeout을 사용하여 렌더링 사이클 이후에 상태 업데이트 (cascading render 방지)
         setTimeout(() => {
             setIsReady(success);
         }, 0);
     }, [imageStatus, drawSnapshot]);
-
-    useEffect(() => {
-
-        setTimeout(() => {
-            setIsReady(false);
-            setImageStatus("loading");
-        }, 0);
-    }, [path, myBlocks, othersBlocks, center, zoom]);
 
     useEffect(() => {
         window.getWalkSnapshotBlob = async () => {
