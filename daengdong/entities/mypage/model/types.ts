@@ -4,6 +4,7 @@ export interface MyPageSummary {
     point: number;
     totalWalkCount: number;
     totalWalkDistanceKm: number;
+    profileImageUrl?: string;
 }
 
 export interface MyPageSummaryResponse {
@@ -12,4 +13,5 @@ export interface MyPageSummaryResponse {
     point: number;
     totalWalkCount: number;
     totalWalkDistanceKm: number;
+    profileImageUrl: string;
 }

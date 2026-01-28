@@ -14,6 +14,7 @@ export const myPageRepositoryReal: MyPageRepository = {
             point: data.point,
             totalWalkCount: data.totalWalkCount,
             totalWalkDistanceKm: data.totalWalkDistanceKm,
+            profileImageUrl: data.profileImageUrl,
         };
     },
 };
