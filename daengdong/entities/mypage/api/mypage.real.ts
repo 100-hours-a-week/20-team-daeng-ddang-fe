@@ -2,6 +2,7 @@ import { http } from '@/shared/api/http';
 import { MyPageSummary, MyPageSummaryResponse } from '../model/types';
 import { ApiResponse } from '@/shared/api/types';
 import { MyPageRepository } from './types';
+import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 
 export const myPageRepositoryReal: MyPageRepository = {
     async getMyPageSummary(): Promise<MyPageSummary> {
@@ -14,7 +15,7 @@ export const myPageRepositoryReal: MyPageRepository = {
             point: data.point,
             totalWalkCount: data.totalWalkCount,
             totalWalkDistanceKm: data.totalWalkDistanceKm,
-            profileImageUrl: data.profileImageUrl,
+            profileImageUrl: resolveS3Url(data.profileImageUrl),
         };
     },
 };
