@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Header } from "@/widgets/Header/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
@@ -17,13 +17,23 @@ const EMOTION_LABELS: Record<PredictEmotion, string> = {
   ANGRY: "화가 난 것 같아요",
 };
 
+const EMOTION_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
+  happy: { label: "행복", icon: "🥰", color: "#FFB74D" },
+  relaxed: { label: "편안", icon: "🌿", color: "#81C784" },
+  sad: { label: "슬픔", icon: "💧", color: "#64B5F6" },
+  angry: { label: "화남", icon: "💢", color: "#E57373" },
+};
+
 export default function ExpressionResultPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isMock = searchParams.get("mock") === "1";
+
   const { analysis, clearAnalysis } = useExpressionStore();
   const [isFlipped, setIsFlipped] = useState(false);
 
   const result = useMemo<ExpressionAnalysis>(() => {
-    if (analysis) return analysis;
+    if (!isMock && analysis) return analysis;
     return {
       expressionId: "12",
       predictEmotion: "HAPPY",
@@ -39,7 +49,7 @@ export default function ExpressionResultPage() {
       dogId: 3,
       walkId: 0,
     };
-  }, [analysis]);
+  }, [analysis, isMock]);
 
   const scores = result.emotionScores ?? {
     happy: 0,
@@ -74,23 +84,33 @@ export default function ExpressionResultPage() {
               <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
             </CardFront>
             <CardBack>
-              <BackTitle>감정 점수</BackTitle>
-              <ScoreRow>
-                <ScoreLabel>행복</ScoreLabel>
-                <ScoreValue>{Math.round(scores.happy * 100)}%</ScoreValue>
-              </ScoreRow>
-              <ScoreRow>
-                <ScoreLabel>편안</ScoreLabel>
-                <ScoreValue>{Math.round(scores.relaxed * 100)}%</ScoreValue>
-              </ScoreRow>
-              <ScoreRow>
-                <ScoreLabel>슬픔</ScoreLabel>
-                <ScoreValue>{Math.round(scores.sad * 100)}%</ScoreValue>
-              </ScoreRow>
-              <ScoreRow>
-                <ScoreLabel>화남</ScoreLabel>
-                <ScoreValue>{Math.round(scores.angry * 100)}%</ScoreValue>
-              </ScoreRow>
+              <BackTitle>감정 상세 분석</BackTitle>
+              <ScoreList>
+                {Object.entries(scores).map(([key, value]) => {
+                  const config = EMOTION_CONFIG[key] || { label: key, icon: "❓", color: colors.gray[500] };
+                  const percent = Math.round(value * 100);
+
+                  return (
+                    <ScoreItem key={key}>
+                      <ScoreHeader>
+                        <ScoreLabel>
+                          <Icon>{config.icon}</Icon> {config.label}
+                        </ScoreLabel>
+                        <ScoreValue color={config.color}>{percent}%</ScoreValue>
+                      </ScoreHeader>
+                      <ProgressBar>
+                        <ProgressFill
+                          width={percent}
+                          color={config.color}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percent}%` }}
+                          transition={{ duration: 1, delay: 0.2 }}
+                        />
+                      </ProgressBar>
+                    </ScoreItem>
+                  );
+                })}
+              </ScoreList>
             </CardBack>
           </motion.div>
         </CardWrapper>
@@ -170,24 +190,62 @@ const DogImage = styled.img`
 
 const BackTitle = styled.h3`
   margin: 0;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   color: ${colors.gray[900]};
 `;
 
-const ScoreRow = styled.div`
+const ScoreList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 12px;
+`;
+
+const ScoreItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const ScoreHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: ${colors.gray[700]};
+  align-items: center;
 `;
 
 const ScoreLabel = styled.span`
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: ${colors.gray[800]};
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
-const ScoreValue = styled.span`
-  font-weight: 700;
+const Icon = styled.span`
+  font-size: 20px;
+`;
+
+const ScoreValue = styled.span<{ color: string }>`
+  font-size: 20px;
+  font-weight: 800;
+  color: ${({ color }) => color};
+`;
+
+const ProgressBar = styled.div`
+  width: 100%;
+  height: 10px;
+  background-color: ${colors.gray[100]};
+  border-radius: 5px;
+  overflow: hidden;
+`;
+
+const ProgressFill = styled(motion.div) <{ width: number; color: string }>`
+  height: 100%;
+  background-color: ${({ color }) => color};
+  border-radius: 5px;
 `;
 
 const Bubble = styled.div`
