@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import Image from "next/image";
-import ConstructionImage from "@/shared/assets/images/공사중.png";
+import ConstructionImage from "@/shared/assets/images/construction.png";
 import { colors } from "@/shared/styles/tokens";
 
 export const UnderConstruction = () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Header } from "@/widgets/Header/Header";
@@ -24,7 +24,7 @@ const EMOTION_CONFIG: Record<string, { label: string; icon: string; color: strin
   angry: { label: "화남", icon: "💢", color: "#E57373" },
 };
 
-export default function ExpressionResultPage() {
+function ExpressionResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isMock = searchParams.get("mock") === "1";
@@ -123,6 +123,14 @@ export default function ExpressionResultPage() {
         <CompleteButton onClick={handleComplete}>완료</CompleteButton>
       </ContentWrapper>
     </PageContainer>
+  );
+}
+
+export default function ExpressionResultPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExpressionResultContent />
+    </Suspense>
   );
 }
 
