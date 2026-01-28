@@ -26,7 +26,7 @@ export const walkRepositoryReal: WalkRepository = {
     },
     judgeWalkMissions: async (walkId) => {
         const { data } = await http.post<ApiResponse<MissionAnalysisData>>(
-            `/walks/${walkId}/missions/judge`
+            `/walks/${walkId}/missions/analysis`
         );
         return data.data;
     },

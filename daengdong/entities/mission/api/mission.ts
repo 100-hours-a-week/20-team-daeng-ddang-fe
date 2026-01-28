@@ -36,7 +36,7 @@ export const missionApi = {
 
     uploadMissionVideo: async ({ walkId, missionId, videoUrl }: UploadMissionVideoParams) => {
         const response = await http.post<ApiResponse<UploadMissionVideoResponse>>(
-            `/walks/${walkId}/missions/uploads`,
+            `/walks/${walkId}/missions`,
             {
                 missionId,
                 videoUrl,

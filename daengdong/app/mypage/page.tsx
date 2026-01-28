@@ -8,7 +8,6 @@ import { MyPageMenuList } from '@/features/mypage/ui/MyPageMenuList';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { useModalStore } from '@/shared/stores/useModalStore';
 import { useMyPageSummaryQuery } from '@/features/mypage/api/useMyPageSummaryQuery';
-import { useUserInfoQuery } from '@/features/user/api/useUserInfoQuery';
 import { spacing } from '@/shared/styles/tokens';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -20,7 +19,6 @@ export default function MyPage() {
   const { showToast } = useToastStore();
   const { openModal } = useModalStore();
   const { data: summaryData, isLoading } = useMyPageSummaryQuery();
-  const { data: userInfo } = useUserInfoQuery();
 
   const handleLogout = () => {
     openModal({
@@ -101,7 +99,7 @@ export default function MyPage() {
       <ContentWrapper>
         <UserProfileSection
           dogName={summaryData?.dogName || ""}
-          profileImageUrl={userInfo?.profileImageUrl ?? undefined}
+          profileImageUrl={summaryData?.profileImageUrl ?? undefined}
           totalWalkCount={summaryData?.totalWalkCount || 0}
           totalWalkDistance={summaryData?.totalWalkDistanceKm || 0}
         />
