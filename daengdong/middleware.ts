@@ -12,7 +12,8 @@ export function middleware(request: NextRequest) {
         '/_next',
         '/favicon.ico',
         '/images',
-        '/test/websocket'
+        '/test/websocket',
+        '/api/static-map',
     ];
 
     const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
@@ -38,5 +39,6 @@ export const config = {
     // 미들웨어 적용 경로
     matcher: [
         '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/api/static-map',
     ],
 };
