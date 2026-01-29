@@ -9,6 +9,7 @@ import { ExpressionCamera } from "@/features/expression/ui/ExpressionCamera";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
+import { fileApi } from "@/shared/api/file";
 import { expressionApi } from "@/entities/expression/api/expression";
 
 export default function WalkExpressionPage() {
@@ -45,7 +46,7 @@ const ExpressionContent = () => {
     router.replace("/walk");
   };
 
-  const handleAnalyze = async (_videoBlob: Blob) => {
+  const handleAnalyze = async (videoBlob: Blob) => {
     setIsAnalyzing(true);
     try {
       if (isMock) {
@@ -72,6 +73,7 @@ const ExpressionContent = () => {
         throw new Error("산책 정보가 없습니다.");
       }
 
+      // TODO: 실제 영상 업로드 구현
       /*
       const presignedData = await fileApi.getPresignedUrl(
         "VIDEO",
@@ -82,7 +84,7 @@ const ExpressionContent = () => {
       const videoUrl = presignedData.presignedUrl.split("?")[0];
       */
 
-      const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
+      const videoUrl = "https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
 
       const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
       setAnalysis(analysis);
