@@ -132,7 +132,7 @@ export const WalkSnapshotRenderer = ({
             format: "png",
         });
 
-        return `/api/static-map?${params.toString()}`;
+        return `/map-proxy/static-map?${params.toString()}`;
     }, [center, zoom]);
 
     useEffect(() => {
