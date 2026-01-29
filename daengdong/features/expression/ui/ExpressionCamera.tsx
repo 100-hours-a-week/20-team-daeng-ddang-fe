@@ -28,6 +28,7 @@ export const ExpressionCamera = ({
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [flowState, setFlowState] = useState<ExpressionFlowState>("IDLE");
   const [countdown, setCountdown] = useState(3);
+  const [recordingTimeLeft, setRecordingTimeLeft] = useState(5);
   const [error, setError] = useState<string | null>(null);
 
   const { showToast } = useToastStore();
@@ -92,7 +93,21 @@ export const ExpressionCamera = ({
       };
 
       recorder.start();
+      setRecordingTimeLeft(5);
+
+      // 1초마다 카운트다운
+      const countdownInterval = setInterval(() => {
+        setRecordingTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
       recordingTimerRef.current = setTimeout(() => {
+        clearInterval(countdownInterval);
         stopRecording();
       }, 5000);
     } catch (e) {
@@ -177,10 +192,15 @@ export const ExpressionCamera = ({
         )}
 
         {flowState === "RECORDING" && (
-          <RecordingBadge>
-            <RecordingDot />
-            REC (5s)
-          </RecordingBadge>
+          <>
+            <RecordingCountdown>
+              <CountdownNumber>{recordingTimeLeft}</CountdownNumber>
+            </RecordingCountdown>
+            <RecordingBadge>
+              <RecordingDot />
+              REC
+            </RecordingBadge>
+          </>
         )}
       </VideoWrapper>
 
@@ -266,6 +286,31 @@ const RecordingDot = styled.span`
   @keyframes blink {
     50% {
       opacity: 0.5;
+    }
+  }
+`;
+
+const RecordingCountdown = styled.div`
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+`;
+
+const CountdownNumber = styled.div`
+  font-size: 72px;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: pulse 1s ease-in-out infinite;
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
     }
   }
 `;
