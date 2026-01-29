@@ -331,9 +331,6 @@ jobs:
             ENV_FILE="${CURRENT_LINK}/.env"
 
             cat > "${ENV_FILE}" <<EOF
-            NODE_ENV=production
-            PORT=${idle_port}
-
             NAVER_MAP_CLIENT_SECRET=${{ secrets.NAVER_MAP_CLIENT_SECRET }}
             EOF
 
