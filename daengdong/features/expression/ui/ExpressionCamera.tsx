@@ -192,17 +192,20 @@ export const ExpressionCamera = ({
         )}
 
         {flowState === "RECORDING" && (
-          <>
-            <RecordingCountdown>
-              <CountdownNumber>{recordingTimeLeft}</CountdownNumber>
-            </RecordingCountdown>
-            <RecordingBadge>
-              <RecordingDot />
-              REC
-            </RecordingBadge>
-          </>
+          <RecordingBadge>
+            <RecordingDot />
+            REC
+          </RecordingBadge>
         )}
       </VideoWrapper>
+
+      {flowState === "RECORDING" && (
+        <RecordingInfo>
+          <RecordingDot />
+          <RecordingText>REC</RecordingText>
+          <CountdownBadge>{recordingTimeLeft}s</CountdownBadge>
+        </RecordingInfo>
+      )}
 
       {guideContent}
 
@@ -290,29 +293,29 @@ const RecordingDot = styled.span`
   }
 `;
 
-const RecordingCountdown = styled.div`
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
+const RecordingInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(229, 115, 115, 0.1);
+  border-radius: ${radius.md};
+  margin-bottom: ${spacing[3]}px;
 `;
 
-const CountdownNumber = styled.div`
-  font-size: 72px;
-  font-weight: 900;
-  color: white;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  animation: pulse 1s ease-in-out infinite;
+const RecordingText = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${colors.semantic.error};
+`;
 
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-  }
+const CountdownBadge = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${colors.gray[700]};
+  background: ${colors.gray[100]};
+  padding: 2px 8px;
+  border-radius: ${radius.sm};
 `;
 
 const CTASection = styled.div`
