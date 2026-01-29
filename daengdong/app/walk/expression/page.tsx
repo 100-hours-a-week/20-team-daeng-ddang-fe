@@ -11,6 +11,7 @@ import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { fileApi } from "@/shared/api/file";
 import { expressionApi } from "@/entities/expression/api/expression";
+import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 
 export default function WalkExpressionPage() {
   return (
@@ -29,6 +30,12 @@ const ExpressionContent = () => {
 
   const [isIdle, setIsIdle] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // 페이지 이탈 방지 
+  useConfirmPageLeave(
+    !isIdle || isAnalyzing,
+    "촬영 또는 분석이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+  );
 
   const walkId = useMemo(() => {
     const param = searchParams.get("walkId");
