@@ -11,7 +11,7 @@ export const useUploadMissionVideo = () => {
     return useMutation({
         mutationFn: async ({ walkId, missionId }: UploadMissionVideoParams) => {
             const mockVideoUrl =
-                "https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
+                "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
             // TODO: 실제 촬영 영상 업로드 로직 복구
             // const presignedData = await fileApi.getPresignedUrl(
