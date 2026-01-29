@@ -26,6 +26,7 @@ export interface WalkState {
     othersBlocks: BlockData[];
     scheduledMissions: { mission: Mission; triggerAt: number; triggered: boolean }[];
     activeMissionAlert: Mission | null;
+    isEnding: boolean;
 
     startWalk: (id?: number) => void;
     endWalk: () => void;
@@ -44,6 +45,7 @@ export interface WalkState {
     removeOthersBlock: (blockId: string) => void;
     setScheduledMissions: (missions: { mission: Mission; triggerAt: number; triggered: boolean }[]) => void;
     setActiveMissionAlert: (mission: Mission | null) => void;
+    setIsEnding: (isEnding: boolean) => void;
 }
 
 export interface StartWalkRequest {

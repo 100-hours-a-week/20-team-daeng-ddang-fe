@@ -18,6 +18,7 @@ export const useWalkStore = create<WalkState>()(
             othersBlocks: [],
             scheduledMissions: [],
             activeMissionAlert: null,
+            isEnding: false,
 
             startWalk: (id?: number) =>
                 set({
@@ -33,6 +34,7 @@ export const useWalkStore = create<WalkState>()(
                     othersBlocks: [],
                     scheduledMissions: [],
                     activeMissionAlert: null,
+                    isEnding: false,
                 }),
 
             endWalk: () =>
@@ -67,6 +69,7 @@ export const useWalkStore = create<WalkState>()(
                     othersBlocks: [],
                     scheduledMissions: [],
                     activeMissionAlert: null,
+                    isEnding: false,
                 }),
 
             setCurrentPos: (pos) =>
@@ -136,6 +139,9 @@ export const useWalkStore = create<WalkState>()(
 
             setActiveMissionAlert: (mission) =>
                 set({ activeMissionAlert: mission }),
+
+            setIsEnding: (isEnding) =>
+                set({ isEnding }),
         }),
         {
             name: "walk-storage",

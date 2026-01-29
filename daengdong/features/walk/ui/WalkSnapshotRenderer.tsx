@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
+import { useWalkStore } from "@/entities/walk/model/walkStore";
 
 const SNAPSHOT_SIZE = 1024;
 const SNAPSHOT_PADDING = 40;
@@ -68,7 +69,7 @@ const getZoomLevel = (bounds: ReturnType<typeof getBounds>) => {
 
     const zoomX = Math.log2(availableSize / (dx * 256));
     const zoomY = Math.log2(availableSize / (dy * 256));
-    const zoom = Math.floor(Math.min(zoomX, zoomY)) - 3;
+    const zoom = Math.floor(Math.min(zoomX, zoomY)) - 1;
 
     return Math.max(3, Math.min(19, zoom));
 };
@@ -108,6 +109,7 @@ export const WalkSnapshotRenderer = ({
     const [imageStatus, setImageStatus] = useState<"loading" | "loaded" | "error">("loading");
     const [isReady, setIsReady] = useState(false);
     const imageRef = useRef<HTMLImageElement | null>(null);
+    const { isEnding } = useWalkStore();
 
     const blocks = useMemo(() => [...myBlocks, ...othersBlocks], [myBlocks, othersBlocks]);
     const bounds = useMemo(() => getBounds(path, blocks, currentPos), [path, blocks, currentPos]);
@@ -123,6 +125,8 @@ export const WalkSnapshotRenderer = ({
     const zoom = useMemo(() => getZoomLevel(bounds), [bounds]);
 
     const staticMapUrl = useMemo(() => {
+        if (!isEnding) return "";
+
         const centerParam = `${center.lng},${center.lat}`;
         const params = new URLSearchParams({
             w: String(SNAPSHOT_SIZE),
@@ -133,12 +137,15 @@ export const WalkSnapshotRenderer = ({
         });
 
         return `/map-proxy/static-map?${params.toString()}`;
-    }, [center, zoom]);
+    }, [center, zoom, isEnding]);
 
     useEffect(() => {
         if (!containerRef.current) return;
         containerRef.current.setAttribute("data-ready", isReady ? "true" : "false");
-        containerRef.current.setAttribute("data-map-url", staticMapUrl);
+        // Only set data-map-url if it exists
+        if (staticMapUrl) {
+            containerRef.current.setAttribute("data-map-url", staticMapUrl);
+        }
     }, [isReady, staticMapUrl]);
 
     const drawSnapshot = useCallback(() => {
@@ -230,6 +237,8 @@ export const WalkSnapshotRenderer = ({
 
     // URL 변경 시 이미지 로딩
     useEffect(() => {
+        if (!staticMapUrl) return;
+
         setTimeout(() => {
             setIsReady(false);
             setImageStatus("loading");

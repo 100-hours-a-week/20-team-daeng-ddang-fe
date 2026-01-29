@@ -341,6 +341,12 @@ export const useWalkControl = () => {
             onConfirm: async () => {
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
 
+                // 스냅샷 생성을 위해 렌더링 활성화
+                useWalkStore.getState().setIsEnding(true);
+
+                // 렌더링 대기
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
                 let storedImageUrl = "";
 
                 try {
