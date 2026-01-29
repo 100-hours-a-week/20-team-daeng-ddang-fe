@@ -84,7 +84,7 @@ const ExpressionContent = () => {
       const videoUrl = presignedData.presignedUrl.split("?")[0];
       */
 
-      const videoUrl = "https://daeng-dong-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
+      const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
 
       const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
       setAnalysis(analysis);
