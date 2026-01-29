@@ -1,0 +1,124 @@
+import { Mission } from "@/entities/mission/api/mission";
+
+export interface LatLng {
+    lat: number;
+    lng: number;
+}
+
+export interface WalkResult {
+    time: number;
+    distance: number;
+    imageUrl?: string;
+    blockCount?: number;
+}
+
+export interface WalkState {
+    walkMode: "idle" | "walking";
+    currentPos: LatLng | null;
+    walkId: number | null;
+    startTime: number | null;
+    elapsedTime: number;
+    distance: number;
+    path: LatLng[];
+    walkResult: WalkResult | null;
+    missionAnalysis: MissionAnalysisData | null;
+    myBlocks: BlockData[];
+    othersBlocks: BlockData[];
+    scheduledMissions: { mission: Mission; triggerAt: number; triggered: boolean }[];
+    activeMissionAlert: Mission | null;
+    isEnding: boolean;
+
+    startWalk: (id?: number) => void;
+    endWalk: () => void;
+    reset: () => void;
+    setCurrentPos: (pos: LatLng) => void;
+    incrementTime: () => void;
+    addPathPoint: (pos: LatLng) => void;
+    addDistance: (km: number) => void;
+    setWalkResult: (result: WalkResult) => void;
+    setMissionAnalysis: (analysis: MissionAnalysisData | null) => void;
+    setMyBlocks: (blocks: BlockData[]) => void;
+    setOthersBlocks: (blocks: BlockData[]) => void;
+    addMyBlock: (block: BlockData) => void;
+    removeMyBlock: (blockId: string) => void;
+    updateOthersBlock: (block: BlockData) => void;
+    removeOthersBlock: (blockId: string) => void;
+    setScheduledMissions: (missions: { mission: Mission; triggerAt: number; triggered: boolean }[]) => void;
+    setActiveMissionAlert: (mission: Mission | null) => void;
+    setIsEnding: (isEnding: boolean) => void;
+}
+
+export interface StartWalkRequest {
+    startLat: number;
+    startLng: number;
+}
+
+export interface StartWalkResponse {
+    walkId: number;
+    startedAt: string;
+}
+
+export interface EndWalkRequest {
+    walkId: number;
+    endLat: number;
+    endLng: number;
+    totalDistanceKm: number;
+    durationSeconds: number;
+    status: "FINISHED";
+}
+
+export interface EndWalkResponse {
+    walkId: number;
+    startedAt: string;
+    endedAt: string;
+    totalDistanceKm: number;
+    durationSeconds: number;
+    occupiedBlockCount: number;
+    status: "FINISHED";
+}
+
+export interface WriteWalkDiaryRequest {
+    walkId: number;
+    memo: string;
+    mapImageUrl?: string;
+}
+
+export interface WriteWalkDiaryResponse {
+    message: string;
+    data: {
+        walkDiaryId: number;
+        walkId: number;
+        createdAt: string;
+    };
+    errorCode: null;
+}
+
+export interface BlockData {
+    blockId: string;
+    dogId: number;
+    occupiedAt?: string;
+}
+
+export interface NearbyBlocksParams {
+    lat: number;
+    lng: number;
+    radius: number;
+}
+
+export interface MissionRecord {
+    missionId: number;
+    success: boolean;
+}
+
+export interface MissionAnalysisData {
+    analysisId: string;
+    walkId: number;
+    analyzedAt: string;
+    missions: MissionRecord[];
+}
+
+export interface MissionAnalysisResponse {
+    message: string;
+    data: MissionAnalysisData;
+    errorCode: string | null;
+}

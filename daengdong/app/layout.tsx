@@ -1,31 +1,39 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import "./globals.css";
 
-export const metadata: Metadata = {
-  title: '댕동여지도 - 배포 확인',
-  description: '배포 확인용 웰컴 페이지입니다.',
-};
+import { ReactNode } from "react";
+import localFont from "next/font/local";
+import { EmotionProvider } from "@/shared/lib/emotion-provider";
+import Providers from "./providers";
+import { LayoutClient } from "./layout-client";
+import { AuthInitializer } from "@/widgets/Init/AuthInitializer";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const cafe24 = localFont({
+  src: [
+    {
+      path: "../shared/assets/fonts/Cafe24Ssurround-v2.0.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../shared/assets/fonts/Cafe24Ssurround-v2.0.woff",
+      weight: "100 900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-cafe24",
+  display: "swap",
+});
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={cafe24.variable}>
       <body>
-        <main
-          style={{
-            display: 'flex',
-            minHeight: '100vh',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#fff',
-            color: '#000',
-          }}
-        >
-          {children}
-        </main>
+        <EmotionProvider>
+          <Providers>
+            <AuthInitializer />
+            <LayoutClient>{children}</LayoutClient>
+          </Providers>
+        </EmotionProvider>
       </body>
     </html>
   );

@@ -1,0 +1,53 @@
+import { http } from '@/shared/api/http';
+import { UserInfo, UserResponse, CreateUserParams, UpdateUserParams, Region } from '../model/types';
+import { ApiResponse } from '@/shared/api/types';
+import { UserRepository } from './types';
+
+interface RegionsResponse {
+    regions: Region[];
+}
+
+export const userRepositoryReal: UserRepository = {
+    async getUserInfo(): Promise<UserInfo | null> {
+        try {
+            const response = await http.get<ApiResponse<UserResponse>>('/users/me');
+            const data = response.data.data;
+
+            return {
+                userId: data.userId,
+                regionId: data.regionId,
+                parentRegionId: data.parentRegionId,
+                region: data.region,
+                kakaoEmail: data.kakaoEmail,
+                dogId: data.dogId,
+                profileImageUrl: data.profileImageUrl ?? null,
+            };
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((error as any).response?.status === 404) {
+                return null;
+            }
+            throw error;
+        }
+    },
+
+    async createUser(params: CreateUserParams): Promise<UserResponse> {
+        const response = await http.post<ApiResponse<UserResponse>>('/users', params);
+        return response.data.data;
+    },
+
+    async updateUser(params: UpdateUserParams): Promise<UserResponse> {
+        const response = await http.patch<ApiResponse<UserResponse>>('/users', params);
+        return response.data.data;
+    },
+
+    async deleteUser(): Promise<void> {
+        await http.delete('/users');
+    },
+
+    async getRegions(parentId?: number): Promise<Region[]> {
+        const params = parentId ? { parentId } : {};
+        const response = await http.get<ApiResponse<RegionsResponse>>('/users/regions', { params });
+        return response.data.data.regions;
+    },
+};
