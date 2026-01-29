@@ -9,6 +9,7 @@ import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';
 import { useRouter } from 'next/navigation';
+import { useUserQuery } from '@/entities/user/model/useUserQuery';
 
 export function UserInfoScreen() {
     const router = useRouter();
@@ -16,6 +17,8 @@ export function UserInfoScreen() {
     const { showToast } = useToastStore();
 
     const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
+    // 이메일 표시용 fallback
+    const { data: userData } = useUserQuery();
 
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
     const province = regionParts[0] || '';
@@ -76,6 +79,7 @@ export function UserInfoScreen() {
     }
 
     const isSubmitting = saveMutation.isPending || deleteMutation.isPending;
+    const displayEmail = userInfo?.kakaoEmail || userData?.kakaoEmail;
 
     return (
         <Container>
@@ -93,7 +97,7 @@ export function UserInfoScreen() {
                     onWithdraw={handleWithdrawClick}
                     isSubmitting={isSubmitting}
                     isNewUser={isNewUser}
-                    kakaoEmail={userInfo?.kakaoEmail}
+                    kakaoEmail={displayEmail}
                 />
             </Content>
 
