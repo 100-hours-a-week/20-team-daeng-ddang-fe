@@ -257,6 +257,21 @@ export const useWalkControl = () => {
             return;
         }
 
+        // 반려견 정보 미등록 체크
+        if (!user.dogId) {
+            openModal({
+                title: "반려견 정보 필요",
+                message: "산책을 시작하려면 반려견 정보를 먼저 등록해주세요.",
+                type: "confirm",
+                confirmText: "등록하러 가기",
+                cancelText: "취소",
+                onConfirm: () => {
+                    router.push("/mypage/dog");
+                },
+            });
+            return;
+        }
+
         if (!currentPos) {
             alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
             return;
