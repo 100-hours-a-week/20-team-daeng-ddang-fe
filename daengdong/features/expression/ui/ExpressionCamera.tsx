@@ -92,7 +92,7 @@ export const ExpressionCamera = ({
         });
       };
 
-      recorder.start();
+      recorder.start(5000);
       setRecordingTimeLeft(5);
 
       // 1초마다 카운트다운

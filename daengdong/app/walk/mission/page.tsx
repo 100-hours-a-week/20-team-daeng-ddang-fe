@@ -10,6 +10,7 @@ import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { spacing } from "@/shared/styles/tokens";
 import { useUploadMissionVideo } from "@/features/mission/model/useMissionMutations";
+import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 
 export default function WalkMissionPage() {
     return (
@@ -27,6 +28,12 @@ const WalkMissionContent = () => {
     const [isIdle, setIsIdle] = useState(true);
 
     const { mutateAsync: uploadMission } = useUploadMissionVideo();
+
+    // 촬영 중일 때 페이지 이탈 방지
+    useConfirmPageLeave(
+        !isIdle,
+        "돌발 미션 촬영이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+    );
 
     useEffect(() => {
         const isMock = searchParams.get("mock") === "1";

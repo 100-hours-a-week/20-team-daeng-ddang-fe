@@ -114,7 +114,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                 handleUpload(blob);
             };
 
-            recorder.start();
+            recorder.start(5000);
             setRecordingTimeLeft(5);
 
             // 1초마다 카운트다운
