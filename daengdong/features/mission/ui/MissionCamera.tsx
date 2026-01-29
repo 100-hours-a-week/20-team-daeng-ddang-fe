@@ -56,7 +56,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
         }
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" },
+                video: { facingMode: "environment" },
                 audio: true,
             });
             setStream(mediaStream);
