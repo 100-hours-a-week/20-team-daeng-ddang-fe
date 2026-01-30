@@ -10,6 +10,7 @@ if (!API_BASE_URL) {
 // 1. 일반 API 요청용 인스턴스
 export const http = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 30000, // 30초 - 느린 네트워크 환경 고려
 });
 
 // 2. 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지용)

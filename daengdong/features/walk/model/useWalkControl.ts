@@ -1,5 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { BlockData } from "@/entities/walk/model/types";
 import { useModalStore } from "@/shared/stores/useModalStore";
@@ -41,7 +42,7 @@ export const useWalkControl = () => {
     const { openModal } = useModalStore();
     const { showLoading, hideLoading } = useLoadingStore();
     const { showToast } = useToastStore();
-    const { mutate: startWalkMutate } = useStartWalk();
+    const { mutateAsync: startWalkMutate, isPending: isStarting } = useStartWalk();
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
     const { data: user, isError } = useUserQuery();
@@ -182,28 +183,22 @@ export const useWalkControl = () => {
                 (position) => {
                     const { latitude, longitude } = position.coords;
 
-                    // 1. 현재 위치는 UI 반영을 위해 실시간 업데이트 (마커용)
                     setCurrentPos({ lat: latitude, lng: longitude });
 
-                    // 2. 거리 계산 (이전 유효 위치 기준)
                     const lastLat = lastLatRef.current;
                     const lastLng = lastLngRef.current;
 
-                    // 첫 위치이거나, 이전 위치 대비 일정 거리(5m) 이상 이동했을 때만 기록
                     if (!lastLat || !lastLng) {
-                        // 첫 위치
                         lastLatRef.current = latitude;
                         lastLngRef.current = longitude;
                         addPathPoint({ lat: latitude, lng: longitude });
                     } else {
                         const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
 
-                        // 5m 이상 이동 시에만 경로/거리 추가 (GPS 튀는 현상 방지)
                         if (dist > 0.005) {
                             addDistance(dist);
                             addPathPoint({ lat: latitude, lng: longitude });
 
-                            // 유효 위치 갱신
                             lastLatRef.current = latitude;
                             lastLngRef.current = longitude;
                         }
@@ -214,13 +209,13 @@ export const useWalkControl = () => {
             );
         }
 
-        // 주기적 전송 (점유 판정용, 3초마다)
+        // 주기적 전송
         const intervalId = setInterval(() => {
             const current = currentPosRef.current;
             if (current && wsClientRef.current?.getConnectionStatus()) {
                 wsClientRef.current.sendLocation(current.lat, current.lng);
             }
-        }, 3000);
+        }, 7000);
 
         return () => {
             if (watchId) navigator.geolocation.clearWatch(watchId);
@@ -251,7 +246,7 @@ export const useWalkControl = () => {
         };
     }, [handleWebSocketMessage]);
 
-    const handleStart = () => {
+    const handleStart = async () => {
         if (!user || isError) {
             router.push("/login");
             return;
@@ -273,30 +268,65 @@ export const useWalkControl = () => {
         }
 
         if (!currentPos) {
-            alert("위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.");
+            showToast({
+                message: "위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.",
+                type: "error"
+            });
             return;
         }
 
-        startWalkMutate(
-            { startLat: currentPos.lat, startLng: currentPos.lng },
-            {
-                onSuccess: async (res) => {
-                    startWalk(res.walkId);
+        // 중복 요청 방지
+        if (isStarting) {
+            console.warn('[StartWalk] 이미 요청 진행 중');
+            return;
+        }
 
-                    // WebSocket 연결
-                    try {
-                        const token = localStorage.getItem('accessToken') || undefined;
-                        await wsClientRef.current?.connect(res.walkId, token);
-                        console.log("WebSocket 연결 성공:", res.walkId);
-                    } catch (e) {
-                        console.error("WebSocket 연결 실패:", e);
-                    }
-                },
-                onError: () => {
-                    alert("산책 시작에 실패했습니다.");
-                }
+        showLoading("산책을 시작하는 중입니다...");
+        console.log('[StartWalk] 요청 시작:', { lat: currentPos.lat, lng: currentPos.lng });
+
+        try {
+            const res = await startWalkMutate({
+                startLat: currentPos.lat,
+                startLng: currentPos.lng
+            });
+
+            console.log('[StartWalk] 성공:', res);
+            startWalk(res.walkId);
+
+            // WebSocket 연결
+            try {
+                const token = localStorage.getItem('accessToken') || undefined;
+                await wsClientRef.current?.connect(res.walkId, token);
+                console.log("[StartWalk] WebSocket 연결 성공:", res.walkId);
+            } catch (e) {
+                console.error("[StartWalk] WebSocket 연결 실패:", e);
             }
-        );
+
+            hideLoading();
+        } catch (error) {
+            console.error('[StartWalk] 실패:', error);
+            hideLoading();
+
+            // Axios 에러 타입 체크
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 400) {
+                    showToast({
+                        message: '이미 진행 중인 산책이 있습니다.',
+                        type: 'error'
+                    });
+                } else {
+                    showToast({
+                        message: '산책 시작에 실패했습니다. 다시 시도해주세요.',
+                        type: 'error'
+                    });
+                }
+            } else {
+                showToast({
+                    message: '산책 시작에 실패했습니다. 다시 시도해주세요.',
+                    type: 'error'
+                });
+            }
+        }
     };
 
     const handleCancel = () => {
@@ -356,10 +386,8 @@ export const useWalkControl = () => {
             onConfirm: async () => {
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
 
-                // 스냅샷 생성을 위해 렌더링 활성화
                 useWalkStore.getState().setIsEnding(true);
 
-                // 모바일 렌더링을 위한 초기 대기 시간 증가 (1000ms -> 1500ms)
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 let storedImageUrl = "";

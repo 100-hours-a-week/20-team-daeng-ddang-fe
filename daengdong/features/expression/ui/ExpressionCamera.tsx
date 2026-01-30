@@ -194,8 +194,7 @@ export const ExpressionCamera = ({
         {flowState === "RECORDING" && (
           <RecordingBadge>
             <RecordingDot />
-            REC
-            {recordingTimeLeft}s
+            REC {recordingTimeLeft}s
           </RecordingBadge>
         )}
       </VideoWrapper>
