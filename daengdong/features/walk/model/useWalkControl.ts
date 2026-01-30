@@ -359,38 +359,72 @@ export const useWalkControl = () => {
                 // 스냅샷 생성을 위해 렌더링 활성화
                 useWalkStore.getState().setIsEnding(true);
 
-                // 렌더링 대기
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // 모바일 렌더링을 위한 초기 대기 시간 증가 (1000ms -> 1500ms)
+                await new Promise(resolve => setTimeout(resolve, 1500));
 
                 let storedImageUrl = "";
 
                 try {
-                    // WalkMap에서 정의한 getWalkSnapshotBlob 함수를 호출하여 현재 지도 화면을 캡처
-                    // 정적 지도 API(401 오류) 대신 클라이언트 측 캡처 방식을 사용
-                    const snapshotBlob = await window.getWalkSnapshotBlob?.();
-                    const blob = snapshotBlob ?? null;
+                    // 준비 상태 폴링 함수 (최대 5초 대기)
+                    const waitForSnapshotReady = async (maxWaitMs: number = 5000): Promise<boolean> => {
+                        const startTime = Date.now();
 
-                    if (blob) {
-                        // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
-                        const base64Url = await new Promise<string>((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result as string);
-                            reader.readAsDataURL(blob);
+                        return new Promise((resolve) => {
+                            const checkReady = () => {
+                                if (window.isWalkSnapshotReady) {
+                                    console.log(`[Snapshot] Ready after ${Date.now() - startTime}ms`);
+                                    resolve(true);
+                                    return;
+                                }
+
+                                if (Date.now() - startTime > maxWaitMs) {
+                                    console.warn(`[Snapshot] Timeout after ${maxWaitMs}ms, ready state: ${window.isWalkSnapshotReady}`);
+                                    resolve(false);
+                                    return;
+                                }
+
+                                requestAnimationFrame(checkReady);
+                            };
+
+                            checkReady();
                         });
-                        storedImageUrl = base64Url;
+                    };
 
-                        try {
-                            const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
-                            await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                            console.log("스냅샷 S3 업로드 성공:", objectKey);
-                        } catch (e) {
-                            console.error("S3 업로드 실패:", e);
-                        }
+                    // 준비 상태 대기
+                    const isReady = await waitForSnapshotReady(5000);
+
+                    if (!isReady) {
+                        console.warn("[Snapshot] 대기 후에도 스냅샷이 준비되지 않음");
+                    } else if (!window.getWalkSnapshotBlob) {
+                        console.error("[Snapshot] getWalkSnapshotBlob 함수가 정의되지 않음");
                     } else {
-                        console.warn("지도 스냅샷 생성 실패: getWalkSnapshotBlob이 정의되지 않았거나 null을 반환했습니다.");
+                        // 스냅샷 생성 시도
+                        const blob = await window.getWalkSnapshotBlob();
+
+                        if (blob && blob.size > 0) {
+                            console.log("[Snapshot] 생성 성공, 크기:", blob.size);
+
+                            // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
+                            const base64Url = await new Promise<string>((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result as string);
+                                reader.readAsDataURL(blob);
+                            });
+                            storedImageUrl = base64Url;
+
+                            try {
+                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                await fileApi.uploadFile(presignedUrl, blob, "image/png");
+                                console.log("[Snapshot] S3 업로드 성공:", objectKey);
+                            } catch (e) {
+                                console.error("[Snapshot] S3 업로드 실패:", e);
+                            }
+                        } else {
+                            console.warn("[Snapshot] Blob이 null이거나 비어있음, blob:", blob);
+                        }
                     }
                 } catch (error) {
-                    console.error("Snapshot creation/upload failed:", error);
+                    console.error("[Snapshot] 생성/업로드 실패:", error);
                 }
 
                 // 산책 종료 API 호출
