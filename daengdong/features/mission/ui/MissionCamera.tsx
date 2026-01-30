@@ -234,18 +234,10 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                 {flowState === "RECORDING" && (
                     <RecordingBadge>
                         <RecordingDot />
-                        REC
+                        REC {recordingTimeLeft}s
                     </RecordingBadge>
                 )}
             </VideoWrapper>
-
-            {flowState === "RECORDING" && (
-                <RecordingInfo>
-                    <RecordingDot />
-                    <RecordingText>REC</RecordingText>
-                    <CountdownBadge>{recordingTimeLeft}s</CountdownBadge>
-                </RecordingInfo>
-            )}
 
             <CTASection>
                 {flowState === "IDLE" && (
