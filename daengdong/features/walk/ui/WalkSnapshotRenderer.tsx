@@ -86,6 +86,7 @@ const latLngToPixel = (lat: number, lng: number, center: LatLng, zoom: number) =
 declare global {
     interface Window {
         getWalkSnapshotBlob?: () => Promise<Blob | null>;
+        isWalkSnapshotReady?: boolean;
     }
 }
 
@@ -274,19 +275,32 @@ export const WalkSnapshotRenderer = ({
     }, [imageStatus, drawSnapshot]);
 
     useEffect(() => {
+        // 준비 상태를 window에 노출하여 외부에서 폴링 가능하도록 함
+        window.isWalkSnapshotReady = isReady;
+
         window.getWalkSnapshotBlob = async () => {
-            const start = Date.now();
-            while (!isReady && Date.now() - start < 7000) {
-                await new Promise((resolve) => setTimeout(resolve, 100));
+            // 준비되지 않았으면 즉시 null 반환 (외부에서 폴링으로 대기하므로)
+            if (!canvasRef.current || !isReady) {
+                console.warn('[WalkSnapshotRenderer] Snapshot not ready, canvas:', !!canvasRef.current, 'isReady:', isReady);
+                return null;
             }
-            if (!canvasRef.current || !isReady) return null;
+
             return new Promise<Blob | null>((resolve) => {
-                canvasRef.current?.toBlob((blob) => resolve(blob), "image/png");
+                canvasRef.current?.toBlob((blob) => {
+                    if (blob && blob.size > 0) {
+                        console.log('[WalkSnapshotRenderer] Snapshot blob created successfully, size:', blob.size);
+                        resolve(blob);
+                    } else {
+                        console.warn('[WalkSnapshotRenderer] Blob creation failed or empty');
+                        resolve(null);
+                    }
+                }, "image/png");
             });
         };
 
         return () => {
             window.getWalkSnapshotBlob = undefined;
+            window.isWalkSnapshotReady = false;
         };
     }, [isReady]);
 
