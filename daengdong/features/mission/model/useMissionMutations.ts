@@ -12,8 +12,8 @@ export const useUploadMissionVideo = () => {
     return useMutation({
         mutationFn: async ({ walkId, missionId, file }: UploadMissionVideoParams) => {
             // mock 비디오 url 
-            // const mockVideoUrl =
-            //"https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
+            // const videoUrl =
+            //     "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
             const presignedData = await fileApi.getPresignedUrl(
                 "VIDEO",

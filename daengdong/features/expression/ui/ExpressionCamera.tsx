@@ -95,15 +95,14 @@ export const ExpressionCamera = ({
       recorder.start(5000);
       setRecordingTimeLeft(5);
 
-      // 1초마다 카운트다운
+      // 1초마다 카운트다운 - 각 초를 확실히 표시
+      let currentTime = 5;
       const countdownInterval = setInterval(() => {
-        setRecordingTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            return 0;
-          }
-          return prev - 1;
-        });
+        currentTime -= 1;
+        setRecordingTimeLeft(currentTime);
+        if (currentTime <= 0) {
+          clearInterval(countdownInterval);
+        }
       }, 1000);
 
       recordingTimerRef.current = setTimeout(() => {

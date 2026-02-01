@@ -32,8 +32,8 @@ export const useMissionScheduler = () => {
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
 
                 // M1: 5-10 분 후
-                const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
-                //const delay1 = 10; // 테스트용 10초후 돌발미션 활성화
+                // const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
+                const delay1 = 10; // 테스트용 10초후 돌발미션 활성화
                 currentOffset += delay1;
                 if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + currentOffset, triggered: false });
 

@@ -81,7 +81,11 @@ function ExpressionResultContent() {
             style={{ width: "100%", height: "100%", transformStyle: "preserve-3d" }}
           >
             <CardFront>
-              <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
+              {result.videoUrl ? (
+                <DogVideo src={result.videoUrl} autoPlay loop muted playsInline />
+              ) : (
+                <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
+              )}
             </CardFront>
             <CardBack>
               <BackTitle>감정 상세 분석</BackTitle>
@@ -191,6 +195,12 @@ const CardBack = styled(CardBase)`
 `;
 
 const DogImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const DogVideo = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;

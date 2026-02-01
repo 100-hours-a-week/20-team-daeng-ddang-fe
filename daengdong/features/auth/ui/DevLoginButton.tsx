@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
@@ -8,8 +9,15 @@ import { useAuthStore } from '@/entities/session/model/store';
 import { useToastStore } from '@/shared/stores/useToastStore';
 
 export const DevLoginButton = () => {
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const setLoggedIn = useAuthStore((state) => state.setLoggedIn);
+
+    // Ensure component only renders on client-side to prevent hydration mismatch
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+    }, []);
 
     const loginMutation = useMutation({
         mutationFn: devLogin,
@@ -36,9 +44,13 @@ export const DevLoginButton = () => {
         },
     });
 
+    // Return null during SSR and before mounting
+    if (!mounted) {
+        return null;
+    }
+
     // localhost에서만 Dev Login 버튼 표시 
-    const isLocalhost = typeof window !== 'undefined' &&
-        window.location.hostname === 'localhost';
+    const isLocalhost = window.location.hostname === 'localhost';
 
     if (!isLocalhost) {
         return null;
