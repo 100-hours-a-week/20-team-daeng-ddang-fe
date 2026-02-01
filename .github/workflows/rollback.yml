@@ -217,10 +217,6 @@ jobs:
               exit 1
             fi
 
-            # 8) 오래된 릴리즈 정리
-            echo "🧹 오래된 릴리즈 정리 중..."
-            cd "${RELEASES_DIR}" && ls -dt */ | tail -n +6 | xargs -r rm -rf --
-
   notify:
     name: Notify
     runs-on: ubuntu-latest
