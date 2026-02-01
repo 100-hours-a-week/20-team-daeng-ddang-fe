@@ -28,6 +28,7 @@ export const ExpressionCamera = ({
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [flowState, setFlowState] = useState<ExpressionFlowState>("IDLE");
   const [countdown, setCountdown] = useState(3);
+  const [recordingTimeLeft, setRecordingTimeLeft] = useState(5);
   const [error, setError] = useState<string | null>(null);
 
   const { showToast } = useToastStore();
@@ -91,8 +92,21 @@ export const ExpressionCamera = ({
         });
       };
 
-      recorder.start();
+      recorder.start(5000);
+      setRecordingTimeLeft(5);
+
+      // 1초마다 카운트다운 - 각 초를 확실히 표시
+      let currentTime = 5;
+      const countdownInterval = setInterval(() => {
+        currentTime -= 1;
+        setRecordingTimeLeft(currentTime);
+        if (currentTime <= 0) {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+
       recordingTimerRef.current = setTimeout(() => {
+        clearInterval(countdownInterval);
         stopRecording();
       }, 5000);
     } catch (e) {
@@ -179,7 +193,7 @@ export const ExpressionCamera = ({
         {flowState === "RECORDING" && (
           <RecordingBadge>
             <RecordingDot />
-            REC (5s)
+            REC {recordingTimeLeft}s
           </RecordingBadge>
         )}
       </VideoWrapper>
@@ -268,6 +282,31 @@ const RecordingDot = styled.span`
       opacity: 0.5;
     }
   }
+`;
+
+const RecordingInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(229, 115, 115, 0.1);
+  border-radius: ${radius.md};
+  margin-bottom: ${spacing[3]}px;
+`;
+
+const RecordingText = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${colors.semantic.error};
+`;
+
+const CountdownBadge = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${colors.gray[700]};
+  background: ${colors.gray[100]};
+  padding: 2px 8px;
+  border-radius: ${radius.sm};
 `;
 
 const CTASection = styled.div`

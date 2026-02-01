@@ -5,10 +5,12 @@ import styled from "@emotion/styled";
 
 import Script from "next/script";
 import { useState, useEffect } from "react";
-import { CurrentLocationMarker } from "./CurrentLocationMarker";
+import { PathOverlay } from "./PathOverlay";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
-import { PathOverlay } from "./PathOverlay";
+import { CurrentLocationMarker } from "./CurrentLocationMarker";
+import Image from "next/image";
+import TargetIcon from "@/shared/assets/icons/target.svg";
 import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { NaverMap } from "@/types/naver-maps";
 
@@ -54,11 +56,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
             zoom: 15, // 초기 줌 레벨
             gl: true,
             customStyleId: "767c7f0d-5728-4ff2-85ec-03e9a2475f18",
-            zoomControl: true,
+            zoomControl: false,
             padding: { top: 0, right: 0, bottom: 250, left: 0 },
-            zoomControlOptions: {
-                position: naver.maps.Position.TOP_RIGHT,
-            },
         });
 
         setMap(newMap);
@@ -99,7 +98,7 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
 
             <RecenterButtonWrapper>
                 <RecenterButton onClick={recenterToCurrentLocation}>
-                    📍
+                    <Image src={TargetIcon} alt="현재 위치" width={24} height={24} />
                 </RecenterButton>
             </RecenterButtonWrapper>
 
@@ -129,7 +128,7 @@ const MapElement = styled.div`
 
 const RecenterButtonWrapper = styled.div`
     position: fixed;
-    top: 300px;
+    top: 70px;
     right: 10px;
     z-index: 1000;
     display: flex;
@@ -148,6 +147,10 @@ const RecenterButton = styled.button`
     justify-content: center;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     cursor: pointer;
+
+    img {
+        filter: brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(1234%) hue-rotate(340deg) brightness(98%) contrast(95%);
+    }
 
     &:active {
         background-color: #f0f0f0;

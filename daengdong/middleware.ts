@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
 
     const hasAuthCookie = request.cookies.has('isLoggedIn');
 
-    if (!isPublicPath && !hasAuthCookie) {
+    if (!isPublicPath && !hasAuthCookie && pathname !== '/terms') {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         return NextResponse.redirect(url);

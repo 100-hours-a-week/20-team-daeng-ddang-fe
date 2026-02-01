@@ -11,6 +11,8 @@ import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { fileApi } from "@/shared/api/file";
 import { expressionApi } from "@/entities/expression/api/expression";
+import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
+import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 
 export default function WalkExpressionPage() {
   return (
@@ -26,9 +28,16 @@ const ExpressionContent = () => {
   const walkIdFromStore = useWalkStore((state) => state.walkId);
   const { setAnalysis } = useExpressionStore();
   const { showToast } = useToastStore();
+  const { showLoading, hideLoading } = useLoadingStore();
 
   const [isIdle, setIsIdle] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // 페이지 이탈 방지 
+  useConfirmPageLeave(
+    !isIdle || isAnalyzing,
+    "촬영 또는 분석이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+  );
 
   const walkId = useMemo(() => {
     const param = searchParams.get("walkId");
@@ -48,6 +57,7 @@ const ExpressionContent = () => {
 
   const handleAnalyze = async (videoBlob: Blob) => {
     setIsAnalyzing(true);
+    showLoading("표정 분석 중입니다...");
     try {
       if (isMock) {
         setAnalysis({
@@ -73,8 +83,6 @@ const ExpressionContent = () => {
         throw new Error("산책 정보가 없습니다.");
       }
 
-      // TODO: 실제 영상 업로드 구현
-      /*
       const presignedData = await fileApi.getPresignedUrl(
         "VIDEO",
         "video/mp4",
@@ -82,9 +90,9 @@ const ExpressionContent = () => {
       );
       await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, "video/mp4");
       const videoUrl = presignedData.presignedUrl.split("?")[0];
-      */
 
-      const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
+      // 테스트용 영상  
+      // const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
 
       const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
       setAnalysis(analysis);
@@ -95,6 +103,7 @@ const ExpressionContent = () => {
       handleCancel();
     } finally {
       setIsAnalyzing(false);
+      hideLoading();
     }
   };
 
@@ -124,15 +133,6 @@ const ExpressionContent = () => {
           }
         />
       </ContentWrapper>
-
-      {isAnalyzing && (
-        <LoadingOverlay>
-          <LoadingCard>
-            <Spinner />
-            <LoadingText>표정 분석 중입니다...</LoadingText>
-          </LoadingCard>
-        </LoadingOverlay>
-      )}
     </PageContainer>
   );
 };
@@ -168,46 +168,3 @@ const GuideText = styled.p`
   line-height: 1.5;
 `;
 
-const LoadingOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const LoadingCard = styled.div`
-  width: 80%;
-  max-width: 280px;
-  background: white;
-  border-radius: ${radius.lg};
-  padding: ${spacing[5]}px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: ${spacing[3]}px;
-`;
-
-const LoadingText = styled.p`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${colors.gray[800]};
-`;
-
-const Spinner = styled.div`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 4px solid ${colors.gray[200]};
-  border-top-color: ${colors.primary[500]};
-  animation: spin 0.9s linear infinite;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;

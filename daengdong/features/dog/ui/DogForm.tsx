@@ -126,7 +126,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             setValue('breedId', matched.breedId, { shouldValidate: true });
         }
     }, [breedList, breedNameValue, breedIdValue, setValue]);
-    
+
     // 이미지 변경
     const handleImageChange = (file: File | null) => {
         setValue('imageFile', file, { shouldDirty: true });
@@ -247,7 +247,8 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                         onChange={(e) => {
                             setValue('isBirthDateUnknown', e.target.checked);
                             if (e.target.checked) {
-                                setValue('birthDate', '');
+                                // 모름 체크 시 오늘 날짜로 설정 (저장용)
+                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
                             } else {
                                 setValue('birthDate', dayjs().format('YYYY-MM-DD'));
                             }

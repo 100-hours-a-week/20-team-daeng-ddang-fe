@@ -25,6 +25,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
     const [flowState, setFlowState] = useState<MissionFlowState>("IDLE");
     const [timeLeft, setTimeLeft] = useState(60);
     const [countdown, setCountdown] = useState(3);
+    const [recordingTimeLeft, setRecordingTimeLeft] = useState(5);
     const [error, setError] = useState<string | null>(null);
 
     const { showToast } = useToastStore();
@@ -113,10 +114,22 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                 handleUpload(blob);
             };
 
-            recorder.start();
+            recorder.start(5000);
+            setRecordingTimeLeft(5);
+
+            // 1초마다 카운트다운 - 각 초를 확실히 표시
+            let currentTime = 5;
+            const countdownInterval = setInterval(() => {
+                currentTime -= 1;
+                setRecordingTimeLeft(currentTime);
+                if (currentTime <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
 
             // 5초 후 자동 종료
             recordingTimerRef.current = setTimeout(() => {
+                clearInterval(countdownInterval);
                 stopRecording();
             }, 5000);
         } catch (e) {
@@ -220,7 +233,7 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                 {flowState === "RECORDING" && (
                     <RecordingBadge>
                         <RecordingDot />
-                        REC (5s)
+                        REC {recordingTimeLeft}s
                     </RecordingBadge>
                 )}
             </VideoWrapper>
@@ -316,6 +329,31 @@ const RecordingDot = styled.span`
     @keyframes blink {
         50% { opacity: 0.5; }
     }
+`;
+
+const RecordingInfo = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(229, 115, 115, 0.1);
+    border-radius: ${radius.md};
+    margin-bottom: ${spacing[3]}px;
+`;
+
+const RecordingText = styled.span`
+    font-size: 14px;
+    font-weight: 700;
+    color: ${colors.semantic.error};
+`;
+
+const CountdownBadge = styled.span`
+    font-size: 14px;
+    font-weight: 700;
+    color: ${colors.gray[700]};
+    background: ${colors.gray[100]};
+    padding: 2px 8px;
+    border-radius: ${radius.sm};
 `;
 
 const CTASection = styled.div`

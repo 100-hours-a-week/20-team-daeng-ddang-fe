@@ -11,6 +11,7 @@ interface AnalyzeExpressionResponse {
   predicted_emotion: string;
   emotion_probabilities: EmotionScores;
   summary: string;
+  video_url?: string;
   imageUrl?: string;
   createdAt?: string;
   dogId?: number;
@@ -29,6 +30,7 @@ export const expressionApi = {
       predictEmotion: data.predicted_emotion?.toUpperCase(),
       emotionScores: data.emotion_probabilities,
       summary: data.summary,
+      videoUrl: data.video_url,
       imageUrl: data.imageUrl,
       createdAt: data.createdAt,
       dogId: data.dogId,

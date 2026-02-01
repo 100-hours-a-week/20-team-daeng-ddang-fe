@@ -47,7 +47,7 @@ export function DogInfoScreen() {
     const saveMutation = useSaveDogMutation();
 
     const handleSave = async (data: DogFormValues) => {
-        let profileImageUrl = undefined;
+        let profileImageUrl = dogInfo?.imageUrl ?? undefined;
 
         try {
             if (data.imageFile) {

@@ -28,9 +28,9 @@ export const PathOverlay = ({ map, path }: PathOverlayProps) => {
                 map: map,
                 path: coords,
                 strokeColor: colors.primary[500],
-                strokeWeight: 6,
-                strokeOpacity: 0.8,
-                strokeStyle: "shortdash", // 점선 스타일
+                strokeWeight: 4,
+                strokeOpacity: 0.9,
+                strokeStyle: "solid", // 실선 스타일
                 strokeLineCap: "round",
                 strokeLineJoin: "round",
             });

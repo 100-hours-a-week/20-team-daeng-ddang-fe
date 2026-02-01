@@ -33,6 +33,7 @@ declare global {
         };
         initNaverMap?: () => void;
         getWalkSnapshotBlob?: () => Promise<Blob | null>;
+        isWalkSnapshotReady?: boolean;
     }
 }
 

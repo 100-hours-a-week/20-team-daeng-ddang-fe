@@ -15,6 +15,7 @@ export interface ExpressionAnalysis {
   emotionScores: EmotionScores;
   summary: string;
   imageUrl?: string;
+  videoUrl?: string;
   createdAt?: string;
   dogId?: number;
   walkId?: number;
