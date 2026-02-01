@@ -3,6 +3,7 @@
 import { Container, ContentWrapper, BrandText, LogoImage, ButtonWrapper, HeaderWrapper, BrandTitle } from './styles';
 import { KakaoButton } from '@/shared/components/KakaoButton';
 import { Header } from '@/widgets/Header/Header';
+import { DevLoginButton } from '@/features/auth/ui/DevLoginButton';
 import MascotImage from "@/shared/assets/images/mascot.png";
 
 export const LoginScreen = () => {
@@ -30,6 +31,7 @@ export const LoginScreen = () => {
             </ContentWrapper>
 
             <ButtonWrapper>
+                <DevLoginButton />
                 <KakaoButton onClick={handleKakaoLogin}>
                     카카오로 로그인
                 </KakaoButton>
