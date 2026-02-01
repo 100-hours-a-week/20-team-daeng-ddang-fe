@@ -15,6 +15,7 @@ on:
 jobs:
   rollback:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     timeout-minutes: 15
 
     steps:
