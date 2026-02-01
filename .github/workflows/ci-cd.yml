@@ -3,8 +3,12 @@ name: FE CI/CD
 on:
   pull_request:
     branches: ["main", "dev"]
+    paths-ignore:
+      - ".github/workflows/rollback.yml"
   push:
     branches: ["main", "dev"]
+    paths-ignore:
+      - ".github/workflows/rollback.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -33,7 +37,7 @@ jobs:
     defaults:
       run:
         working-directory: daengdong
-    
+
     # - PR: base branch 기준(main=prod, dev=dev)
     # - push: 브랜치 기준(main=prod, dev=dev)
     environment:
@@ -161,17 +165,17 @@ jobs:
           path: daengdong/${{ env.ARTIFACT_FILE }}
           if-no-files-found: error
           retention-days: 30
-      
+
       - name: Mark CI end
         id: ci_time_end
         if: always()
         run: echo "end=$(date +%s)" >> "$GITHUB_OUTPUT"
         working-directory: .
-      
-      - name: Notify Discord (CI)
+
+      - name: Notify (CI)
         if: always()
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
           MESSAGE: ${{ env.MESSAGE }}
           JOB_STATUS: ${{ job.status }}
           RELEASE_ID: ${{ env.RELEASE_ID }}
@@ -184,6 +188,7 @@ jobs:
               'dev'
             }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TIMESTAMP: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
           CI_START: ${{ steps.ci_time.outputs.start }}
           CI_END: ${{ steps.ci_time_end.outputs.end }}
           INSTALL_S: ${{ steps.time_install.outputs.start }}
@@ -200,8 +205,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          # DISCORD_WEBHOOK_URL 없으면 스텝 종료
-          [ -z "${DISCORD_WEBHOOK_URL:-}" ] && echo "[WARN] DISCORD_WEBHOOK_URL is empty. Skip." && exit 0
+          # WEBHOOK 없으면 스텝 종료
+          [ -z "${WEBHOOK:-}" ] && echo "⚠️ DISCORD_WEBHOOK_URL이 공백이므로 본 단계를 스킵합니다." && exit 0
 
           # 안전한 산술 계산용 함수
           dur() { local s="${1:-}" e="${2:-}"; [ -n "$s" ] && [ -n "$e" ] && echo $((e - s)) || echo 0; }
@@ -213,26 +218,29 @@ jobs:
           ci_seconds="$(dur "${CI_START:-}" "${CI_END:-}")"
           test_sec="$(dur "${TEST_S:-}" "${TEST_E:-}")"
 
-          if [ "${JOB_STATUS}" = "success" ]; then color=5763719
-          elif [ "${JOB_STATUS}" = "failure" ]; then color=15548997
-          else color=9807270
+          if [ "$JOB_STATUS" = "success" ]; then
+            TITLE="✅ [FE / ${ENV_NAME}] CI Success"
+            COLOR=5763719
+          else
+            TITLE="❌ [FE / ${ENV_NAME}] CI Failed"
+            COLOR=15548997
           fi
 
           test_label="${test_sec}s"
           if [ "${TEST_RESULT}" = "skipped" ]; then
-            test_label="skipped (${test_sec}s)"
+            test_label="skipped"
           fi
 
           # 개행 문자 및 따옴표 제거, 200자로 자름
           safe_msg=$(echo "$MESSAGE" | tr '\n' ' ' | sed 's/"/\\"/g' | head -c 200)
 
-          payload=$(cat <<JSON
+          JSON_PAYLOAD=$(cat <<JSON
           {
             "embeds": [
               {
-                "title": "[FE / ${ENV_NAME}] CI ${JOB_STATUS}",
-                "url": "${RUN_URL}",
-                "color": ${color},
+                "title": "$TITLE",
+                "url": "$RUN_URL",
+                "color": $COLOR,
                 "description": "${safe_msg}",
                 "fields": [
                   {"name":"Release ID","value":"\`${RELEASE_ID}\`","inline":false},
@@ -246,14 +254,14 @@ jobs:
                   {"name":"Build","value":"${build_sec}s","inline":true},
                   {"name":"Package","value":"${pkg_sec}s","inline":true}
                 ],
-                "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                "timestamp": "$TIMESTAMP"
               }
             ]
           }
           JSON
           )
 
-          curl -sS -X POST -H "Content-Type: application/json" --data-binary "$payload" "${DISCORD_WEBHOOK_URL}" >/dev/null
+          curl -sS -X POST -H "Content-Type: application/json" --data-binary "$JSON_PAYLOAD" "$WEBHOOK" || true
 
   cd:
     name: CD
@@ -266,6 +274,8 @@ jobs:
 
     environment:
       name: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    env:
+      ENV_NAME: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
 
     steps:
       - name: Mark CD start
@@ -287,7 +297,7 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           source: "${{ env.ARTIFACT_FILE }}"
           target: "/tmp"
-      
+
       - name: Deploy
         id: deploy
         uses: appleboy/ssh-action@v1.2.4
@@ -299,21 +309,26 @@ jobs:
           script: |
             set -euo pipefail
 
-            RELEASE_ID="${{ env.RELEASE_ID }}"
+            ENV_NAME='${{ env.ENV_NAME }}'
+            echo "🌐 ${ENV_NAME} 서버에 연결되었습니다."
+
+            # === 설정 변수 ===
             FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            RELEASES_DIR="${FRONTEND_DIR}/releases"
+            RELEASE_DIR="${RELEASES_DIR}/${{ env.RELEASE_ID }}"
             CURRENT_LINK="${FRONTEND_DIR}/current"
             BACKUP_LINK="${FRONTEND_DIR}/backup"
-            RELEASE_DIR="${FRONTEND_DIR}/releases/${RELEASE_ID}"
 
             UPSTREAM_FILE="/etc/caddy/upstreams/frontend.caddy"
             BLUE_PORT=3000
             GREEN_PORT=3001
-            BLUE_NAME="app-frontend-blue"
-            GREEN_NAME="app-frontend-green"
 
+            echo "🚀 배포 시작: ${{ env.RELEASE_ID }}"
+
+            # 폴더 생성
             mkdir -p "${RELEASE_DIR}"
 
-            # 1) 직전 버전 백업 (current가 가리키는 실제 경로)
+            # 1) 직전 버전 backup
             if [ -L "${CURRENT_LINK}" ] || [ -d "${CURRENT_LINK}" ]; then
               CURRENT_RELEASE="$(readlink -f "${CURRENT_LINK}" || true)"
               if [ -n "${CURRENT_RELEASE}" ] && [ -d "${CURRENT_RELEASE}" ]; then
@@ -328,125 +343,151 @@ jobs:
             # 3) current 교체
             ln -sfn "${RELEASE_DIR}" "${CURRENT_LINK}"
 
+            # 4) env 생성
             ENV_FILE="${CURRENT_LINK}/.env"
-
             cat > "${ENV_FILE}" <<EOF
             NAVER_MAP_CLIENT_SECRET=${{ secrets.NAVER_MAP_CLIENT_SECRET }}
             EOF
-
             chmod 600 "${ENV_FILE}"
-            echo "[INFO] .env created (runtime secrets only)"
 
-            # 4) 현재 활성 포트 확인
-            active_port="$(grep -Eo '127\.0\.0\.1:(3000|3001)' "${UPSTREAM_FILE}" | awk -F: '{print $2}' || true)"
+            # 5) 포트 확인 및 결정
+            CURRENT_PORT="$(grep -Eo '127\.0\.0\.1:(3000|3001)' "${UPSTREAM_FILE}" | awk -F: '{print $2}' | head -n1 || true)"
 
-              # 초기 값 없으면 blue 활성화 상태라고 가정
-            if [ -z "${active_port}" ]; then
-              active_port="${BLUE_PORT}"
+            if [ -z "$CURRENT_PORT" ]; then
+              echo "❌ upstream에서 현재 활성 포트를 확인할 수 없습니다."
+              echo "🚨 안전을 위해 롤백을 중단합니다."
+              exit 1
             fi
 
-            if [ "${active_port}" = "${BLUE_PORT}" ]; then
-              idle_port="${GREEN_PORT}"
-              idle_name="${GREEN_NAME}"
-              active_name="${BLUE_NAME}"
+            if [ "$CURRENT_PORT" = "$BLUE_PORT" ]; then
+              TARGET_PORT="$GREEN_PORT"
             else
-              idle_port="${BLUE_PORT}"
-              idle_name="${BLUE_NAME}"
-              active_name="${GREEN_NAME}"
+              TARGET_PORT="$BLUE_PORT"
             fi
 
-            echo "[INFO] active_port=${active_port}, idle_port=${idle_port}"
+            TARGET_NAME="daeng-frontend-${TARGET_PORT}"
+            CURRENT_NAME="daeng-frontend-${CURRENT_PORT}"
 
-            # 5) 신규 버전 배포
-            pm2 delete "${idle_name}" || true
+            echo "🔵 현재 활성 포트: $CURRENT_PORT"
+            echo "🟢 배포 타겟 포트: $TARGET_PORT"
+
+            # 6) 타겟 포트의 좀비 프로세스 정리
+            PID_TO_KILL=$(lsof -ti :${TARGET_PORT} || true)
+            if [ -n "$PID_TO_KILL" ]; then
+              echo "🧹 타겟 포트($TARGET_PORT)의 기존 프로세스 정리..."
+              kill -9 $PID_TO_KILL || true
+            fi
+
+            # 7) 새 애플리케이션 실행 (PM2)
+            echo "🚀 PM2로 애플리케이션 시작 (Port: $TARGET_PORT)..."
+
+            pm2 delete "${TARGET_NAME}" 2>/dev/null || true
+
             cd "${CURRENT_LINK}"
 
-            # 6) 의존성 설치 (pnpm 절대 경로로 실행)
+            # 의존성 설치 (pnpm 절대 경로로 실행)
             PNPM="/home/ubuntu/.nvm/versions/node/v20.20.0/bin/pnpm"
             "$PNPM" -v
             "$PNPM" install --frozen-lockfile --prod
 
-            PORT="${idle_port}" NODE_ENV=production pm2 start ./server.js --name "${idle_name}"
+            PORT="${TARGET_PORT}" NODE_ENV=production pm2 start ./server.js --name "${TARGET_NAME}"
             pm2 save
 
-            # 6) 헬스 체크
-            health_path="/"
-            max_wait=30
+            # 8) 헬스체크
+            echo "🏥 헬스 체크 시작..."
 
-            echo "[INFO] health check: http://127.0.0.1:${idle_port}${health_path}"
-            ok=0
-            for i in $(seq 1 "${max_wait}"); do
-              if curl -fsS "http://127.0.0.1:${idle_port}${health_path}" >/dev/null; then
-                ok=1
+            HEALTH_CHECK_URL="http://localhost:${TARGET_PORT}/terms"
+            IS_HEALTHY=0
+
+            for i in {1..10}; do
+              sleep 2
+              HTTP_CODE="$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "${HEALTH_CHECK_URL}" || true)"
+              if [ "${HTTP_CODE}" == "200" ]; then
+                echo "✅ 헬스 체크 성공!"
+                IS_HEALTHY=1
                 break
+              else
+                echo "⏳ 시작 대기 중.... ($i/10) (Code: ${HTTP_CODE})"
               fi
-              sleep 1
             done
 
-            if [ "${ok}" -ne 1 ]; then
-              echo "[ERROR] new release health check failed. rollback (keep active)"
-              pm2 delete "${idle_name}" || true
+            # 헬스체크 실패 시 배포 중단
+            if [ "$IS_HEALTHY" -ne 1 ]; then
+              echo "❌ 헬스 체크 실패. 배포를 중단합니다."
+              pm2 delete "${TARGET_NAME}" || true
               exit 1
             fi
 
-            # 7) sed로 upstream 파일 스위치
-              # 파일 안에 3000/3001이 여러번 있어도 전부 교체(정규화)
-            sed -i -E "s/127\.0\.0\.1:(3000|3001)/127.0.0.1:${idle_port}/g" "${UPSTREAM_FILE}"
+            # 9) 트래픽 전환 (포트 스위칭)
+            echo "🔄 Caddy 연결 변경 중 (Port: ${CURRENT_PORT} → ${TARGET_PORT})..."
 
-            # 8) Caddy 리로드
-            caddy reload --config /etc/caddy/Caddyfile
+            # 파일 안에 3000/3001이 여러번 있어도 전부 교체(정규화)
+            sed -i -E "s/127\.0\.0\.1:(3000|3001)/127.0.0.1:${TARGET_PORT}/g" "${UPSTREAM_FILE}"
 
-            echo "[INFO] switched upstream to ${idle_port}"
-            
-            # 9) 전환 성공 후, 기존(active) 프로세스 종료
-            pm2 delete "${active_name}" || true
-            pm2 save
-            echo "[INFO] stopped old process: ${active_name}"
+            if caddy reload --config /etc/caddy/Caddyfile; then
+              echo "🎉 배포 성공 및 트래픽 전환 완료."
+
+              # 10. 구버전 종료
+              echo "🛑 구버전 프로세스 삭제 (Port: $CURRENT_PORT)..."
+              pm2 delete "${CURRENT_NAME}" || true
+              pm2 save
+            else
+              echo "🚨 Caddy Reload 실패! 롤백합니다."
+              pm2 delete "${TARGET_NAME}" || true
+              exit 1
+            fi
+
+            # 11) 오래된 릴리즈 정리
+            echo "🧹 오래된 릴리즈 정리 중..."
+            cd "${RELEASES_DIR}" && ls -dt */ | tail -n +6 | xargs -r rm -rf --
 
       - name: Mark CD end
         id: cd_time_end
         if: always()
         run: echo "end=$(date +%s)" >> "$GITHUB_OUTPUT"
 
-      - name: Notify Discord (CD)
+      - name: Notify (CD)
         if: always()
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
           MESSAGE: ${{ env.MESSAGE }}
-          ENV_NAME: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
-          CD_START: ${{ steps.cd_time.outputs.start }}
-          CD_END: ${{ steps.cd_time_end.outputs.end }}
           JOB_STATUS: ${{ job.status }}
           RELEASE_ID: ${{ env.RELEASE_ID }}
           ACTOR: ${{ github.actor }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TIMESTAMP: ${{ github.event.head_commit.timestamp }}
+          CD_START: ${{ steps.cd_time.outputs.start }}
+          CD_END: ${{ steps.cd_time_end.outputs.end }}
           SCP_OUTCOME: ${{ steps.scp.outcome }}
           DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
         run: |
           set -euo pipefail
-      
-          # DISCORD_WEBHOOK_URL 없으면 스텝 종료
-          [ -z "${DISCORD_WEBHOOK_URL:-}" ] && echo "[WARN] DISCORD_WEBHOOK_URL is empty. Skip." && exit 0
+
+          # WEBHOOK 없으면 스텝 종료
+          [ -z "${WEBHOOK:-}" ] && echo "⚠️ DISCORD_WEBHOOK_URL이 공백이므로 본 단계를 스킵합니다." && exit 0
 
           # 안전한 산술 계산용 함수
           dur() { local s="${1:-}" e="${2:-}"; [ -n "$s" ] && [ -n "$e" ] && echo $((e - s)) || echo 0; }
           cd_seconds="$(dur "${CD_START:-}" "${CD_END:-}")"
 
-          if [ "${JOB_STATUS}" = "success" ]; then color=5763719
-          elif [ "${JOB_STATUS}" = "failure" ]; then color=15548997
-          else color=9807270
+          if [ "$JOB_STATUS" = "success" ]; then
+            TITLE="✅ [FE / ${ENV_NAME}] CD Success"
+            COLOR=5763719
+          else
+            TITLE="❌ [FE / ${ENV_NAME}] CD Failed"
+            COLOR=15548997
           fi
 
           # 개행 문자 및 따옴표 제거, 200자로 자름
           safe_msg=$(echo "$MESSAGE" | tr '\n' ' ' | sed 's/"/\\"/g' | head -c 200)
 
-          payload=$(cat <<JSON
+          JSON_PAYLOAD=$(cat <<JSON
           {
             "embeds": [
               {
-                "title": "[FE / ${ENV_NAME}] CD ${JOB_STATUS}",
+                "title": "$TITLE",
                 "url": "${RUN_URL}",
-                "color": ${color},
+                "color": $COLOR,
                 "description": "${safe_msg}",
                 "fields": [
                   {"name":"Release ID","value":"\`${RELEASE_ID}\`","inline":false},
@@ -456,11 +497,11 @@ jobs:
                   {"name":"Upload (SCP)","value":"${SCP_OUTCOME}","inline":true},
                   {"name":"Deploy (SSH)","value":"${DEPLOY_OUTCOME}","inline":true}
                 ],
-                "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                "timestamp": "$TIMESTAMP"
               }
             ]
           }
           JSON
           )
 
-          curl -sS -X POST -H "Content-Type: application/json" --data-binary "$payload" "${DISCORD_WEBHOOK_URL}" >/dev/null
+          curl -sS -X POST -H "Content-Type: application/json" --data-binary "$JSON_PAYLOAD" "$WEBHOOK" || true
