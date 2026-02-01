@@ -1,0 +1,289 @@
+name: FE Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: "롤백하려는 버전 (미입력 시 backup으로 자동 롤백)"
+        required: false
+        default: ""
+
+jobs:
+  guard:
+    name: Guard
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if [[ "${GITHUB_REF_NAME}" != "main" && "${GITHUB_REF_NAME}" != "dev" ]]; then
+            echo "❌ main 혹은 dev 브랜치에 대해서만 롤백 워크플로를 실행할 수 있습니다."
+            exit 1
+          fi
+
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    needs: guard
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    env:
+      ENV_NAME: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    timeout-minutes: 5
+
+    steps:
+      - name: Print inputs
+        run: |
+          echo "environment=$ENV_NAME"
+          echo "release_id=${{ inputs.release_id || 'backup' }}"
+
+      # 1) release_id 있으면 특정 버전으로 롤백
+      - name: Prepare rollback to target release
+        if: ${{ inputs.release_id != '' }}
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            set -euo pipefail
+
+            ENV_NAME='${{ env.ENV_NAME }}'
+            echo "🌐 $ENV_NAME 서버에서 ${{ inputs.release_id }}로 롤백을 진행합니다."
+
+            # === 설정 변수 ===
+            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            RELEASES_DIR="${FRONTEND_DIR}/releases"
+            RELEASE_DIR="${RELEASES_DIR}/${{ inputs.release_id }}"
+            CURRENT_LINK="${FRONTEND_DIR}/current"
+            BACKUP_LINK="${FRONTEND_DIR}/backup"
+
+            # 1) release_id 존재 유무 확인 (없으면 종료)
+            if [ ! -d "${RELEASE_DIR}" ]; then
+              echo "❌ 지정한 release_id 디렉토리가 없습니다: ${RELEASE_DIR}"
+              echo "📌 releases 목록:"
+              ls -Alt "${RELEASES_DIR}" || true
+              exit 1
+            fi
+
+            # 2) CURRENT_LINK이 가리키는 실제 경로를 BACKUP_LINK로, RELEASE_DIR을 CURRENT_LINK로 교체
+            CURRENT_RELEASE="$(readlink -f "${CURRENT_LINK}")"
+            TARGET_RELEASE="$(readlink -f "${RELEASE_DIR}")"
+
+            if [ "${CURRENT_RELEASE}" = "${TARGET_RELEASE}" ]; then
+              echo "ℹ️ 백업하려는 버전과 현재 실행 중인 버전이 동일합니다."
+              exit 0
+            fi
+
+            ln -sfn "${CURRENT_RELEASE}" "${BACKUP_LINK}"
+            ln -sfn "${TARGET_RELEASE}" "${CURRENT_LINK}"
+
+      # 2) release_id 없으면 backup 링크로 롤백
+      - name: Prepare rollback to backup link
+        if: ${{ inputs.release_id == '' }}
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            set -euo pipefail
+
+            ENV_NAME='${{ env.ENV_NAME }}'
+            echo "🌐 $ENV_NAME 서버에서 Backup으로 롤백을 진행합니다."
+
+            # === 설정 변수 ===
+            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            CURRENT_LINK="${FRONTEND_DIR}/current"
+            BACKUP_LINK="${FRONTEND_DIR}/backup"
+
+            # 1) backup, current 심볼릭 링크 스와핑
+            BACKUP_RELEASE="$(readlink -f "${BACKUP_LINK}")"
+            CURRENT_RELEASE="$(readlink -f "${CURRENT_LINK}")"
+            ln -sfn "${BACKUP_RELEASE}" "${CURRENT_LINK}"
+            ln -sfn "${CURRENT_RELEASE}" "${BACKUP_LINK}"
+
+  perform:
+    name: Perform
+    runs-on: ubuntu-latest
+    needs: [guard, prepare]
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    timeout-minutes: 15
+
+    steps:
+      - name: Perform Rollback
+        uses: appleboy/ssh-action@v1.2.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            set -euo pipefail
+
+            # === 설정 변수 ===
+            FRONTEND_DIR="${{ secrets.FRONTEND_DIR }}"
+            RELEASES_DIR="${FRONTEND_DIR}/releases"
+            CURRENT_LINK="${FRONTEND_DIR}/current"
+            BACKUP_LINK="${FRONTEND_DIR}/backup"
+            UPSTREAM_FILE="/etc/caddy/upstreams/frontend.caddy"
+            BLUE_PORT=3000
+            GREEN_PORT=3001
+
+            # 1) env 생성
+            ENV_FILE="${CURRENT_LINK}/.env"
+            cat > "${ENV_FILE}" <<EOF
+            NAVER_MAP_CLIENT_SECRET=${{ secrets.NAVER_MAP_CLIENT_SECRET }}
+            EOF
+            chmod 600 "${ENV_FILE}"
+
+            # 2) 포트 확인 및 결정
+            CURRENT_PORT="$(grep -Eo '127\.0\.0\.1:(3000|3001)' "${UPSTREAM_FILE}" | awk -F: '{print $2}' | head -n1 || true)"
+
+            if [ -z "$CURRENT_PORT" ]; then
+              echo "❌ upstream에서 현재 활성 포트를 확인할 수 없습니다."
+              echo "🚨 안전을 위해 롤백을 중단합니다."
+              exit 1
+            fi
+
+            if [ "$CURRENT_PORT" = "$BLUE_PORT" ]; then
+              TARGET_PORT="$GREEN_PORT"
+            else
+              TARGET_PORT="$BLUE_PORT"
+            fi
+
+            TARGET_NAME="daeng-frontend-${TARGET_PORT}"
+            CURRENT_NAME="daeng-frontend-${CURRENT_PORT}"
+
+            echo "🔵 현재 활성 포트: $CURRENT_PORT"
+            echo "🟢 배포 타겟 포트: $TARGET_PORT"
+
+            # 3) 타겟 포트의 좀비 프로세스 정리
+            PID_TO_KILL=$(lsof -ti :${TARGET_PORT} || true)
+            if [ -n "$PID_TO_KILL" ]; then
+              echo "🧹 타겟 포트($TARGET_PORT)의 기존 프로세스 정리..."
+              kill -9 $PID_TO_KILL || true
+            fi
+
+            # 4) 새 애플리케이션 실행 (PM2)
+            echo "🚀 PM2로 애플리케이션 시작 (Port: $TARGET_PORT)..."
+
+            pm2 delete "${TARGET_NAME}" 2>/dev/null || true
+
+            cd "${CURRENT_LINK}"
+            PORT="${TARGET_PORT}" NODE_ENV=production pm2 start ./server.js --name "${TARGET_NAME}" --update-env
+            pm2 save
+
+            # 5) 헬스체크
+            echo "🏥 헬스 체크 시작..."
+
+            HEALTH_CHECK_URL="http://localhost:${TARGET_PORT}/terms"
+            IS_HEALTHY=0
+
+            for i in {1..10}; do
+              sleep 2
+              HTTP_CODE="$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "${HEALTH_CHECK_URL}" || true)"
+              if [ "${HTTP_CODE}" == "200" ]; then
+                echo "✅ 헬스 체크 성공!"
+                IS_HEALTHY=1
+                break
+              else
+                echo "⏳ 시작 대기 중.... ($i/10) (Code: ${HTTP_CODE})"
+              fi
+            done
+
+            # 헬스체크 실패 시 배포 중단
+            if [ "$IS_HEALTHY" -ne 1 ]; then
+              echo "❌ 헬스 체크 실패. 배포를 중단합니다."
+              pm2 delete "${TARGET_NAME}" || true
+              exit 1
+            fi
+
+            # 6) 트래픽 전환 (포트 스위칭)
+            echo "🔄 Caddy 연결 변경 중 (Port: ${CURRENT_PORT} → ${TARGET_PORT})..."
+
+            # 파일 안에 3000/3001이 여러번 있어도 전부 교체(정규화)
+            sed -i -E "s/127\.0\.0\.1:(3000|3001)/127.0.0.1:${TARGET_PORT}/g" "${UPSTREAM_FILE}"
+
+            if caddy reload --config /etc/caddy/Caddyfile; then
+              echo "🎉 배포 성공 및 트래픽 전환 완료."
+
+              # 7. 구버전 종료
+              echo "🛑 구버전 프로세스 삭제 (Port: $CURRENT_PORT)..."
+              pm2 delete "${CURRENT_NAME}" || true
+              pm2 save
+            else
+              echo "🚨 Caddy Reload 실패! 롤백합니다."
+              pm2 delete "${TARGET_NAME}" || true
+              exit 1
+            fi
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [guard, prepare, perform]
+
+    if: always()
+
+    steps:
+      - name: Notify Discord
+        env:
+          ENV_NAME: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+          GUARD_RESULT: ${{ needs.guard.result }}
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          PERFORM_RESULT: ${{ needs.perform.result }}
+          RELEASE_ID: ${{ inputs.release_id || 'backup' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+
+          # WEBHOOK 없으면 스텝 종료
+          [ -z "${WEBHOOK:-}" ] && echo "⚠️ DISCORD_WEBHOOK_URL이 공백이므로 본 단계를 스킵합니다." && exit 0
+
+          # prepare/perform 결과를 기반으로 최종 성공/실패 결정
+          if [ "${GUARD_RESULT}" != "success" ]; then
+            FINAL_STATUS="failure"
+            REASON="guard_failed"
+          elif [ "${PREPARE_RESULT}" != "success" ]; then
+            FINAL_STATUS="failure"
+            REASON="prepare_failed"
+          elif [ "${PERFORM_RESULT}" != "success" ]; then
+            FINAL_STATUS="failure"
+            REASON="perform_failed"
+          else
+            FINAL_STATUS="success"
+            REASON="ok"
+          fi
+
+          if [ "$FINAL_STATUS" = "success" ]; then
+            TITLE="✅ [FE / ${ENV_NAME}] Rollback Success"
+            COLOR=5763719
+          else
+            TITLE="❌ [FE / ${ENV_NAME}] Rollback Failed"
+            COLOR=15548997
+          fi
+
+          NOW_ISO="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          JSON_PAYLOAD=$(cat <<JSON
+          {
+            "embeds": [{
+              "title": "$TITLE",
+              "url": "$RUN_URL",
+              "color": $COLOR,
+              "description": "$REASON",
+              "fields": [
+                {"name": "Release ID", "value": "\`$RELEASE_ID\`", "inline": true},
+                {"name": "Actor", "value": "$ACTOR", "inline": true},
+                {"name": "Branch", "value": "$BRANCH", "inline": true},
+                {"name": "Prepare", "value": "\`$PREPARE_RESULT\`", "inline": true},
+                {"name": "Perform", "value": "\`$PERFORM_RESULT\`", "inline": true}
+              ],
+              "timestamp": "$NOW_ISO"
+            }]
+          }
+          JSON
+          )
+
+          curl -sS -X POST -H "Content-Type: application/json" --data-binary "$JSON_PAYLOAD" "$WEBHOOK" || true
