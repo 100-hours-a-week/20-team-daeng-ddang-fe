@@ -56,11 +56,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
             zoom: 15, // 초기 줌 레벨
             gl: true,
             customStyleId: "767c7f0d-5728-4ff2-85ec-03e9a2475f18",
-            zoomControl: true,
+            zoomControl: false,
             padding: { top: 0, right: 0, bottom: 250, left: 0 },
-            zoomControlOptions: {
-                position: naver.maps.Position.TOP_RIGHT,
-            },
         });
 
         setMap(newMap);
@@ -131,7 +128,7 @@ const MapElement = styled.div`
 
 const RecenterButtonWrapper = styled.div`
     position: fixed;
-    top: 300px;
+    top: 70px;
     right: 10px;
     z-index: 1000;
     display: flex;
