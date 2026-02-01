@@ -8,7 +8,6 @@ export function middleware(request: NextRequest) {
     const publicPaths = [
         '/login',
         '/oauth/kakao/callback',
-        '/terms', // 약관 동의 페이지 (인증된 사용자만 접근)
         '/walk',
         '/_next',
         '/favicon.ico',
@@ -21,7 +20,7 @@ export function middleware(request: NextRequest) {
 
     const hasAuthCookie = request.cookies.has('isLoggedIn');
 
-    if (!isPublicPath && !hasAuthCookie) {
+    if (!isPublicPath && !hasAuthCookie && pathname !== '/terms') {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         return NextResponse.redirect(url);
