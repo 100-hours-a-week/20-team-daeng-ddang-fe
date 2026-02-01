@@ -83,8 +83,6 @@ const ExpressionContent = () => {
         throw new Error("산책 정보가 없습니다.");
       }
 
-      // TODO: 실제 영상 업로드 구현
-      /*
       const presignedData = await fileApi.getPresignedUrl(
         "VIDEO",
         "video/mp4",
@@ -92,9 +90,10 @@ const ExpressionContent = () => {
       );
       await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, "video/mp4");
       const videoUrl = presignedData.presignedUrl.split("?")[0];
-      */
 
       const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
+      // 테스트용 영상
+      // const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
 
       const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
       setAnalysis(analysis);
