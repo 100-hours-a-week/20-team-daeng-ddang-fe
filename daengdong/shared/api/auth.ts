@@ -17,7 +17,10 @@ interface ApiResponse<T> {
 export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
     const response = await http.post<ApiResponse<LoginResponse>>(
         `/auth/login`,
-        { code }
+        { code },
+        {
+            withCredentials: true, // refreshToken을 HttpOnly 쿠키로 받기 위해 필요
+        }
     );
 
     return response.data.data;
