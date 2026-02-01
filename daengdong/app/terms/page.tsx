@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { submitAgreements } from '@/shared/api/user';
 import { useToastStore } from '@/shared/stores/useToastStore';
+import { TermsModal } from '@/shared/components/TermsModal';
+import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '@/shared/constants/terms';
+import { colors } from '@/shared/styles/tokens';
 
 export default function TermsPage() {
     const router = useRouter();
@@ -13,41 +14,67 @@ export default function TermsPage() {
     const [privacyAgreed, setPrivacyAgreed] = useState(false);
     const [marketingAgreed, setMarketingAgreed] = useState(false);
 
-    const agreementMutation = useMutation({
-        mutationFn: submitAgreements,
-        onSuccess: () => {
-            const { showToast } = useToastStore.getState();
-            showToast({
-                message: '약관 동의가 완료되었습니다.',
-                type: 'success',
-                duration: 2000,
-            });
-            router.replace('/walk');
-        },
-        onError: (error) => {
-            console.error('Agreement submission failed:', error);
-            const { showToast } = useToastStore.getState();
-            showToast({
-                message: '약관 동의 처리에 실패했습니다. 다시 시도해주세요.',
-                type: 'error',
-                duration: 3000,
-            });
-        },
+    const [modalState, setModalState] = useState<{
+        isOpen: boolean;
+        title: string;
+        content: string;
+    }>({
+        isOpen: false,
+        title: '',
+        content: '',
     });
+
+    // 페이지 이탈 방지 (뒤로가기, 새로고침, 탭 닫기)
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+
+        const handlePopState = () => {
+            // 뒤로가기 시도 시 현재 페이지로 다시 push
+            window.history.pushState(null, '', window.location.pathname);
+        };
+
+        // 초기 히스토리 상태 설정
+        window.history.pushState(null, '', window.location.pathname);
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, []);
 
     const handleSubmit = () => {
         if (!termsAgreed || !privacyAgreed) {
             return;
         }
 
-        agreementMutation.mutate({
-            termsAgreed,
-            privacyAgreed,
-            marketingAgreed,
+        // 약관 동의 완료 플래그 저장
+        localStorage.setItem('termsAgreed', 'true');
+
+        const { showToast } = useToastStore.getState();
+        showToast({
+            message: '약관 동의가 완료되었습니다.',
+            type: 'success',
+            duration: 2000,
         });
+
+        router.replace('/walk');
     };
 
-    const isSubmitEnabled = termsAgreed && privacyAgreed && !agreementMutation.isPending;
+    const openModal = (title: string, content: string) => {
+        setModalState({ isOpen: true, title, content });
+    };
+
+    const closeModal = () => {
+        setModalState({ isOpen: false, title: '', content: '' });
+    };
+
+    const isSubmitEnabled = termsAgreed && privacyAgreed;
 
     return (
         <Container>
@@ -62,7 +89,11 @@ export default function TermsPage() {
                         onChange={(e) => setTermsAgreed(e.target.checked)}
                     />
                     <Label htmlFor="terms">
-                        <Required>[필수]</Required> 이용약관 동의
+                        <Required>[필수]</Required>
+                        <TermsLink onClick={() => openModal('서비스 이용약관', TERMS_OF_SERVICE)}>
+                            이용약관
+                        </TermsLink>
+                        {' '}동의
                     </Label>
                 </AgreementItem>
 
@@ -74,7 +105,11 @@ export default function TermsPage() {
                         onChange={(e) => setPrivacyAgreed(e.target.checked)}
                     />
                     <Label htmlFor="privacy">
-                        <Required>[필수]</Required> 개인정보 처리방침 동의
+                        <Required>[필수]</Required>
+                        <TermsLink onClick={() => openModal('개인정보 처리방침', PRIVACY_POLICY)}>
+                            개인정보 처리방침
+                        </TermsLink>
+                        {' '}동의
                     </Label>
                 </AgreementItem>
 
@@ -95,8 +130,15 @@ export default function TermsPage() {
                 onClick={handleSubmit}
                 disabled={!isSubmitEnabled}
             >
-                {agreementMutation.isPending ? '처리 중...' : '동의하고 시작하기'}
+                동의하고 시작하기
             </SubmitButton>
+
+            <TermsModal
+                isOpen={modalState.isOpen}
+                onClose={closeModal}
+                title={modalState.title}
+                content={modalState.content}
+            />
         </Container>
     );
 }
@@ -143,7 +185,7 @@ const Checkbox = styled.input`
     height: 20px;
     margin-right: 12px;
     cursor: pointer;
-    accent-color: #3b82f6;
+    accent-color: ${colors.primary[500]};
 `;
 
 const Label = styled.label`
@@ -151,6 +193,17 @@ const Label = styled.label`
     color: #374151;
     cursor: pointer;
     user-select: none;
+`;
+
+const TermsLink = styled.span`
+    color: ${colors.primary[600]};
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+        color: ${colors.primary[700]};
+    }
 `;
 
 const Required = styled.span`
@@ -172,17 +225,17 @@ const SubmitButton = styled.button<{ disabled: boolean }>`
     font-size: 16px;
     font-weight: 600;
     color: white;
-    background-color: ${props => props.disabled ? '#d1d5db' : '#3b82f6'};
+    background-color: ${props => props.disabled ? '#d1d5db' : colors.primary[500]};
     border: none;
     border-radius: 12px;
     cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
     transition: background-color 0.2s;
 
     &:hover {
-        background-color: ${props => props.disabled ? '#d1d5db' : '#2563eb'};
+        background-color: ${props => props.disabled ? '#d1d5db' : colors.primary[600]};
     }
 
     &:active {
-        background-color: ${props => props.disabled ? '#d1d5db' : '#1d4ed8'};
+        background-color: ${props => props.disabled ? '#d1d5db' : colors.primary[700]};
     }
 `;
