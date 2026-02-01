@@ -20,7 +20,14 @@ export const KakaoCallbackHandler = () => {
             localStorage.setItem('accessToken', data.accessToken);
             document.cookie = 'isLoggedIn=true; path=/; max-age=31536000'; // Middleware check
             setLoggedIn(true);
-            router.replace('/walk');
+
+            // isNewUser 기반 라우팅
+            // 신규 사용자는 약관 동의 페이지로, 기존 사용자는 산책 페이지로 이동
+            if (data.isNewUser) {
+                router.replace('/terms');
+            } else {
+                router.replace('/walk');
+            }
         },
         onError: (error) => {
             console.error('Login failed:', error);
