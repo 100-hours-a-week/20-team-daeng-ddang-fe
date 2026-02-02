@@ -106,8 +106,8 @@ export const ExpressionCamera = ({
         });
       };
 
-      // iOS Safari 호환성: timeslice 없이 시작
-      recorder.start();
+      // iOS Safari: 작은 timeslice로 자주 데이터 수집 (100ms)
+      recorder.start(100);
       setRecordingTimeLeft(5);
 
       // 1초마다 카운트다운 - 각 초를 확실히 표시
@@ -120,13 +120,24 @@ export const ExpressionCamera = ({
         }
       }, 1000);
 
+      // iOS Safari: 주기적으로 데이터 요청 (백업)
+      const requestDataInterval = setInterval(() => {
+        if (recorderRef.current?.state === 'recording') {
+          recorderRef.current.requestData();
+        }
+      }, 1000);
+
       recordingTimerRef.current = setTimeout(() => {
         clearInterval(countdownInterval);
-        // iOS Safari: stop 전에 명시적으로 데이터 요청
+        clearInterval(requestDataInterval);
+        // 최종 데이터 요청
         if (recorderRef.current && recorderRef.current.state === 'recording') {
           recorderRef.current.requestData();
         }
-        stopRecording();
+        // 약간의 딜레이 후 stop (데이터 수집 완료 대기)
+        setTimeout(() => {
+          stopRecording();
+        }, 100);
       }, 5000);
     } catch (e) {
       console.error(e);
