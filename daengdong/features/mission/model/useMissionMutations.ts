@@ -15,12 +15,14 @@ export const useUploadMissionVideo = () => {
             // const videoUrl =
             //     "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
+            const mimeType = file.type || "video/mp4";
+
             const presignedData = await fileApi.getPresignedUrl(
                 "VIDEO",
-                "video/mp4",
+                mimeType,
                 "MISSION"
             );
-            await fileApi.uploadFile(presignedData.presignedUrl, file, "video/mp4");
+            await fileApi.uploadFile(presignedData.presignedUrl, file, mimeType);
             const videoUrl = presignedData.presignedUrl.split("?")[0];
 
             const response = await missionApi.uploadMissionVideo({

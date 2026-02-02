@@ -83,12 +83,14 @@ const ExpressionContent = () => {
         throw new Error("산책 정보가 없습니다.");
       }
 
+      const mimeType = videoBlob.type || "video/mp4";
+
       const presignedData = await fileApi.getPresignedUrl(
         "VIDEO",
-        "video/mp4",
+        mimeType,
         "EXPRESSION"
       );
-      await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, "video/mp4");
+      await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, mimeType);
       const videoUrl = presignedData.presignedUrl.split("?")[0];
 
       // 테스트용 영상  
