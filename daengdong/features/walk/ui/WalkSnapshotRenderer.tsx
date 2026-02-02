@@ -7,7 +7,7 @@ import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 
-const SNAPSHOT_SIZE = 1024;
+const SNAPSHOT_SIZE = 600;
 const SNAPSHOT_PADDING = 40;
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.9780 };
 
@@ -194,12 +194,13 @@ export const WalkSnapshotRenderer = ({
                 console.error("Failed to draw map image", e);
             }
         } else if (imageStatus === "error") {
-            ctx.fillStyle = "#f5f5f5";
+            // 에러 시 회색 배경
+            ctx.fillStyle = "#f0f0f0";
             ctx.fillRect(0, 0, SNAPSHOT_SIZE, SNAPSHOT_SIZE);
-            ctx.fillStyle = "#ccc";
+            ctx.fillStyle = "#999";
             ctx.font = "24px sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("Map Image Unavailable", SNAPSHOT_SIZE / 2, SNAPSHOT_SIZE / 2);
+            ctx.fillText("지도 이미지를 불러올 수 없습니다", SNAPSHOT_SIZE / 2, SNAPSHOT_SIZE / 2);
         }
 
         const drawBlocks = (targetBlocks: BlockData[], fillStyle: string, strokeStyle: string) => {
@@ -258,13 +259,21 @@ export const WalkSnapshotRenderer = ({
     useEffect(() => {
         if (!staticMapUrl) return;
 
+        // 타임아웃 타이머
+        const timeoutId = setTimeout(() => {
+            console.warn("[WalkSnapshotRenderer] Image load timed out, falling back to error state");
+            setImageStatus("error");
+        }, 8000); // 8초 타임아웃
+
         setTimeout(() => {
             setIsReady(false);
             setImageStatus("loading");
         }, 0);
 
         const img = new Image();
+        img.crossOrigin = "anonymous"; // CORS 설정 추가
         img.onload = () => {
+            clearTimeout(timeoutId);
             // 이미지가 현재 URL과 일치하는지 확인
             if (img.src.includes(staticMapUrl)) {
                 imageRef.current = img;
@@ -272,11 +281,13 @@ export const WalkSnapshotRenderer = ({
             }
         };
         img.onerror = () => {
+            clearTimeout(timeoutId);
             setImageStatus("error");
         };
         img.src = staticMapUrl;
 
         return () => {
+            clearTimeout(timeoutId);
             imageRef.current = null;
         };
     }, [staticMapUrl]);
