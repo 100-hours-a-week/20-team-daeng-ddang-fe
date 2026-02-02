@@ -21,9 +21,8 @@ export const KakaoCallbackHandler = () => {
             document.cookie = 'isLoggedIn=true; path=/; max-age=31536000'; // Middleware check
             setLoggedIn(true);
 
-            // isNewUser 기반 라우팅
-            // 신규 사용자는 약관 동의 페이지로, 기존 사용자는 산책 페이지로 이동
-            if (data.isNewUser) {
+            // 약관 동의 여부 기반 라우팅
+            if (data.user.isAgreed === false) {
                 router.replace('/terms');
             } else {
                 router.replace('/walk');

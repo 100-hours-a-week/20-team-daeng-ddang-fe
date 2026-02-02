@@ -50,4 +50,8 @@ export const userRepositoryReal: UserRepository = {
         const response = await http.get<ApiResponse<RegionsResponse>>('/users/regions', { params });
         return response.data.data.regions;
     },
+
+    async updateTermsAgreement(isAgreed: boolean): Promise<void> {
+        await http.patch('/users/terms', { isAgreed });
+    },
 };

@@ -21,7 +21,14 @@ export const TermsModal = ({ isOpen, onClose, title, content }: TermsModalProps)
                     <CloseButton onClick={onClose}>✕</CloseButton>
                 </Header>
                 <Content>
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <ReactMarkdown
+                        components={{
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            strong: (props: any) => <strong style={{ fontWeight: 700, color: '#111827' }} {...props} />
+                        }}
+                    >
+                        {content}
+                    </ReactMarkdown>
                 </Content>
             </ModalContainer>
         </Overlay>
@@ -156,7 +163,7 @@ const Content = styled.div`
     }
 
     strong {
-        font-weight: 600;
-        color: #374151;
+        font-weight: 700 !important;
+        color: #111827 !important;
     }
 `;

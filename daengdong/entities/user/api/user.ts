@@ -21,3 +21,7 @@ export const updateUserInfo = async (params: UpdateUserParams): Promise<UserResp
 export const deleteUser = async (): Promise<void> => {
     return userRepositoryReal.deleteUser();
 };
+
+export const updateTermsAgreement = async (isAgreed: boolean): Promise<void> => {
+    return userRepositoryReal.updateTermsAgreement(isAgreed);
+};
