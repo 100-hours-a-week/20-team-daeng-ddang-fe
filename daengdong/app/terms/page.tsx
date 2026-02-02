@@ -90,7 +90,11 @@ export default function TermsPage() {
                     />
                     <Label htmlFor="terms">
                         <Required>[필수]</Required>
-                        <TermsLink onClick={() => openModal('서비스 이용약관', TERMS_OF_SERVICE)}>
+                        <TermsLink onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openModal('서비스 이용약관', TERMS_OF_SERVICE);
+                        }}>
                             이용약관
                         </TermsLink>
                         {' '}동의
@@ -106,7 +110,11 @@ export default function TermsPage() {
                     />
                     <Label htmlFor="privacy">
                         <Required>[필수]</Required>
-                        <TermsLink onClick={() => openModal('개인정보 처리방침', PRIVACY_POLICY)}>
+                        <TermsLink onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openModal('개인정보 처리방침', PRIVACY_POLICY);
+                        }}>
                             개인정보 처리방침
                         </TermsLink>
                         {' '}동의
