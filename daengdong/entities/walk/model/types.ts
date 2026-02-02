@@ -107,6 +107,7 @@ export interface NearbyBlocksParams {
 
 export interface MissionRecord {
     missionId: number;
+    missionTitle: string;
     success: boolean;
 }
 

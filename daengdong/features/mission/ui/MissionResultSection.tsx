@@ -58,7 +58,7 @@ export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
             status={mission.success ? 'SUCCESS' : 'FAIL'}
             isClickable={false}
           >
-            <MissionTitle>{`미션 ${mission.missionId}`}</MissionTitle>
+            <MissionTitle>{mission.missionTitle}</MissionTitle>
             <StatusBadge status={mission.success ? 'SUCCESS' : 'FAIL'}>
               {mission.success ? '성공' : '실패'}
             </StatusBadge>
