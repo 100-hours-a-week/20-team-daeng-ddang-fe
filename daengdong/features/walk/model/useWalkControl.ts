@@ -18,9 +18,6 @@ import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 
 export const useWalkControl = () => {
     const {
-        setCurrentPos,
-        addPathPoint,
-        addDistance,
         walkMode,
         elapsedTime,
         distance,
@@ -154,60 +151,16 @@ export const useWalkControl = () => {
         }
     }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock, showToast]);
 
-    // 거리 계산
-    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-        const R = 6371; // Earth's radius in km
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    };
+
 
     // 산책 중 위치 추적 및 전송
     useEffect(() => {
         if (walkMode !== 'walking') return;
 
-        let watchId: number;
-
         // 마지막 위치 저장
         lastLatRef.current = currentPos?.lat || undefined;
         lastLngRef.current = currentPos?.lng || undefined;
 
-        // 위치 추적
-        if ('geolocation' in navigator) {
-            watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-
-                    setCurrentPos({ lat: latitude, lng: longitude });
-
-                    const lastLat = lastLatRef.current;
-                    const lastLng = lastLngRef.current;
-
-                    if (!lastLat || !lastLng) {
-                        lastLatRef.current = latitude;
-                        lastLngRef.current = longitude;
-                        addPathPoint({ lat: latitude, lng: longitude });
-                    } else {
-                        const dist = calculateDistance(lastLat, lastLng, latitude, longitude);
-
-                        if (dist > 0.005) {
-                            addDistance(dist);
-                            addPathPoint({ lat: latitude, lng: longitude });
-
-                            lastLatRef.current = latitude;
-                            lastLngRef.current = longitude;
-                        }
-                    }
-                },
-                (error) => console.error("Location tracking error:", error),
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }
 
         // 주기적 전송
         const intervalId = setInterval(() => {
@@ -218,7 +171,6 @@ export const useWalkControl = () => {
         }, 7000);
 
         return () => {
-            if (watchId) navigator.geolocation.clearWatch(watchId);
             clearInterval(intervalId);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps

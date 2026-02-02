@@ -67,6 +67,7 @@ export const WalkManager = () => {
                         );
                         // 5m 이상 움직였을 때만 거리 추가
                         if (dist > 0.005) {
+                            // addDistance(dist / 3);
                             addDistance(dist);
                             prevPosRef.current = newPos;
                         }
