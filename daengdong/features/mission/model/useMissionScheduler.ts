@@ -28,39 +28,42 @@ export const useMissionScheduler = () => {
                 // M2: 20-40 분 후
                 // M3: 40-60 분 후
 
-                // 테스트용 고정 타이밍: 10초, 2분, 4분
+                const isTestMode = process.env.NEXT_PUBLIC_MISSION_TEST_MODE === "true";
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
 
-                // M1: 10초 후
-                const delay1 = 10 * 1000; // 10초
-                if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
+                if (isTestMode) {
+                    console.log("[미션 스케줄러] 테스트 모드 (10초, 2분, 4분)");
+                    // M1: 10초 후
+                    const delay1 = 10 * 1000;
+                    if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
 
-                // M2: 2분 후
-                const delay2 = 2 * 60 * 1000; // 2분
-                if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
+                    // M2: 2분 후
+                    const delay2 = 2 * 60 * 1000;
+                    if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
 
-                // M3: 4분 후
-                const delay3 = 4 * 60 * 1000; // 4분
-                if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
+                    // M3: 4분 후
+                    const delay3 = 4 * 60 * 1000;
+                    if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
+                } else {
+                    console.log("[미션 스케줄러] 운영 모드 (랜덤 3-60분)");
 
-                // 원래 랜덤 타이밍 (주석 처리)
-                // let currentOffset = 0;
-                // // M1: 5-10 분 후
-                // const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
-                // currentOffset += delay1;
-                // if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + currentOffset, triggered: false });
-                // // M2: 산책 시작 후 20-40분
-                // const delay2 = (Math.floor(Math.random() * (40 - 20 + 1)) + 20) * 60 * 1000;
-                // if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
-                // // M3: 산책 시작 후 40-60분
-                // const delay3 = (Math.floor(Math.random() * (60 - 40 + 1)) + 40) * 60 * 1000;
-                // if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
+                    // M1: 3-7 분 후
+                    const delay1 = (Math.floor(Math.random() * (7 - 3 + 1)) + 3) * 60 * 1000;
+                    if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
 
-                console.log("[MissionScheduler] Scheduled:", newSchedule.map(s => new Date(s.triggerAt).toLocaleTimeString()));
+                    // M2: 10-25분
+                    const delay2 = (Math.floor(Math.random() * (20 - 10 + 1)) + 10) * 60 * 1000;
+                    if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
+
+                    // M3: 30-60분
+                    const delay3 = (Math.floor(Math.random() * (40 - 25 + 1)) + 25) * 60 * 1000;
+                    if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
+                }
+
                 setScheduledMissions(newSchedule);
 
             } catch (e) {
-                console.error("Failed to fetch missions:", e);
+                console.error("미션 불러오기 실패:", e);
             }
         };
 
