@@ -10,6 +10,10 @@ declare global {
         Marker: new (options: NaverMarkerOptions) => NaverMarker;
         Polygon: new (options: NaverPolygonOptions) => NaverPolygon;
         Polyline: new (options: NaverPolylineOptions) => NaverPolyline;
+        TransCoord: {
+          fromLatLngToEPSG5179: (latlng: NaverLatLng) => NaverPoint;
+          fromEPSG5179ToLatLng: (point: NaverPoint) => NaverLatLng;
+        };
         Event: {
           addListener: (target: unknown, eventName: string, handler: () => void) => NaverEventListener;
           removeListener: (listener: NaverEventListener) => void;
