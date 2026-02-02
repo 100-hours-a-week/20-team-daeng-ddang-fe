@@ -404,8 +404,8 @@ export const useWalkControl = () => {
                         });
                     };
 
-                    // 준비 상태 대기
-                    const isReady = await waitForSnapshotReady(5000);
+                    // 준비 상태 대기 (최대 10초)
+                    const isReady = await waitForSnapshotReady(10000);
 
                     if (!isReady) {
                         console.warn("[Snapshot] 대기 후에도 스냅샷이 준비되지 않음");
