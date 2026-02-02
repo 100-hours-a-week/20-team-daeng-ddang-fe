@@ -4,7 +4,7 @@ import { ApiResponse } from '@/shared/api/types';
 import { MyPageRepository } from './types';
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 
-export const myPageRepositoryReal: MyPageRepository = {
+export const myPageRepository: MyPageRepository = {
     async getMyPageSummary(): Promise<MyPageSummary> {
         const response = await http.get<ApiResponse<MyPageSummaryResponse>>('/users');
         const data = response.data.data;

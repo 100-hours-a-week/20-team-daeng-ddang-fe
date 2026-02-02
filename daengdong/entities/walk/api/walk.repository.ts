@@ -13,7 +13,7 @@ interface BlocksResponse {
     blocks: BlockData[];
 }
 
-export const walkRepositoryReal: WalkRepository = {
+export const walkRepository: WalkRepository = {
     getNearbyBlocks: async (params) => {
         const { data } = await http.get<ApiResponse<BlocksResponse>>("/blocks", { params });
         return data.data.blocks;

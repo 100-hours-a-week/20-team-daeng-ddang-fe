@@ -11,7 +11,7 @@ export const LoginScreen = () => {
 
     const handleKakaoLogin = () => {
         if (!API_BASE_URL) {
-            console.warn("API_BASE_URL is not defined. Using mock login flow.");
+            console.warn("API_BASE_URL 정의되지 않아 mock 로그인으로 이동");
             return;
         }
 

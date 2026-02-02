@@ -1,6 +1,4 @@
-import { ENV } from '@/shared/config/env';
-import { myPageRepositoryReal } from './mypage.real';
-import { myPageRepositoryMock } from './mypage.mock';
+import { myPageRepository } from './mypage.repository';
 import { MyPageRepository } from './types';
 
-export const myPageApi: MyPageRepository = ENV.USE_MOCK ? myPageRepositoryMock : myPageRepositoryReal;
+export const myPageApi: MyPageRepository = myPageRepository;

@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/entities/session/model/store";
 import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../api/user";
-import { dogRepositoryReal } from "@/entities/dog/api/dog.real";
+import { dogApi } from "@/entities/dog/api";
 
 export const useUserQuery = () => {
     const { isLoggedIn } = useAuthStore();
@@ -12,7 +12,7 @@ export const useUserQuery = () => {
         queryFn: async () => {
             const [userInfo, dogInfo] = await Promise.all([
                 getUserInfo(),
-                dogRepositoryReal.getDogInfo()
+                dogApi.getDogInfo()
             ]);
 
             if (!userInfo) return null;

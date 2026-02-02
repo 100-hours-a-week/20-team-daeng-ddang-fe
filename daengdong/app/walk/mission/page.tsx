@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Header } from "@/widgets/Header/Header";
 import { MissionHeader } from "@/features/mission/ui/MissionHeader";
 import { MissionCamera } from "@/features/mission/ui/MissionCamera";
@@ -22,9 +22,8 @@ export default function WalkMissionPage() {
 
 const WalkMissionContent = () => {
     const router = useRouter();
-    const { currentMission, clearCurrentMission, addCompletedMissionId, setCurrentMission } = useMissionStore();
+    const { currentMission, clearCurrentMission, addCompletedMissionId } = useMissionStore();
     const { walkId } = useWalkStore();
-    const searchParams = useSearchParams();
     const [isIdle, setIsIdle] = useState(true);
 
     const { mutateAsync: uploadMission } = useUploadMissionVideo();
@@ -36,20 +35,10 @@ const WalkMissionContent = () => {
     );
 
     useEffect(() => {
-        const isMock = searchParams.get("mock") === "1";
-        if (!currentMission && isMock) {
-            setCurrentMission({
-                missionId: 101,
-                title: "돌발 미션",
-                description: "카메라를 바라보고 3초 동안 웃어주세요!",
-            });
-            return;
-        }
-
         if (!currentMission) {
             router.replace("/walk");
         }
-    }, [currentMission, router, searchParams, setCurrentMission]);
+    }, [currentMission, router]);
 
     if (!currentMission) {
         return null;
