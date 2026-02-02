@@ -17,6 +17,7 @@ export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
     hasData: !!missionAnalysis,
     missionCount: missionAnalysis?.missions?.length,
     error: error?.message,
+    fullData: missionAnalysis
   });
 
   if (isLoading) {
@@ -32,6 +33,9 @@ export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
   }
 
   if (isError) {
+    const is404 = (error as { response?: { status?: number }; status?: number })?.response?.status === 404 || (error as { status?: number })?.status === 404;
+    if (is404) return null;
+
     return (
       <Container>
         <Title>돌발 미션 결과</Title>
