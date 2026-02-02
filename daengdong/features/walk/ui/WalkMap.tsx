@@ -157,10 +157,17 @@ const MapElement = styled.div`
 const RecenterButtonWrapper = styled.div`
     position: fixed;
     top: 70px;
-    right: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 390px;
     z-index: 1000;
+    pointer-events: none; /* Pass clicks through wrapper */
+
     display: flex;
     flex-direction: column;
+    align-items: flex-end; /* Align buttons to right */
+    padding-right: 10px;
     gap: 10px;
 `;
 
@@ -176,13 +183,13 @@ const RecenterButton = styled.button`
   justify-content: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   cursor: pointer;
+  pointer-events: auto;
 
   &:active {
     background-color: #f0f0f0;
   }
 `;
 
-// 현재 위치 버튼 (기존 컬러 유지)
 const PrimaryRecenterButton = styled(RecenterButton)`
   img {
     filter: brightness(0) saturate(100%)
@@ -191,7 +198,6 @@ const PrimaryRecenterButton = styled(RecenterButton)`
   }
 `;
 
-// 도움말 버튼 (회색 아이콘)
 const HelpButton = styled(RecenterButton)`
   img {
     filter: grayscale(100%) brightness(70%);

@@ -67,8 +67,10 @@ const fadeIn = keyframes`
 const Overlay = styled.div`
     position: fixed;
     top: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
+    max-width: 390px;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 2000;
