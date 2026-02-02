@@ -28,22 +28,33 @@ export const useMissionScheduler = () => {
                 // M2: 20-40 분 후
                 // M3: 40-60 분 후
 
-                let currentOffset = 0;
+                // 테스트용 고정 타이밍: 10초, 2분, 4분
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
 
-                // M1: 5-10 분 후
-                const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
-                // const delay1 = 10; // 테스트용 10초후 돌발미션 활성화
-                currentOffset += delay1;
-                if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + currentOffset, triggered: false });
+                // M1: 10초 후
+                const delay1 = 10 * 1000; // 10초
+                if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
 
-                // M2: 산책 시작 후 20-40분
-                const delay2 = (Math.floor(Math.random() * (40 - 20 + 1)) + 20) * 60 * 1000;
+                // M2: 2분 후
+                const delay2 = 2 * 60 * 1000; // 2분
                 if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
 
-                // M3: 산책 시작 후 40-60분
-                const delay3 = (Math.floor(Math.random() * (60 - 40 + 1)) + 40) * 60 * 1000;
+                // M3: 4분 후
+                const delay3 = 4 * 60 * 1000; // 4분
                 if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
+
+                // 원래 랜덤 타이밍 (주석 처리)
+                // let currentOffset = 0;
+                // // M1: 5-10 분 후
+                // const delay1 = (Math.floor(Math.random() * (10 - 5 + 1)) + 5) * 60 * 1000;
+                // currentOffset += delay1;
+                // if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + currentOffset, triggered: false });
+                // // M2: 산책 시작 후 20-40분
+                // const delay2 = (Math.floor(Math.random() * (40 - 20 + 1)) + 20) * 60 * 1000;
+                // if (selected[1]) newSchedule.push({ mission: selected[1], triggerAt: startTime + delay2, triggered: false });
+                // // M3: 산책 시작 후 40-60분
+                // const delay3 = (Math.floor(Math.random() * (60 - 40 + 1)) + 40) * 60 * 1000;
+                // if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
 
                 console.log("[MissionScheduler] Scheduled:", newSchedule.map(s => new Date(s.triggerAt).toLocaleTimeString()));
                 setScheduledMissions(newSchedule);
