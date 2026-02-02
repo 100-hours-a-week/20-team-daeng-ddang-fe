@@ -7,6 +7,7 @@ import { useToastStore } from '@/shared/stores/useToastStore';
 import { TermsModal } from '@/shared/components/TermsModal';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '@/shared/constants/terms';
 import { colors } from '@/shared/styles/tokens';
+import { useUpdateTermsAgreement } from '@/features/auth/model/useAuthMutations';
 
 export default function TermsPage() {
     const router = useRouter();
@@ -48,22 +49,27 @@ export default function TermsPage() {
         };
     }, []);
 
+    const { mutate: updateTerms, isPending } = useUpdateTermsAgreement();
+
     const handleSubmit = () => {
         if (!termsAgreed || !privacyAgreed) {
             return;
         }
 
-        // 약관 동의 완료 플래그 저장
-        localStorage.setItem('termsAgreed', 'true');
+        updateTerms(true, {
+            onSuccess: () => {
+                localStorage.setItem('termsAgreed', 'true');
 
-        const { showToast } = useToastStore.getState();
-        showToast({
-            message: '약관 동의가 완료되었습니다.',
-            type: 'success',
-            duration: 2000,
+                const { showToast } = useToastStore.getState();
+                showToast({
+                    message: '약관 동의가 완료되었습니다.',
+                    type: 'success',
+                    duration: 2000,
+                });
+
+                router.replace('/walk');
+            }
         });
-
-        router.replace('/walk');
     };
 
     const openModal = (title: string, content: string) => {
@@ -136,9 +142,9 @@ export default function TermsPage() {
 
             <SubmitButton
                 onClick={handleSubmit}
-                disabled={!isSubmitEnabled}
+                disabled={!isSubmitEnabled || isPending}
             >
-                동의하고 시작하기
+                {isPending ? '처리 중...' : '동의하고 시작하기'}
             </SubmitButton>
 
             <TermsModal
