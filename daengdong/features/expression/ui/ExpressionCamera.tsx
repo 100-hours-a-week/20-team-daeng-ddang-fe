@@ -77,11 +77,25 @@ export const ExpressionCamera = ({
       recorderRef.current = recorder;
 
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
+        if (e.data && e.data.size > 0) {
+          console.log('[ExpressionCamera] Data chunk received:', e.data.size, 'bytes');
+          chunksRef.current.push(e.data);
+        }
       };
 
       recorder.onstop = () => {
+        console.log('[ExpressionCamera] Recording stopped, chunks:', chunksRef.current.length);
         const blob = new Blob(chunksRef.current, { type: mimeType });
+        console.log('[ExpressionCamera] Blob created, size:', blob.size, 'type:', blob.type);
+
+        // iOS에서 blob이 비어있는 경우 에러 처리
+        if (blob.size === 0) {
+          console.error('[ExpressionCamera] Blob is empty!');
+          showToast({ message: "녹화된 영상이 비어있습니다. 다시 시도해주세요.", type: "error" });
+          setFlowState("IDLE");
+          return;
+        }
+
         const url = URL.createObjectURL(blob);
         setPreviewURL(url);
         setFlowState("ANALYZING");
@@ -92,7 +106,8 @@ export const ExpressionCamera = ({
         });
       };
 
-      recorder.start(5000);
+      // iOS Safari 호환성: timeslice 없이 시작
+      recorder.start();
       setRecordingTimeLeft(5);
 
       // 1초마다 카운트다운 - 각 초를 확실히 표시
@@ -107,6 +122,10 @@ export const ExpressionCamera = ({
 
       recordingTimerRef.current = setTimeout(() => {
         clearInterval(countdownInterval);
+        // iOS Safari: stop 전에 명시적으로 데이터 요청
+        if (recorderRef.current && recorderRef.current.state === 'recording') {
+          recorderRef.current.requestData();
+        }
         stopRecording();
       }, 5000);
     } catch (e) {
