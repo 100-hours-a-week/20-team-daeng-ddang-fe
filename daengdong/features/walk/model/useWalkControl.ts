@@ -169,7 +169,7 @@ export const useWalkControl = () => {
             if (current && wsClientRef.current?.getConnectionStatus()) {
                 wsClientRef.current.sendLocation(current.lat, current.lng);
             }
-        }, 7000);
+        }, 5000);
 
         return () => {
             clearInterval(intervalId);
@@ -192,6 +192,15 @@ export const useWalkControl = () => {
                 handleWebSocketMessage,
                 (error) => console.error("WebSocket Error:", error)
             );
+        }
+
+        // 산책 중 새로고침/페이지 이동 후 복귀 시 자동 재연결
+        const { walkMode, walkId } = useWalkStore.getState();
+        if (walkMode === 'walking' && walkId) {
+            const token = localStorage.getItem('accessToken') || undefined;
+            console.log("[WebSocket] 세션 복구: 자동 재연결 시도", walkId);
+            wsClientRef.current.connect(walkId, token)
+                .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
 
         return () => {
@@ -478,11 +487,11 @@ export const useWalkControl = () => {
         });
     };
 
-    const sendLocation = (lat: number, lng: number) => {
+    const sendLocation = useCallback((lat: number, lng: number) => {
         if (wsClientRef.current?.getConnectionStatus()) {
             wsClientRef.current.sendLocation(lat, lng);
         }
-    };
+    }, []);
 
     // Area 구독 관리 Hook
     useAreaSubscription(currentPos, wsClientRef.current);
