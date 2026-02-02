@@ -8,7 +8,16 @@ interface MissionResultSectionProps {
 }
 
 export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
-  const { data: missionAnalysis, isLoading } = useWalkMissionQuery(walkId);
+  const { data: missionAnalysis, isLoading, isError, error } = useWalkMissionQuery(walkId);
+
+  console.log('[MissionResultSection] State:', {
+    walkId,
+    isLoading,
+    isError,
+    hasData: !!missionAnalysis,
+    missionCount: missionAnalysis?.missions?.length,
+    error: error?.message,
+  });
 
   if (isLoading) {
     return (
@@ -18,6 +27,17 @@ export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
           <Spinner />
           <LoadingText>결과 불러오는 중...</LoadingText>
         </LoadingRow>
+      </Container>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container>
+        <Title>돌발 미션 결과</Title>
+        <ErrorRow>
+          ❌ 미션 결과를 불러오는데 실패했습니다.
+        </ErrorRow>
       </Container>
     );
   }
@@ -92,6 +112,13 @@ const Spinner = styled.div`
 `;
 
 const LoadingText = styled.span``;
+
+const ErrorRow = styled.div`
+  padding: ${spacing[3]}px ${spacing[1]}px;
+  color: ${colors.semantic.error};
+  font-size: 14px;
+  text-align: center;
+`;
 
 const MissionItem = styled.div<{ status: 'SUCCESS' | 'FAIL'; isClickable: boolean }>`
   display: flex;
