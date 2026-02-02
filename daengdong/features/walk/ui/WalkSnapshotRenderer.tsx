@@ -74,12 +74,30 @@ const getZoomLevel = (bounds: ReturnType<typeof getBounds>) => {
     return Math.max(3, Math.min(19, zoom));
 };
 
+// Naver Maps 좌표 변환 
 const latLngToPixel = (lat: number, lng: number, center: LatLng, zoom: number) => {
-    const worldSize = 256 * Math.pow(2, zoom);
-    const point = projectLatLng(lat, lng);
-    const centerPoint = projectLatLng(center.lat, center.lng);
-    const x = (point.x - centerPoint.x) * worldSize + SNAPSHOT_SIZE / 2;
-    const y = (point.y - centerPoint.y) * worldSize + SNAPSHOT_SIZE / 2;
+    // Naver Maps Static API 공식 스케일
+    // Level 20: 1픽셀 = 0.0745m 
+    // Level n: 1픽셀 = 0.0745 * 2^(20-n) 미터
+    const METERS_PER_PIXEL_AT_LEVEL_20 = 0.0745;
+    const metersPerPixel = METERS_PER_PIXEL_AT_LEVEL_20 * Math.pow(2, 20 - zoom);
+
+    // 위도/경도를 미터로 변환
+    // 위도 1도 ≈ 111,000m (지구 둘레 / 360)
+    // 경도 1도 ≈ 111,000m * cos(latitude)
+    const METERS_PER_DEGREE_LAT = 111000;
+    const metersPerDegreeLng = METERS_PER_DEGREE_LAT * Math.cos((center.lat * Math.PI) / 180);
+
+    // 중심점으로부터의 거리 (미터)
+    const deltaLat = lat - center.lat;
+    const deltaLng = lng - center.lng;
+    const metersY = deltaLat * METERS_PER_DEGREE_LAT;
+    const metersX = deltaLng * metersPerDegreeLng;
+
+    // 미터를 픽셀로 변환
+    const x = (metersX / metersPerPixel) + SNAPSHOT_SIZE / 2;
+    const y = -(metersY / metersPerPixel) + SNAPSHOT_SIZE / 2;
+
     return { x, y };
 };
 
