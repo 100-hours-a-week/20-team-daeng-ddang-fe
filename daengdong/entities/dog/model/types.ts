@@ -14,6 +14,7 @@ export interface DogResponse {
     gender: Gender;
     neutered: boolean;
     birthDate: string; // "2021-01-01"
+    birthUnknown: boolean;
     weight: number;
     profileImageUrl: string | null;
 }
@@ -49,18 +50,20 @@ export interface CreateDogParams {
     name: string;
     breedId: number;
     birthDate: string;
+    isBirthUnknown: boolean;
     weight: number;
     profileImageUrl?: string;
     gender?: Gender;
-    neutered?: boolean;
+    isNeutered?: boolean;
 }
 
 export interface UpdateDogParams {
     name: string;
     breedId: number;
     birthDate: string;
+    isBirthUnknown: boolean;
     gender: Gender;
-    neutered: boolean;
+    isNeutered: boolean;
     weight: number;
     profileImageUrl?: string;
 }

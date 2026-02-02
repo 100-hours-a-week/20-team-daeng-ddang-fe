@@ -64,9 +64,10 @@ export function DogInfoScreen() {
                     name: data.name,
                     breedId: data.breedId,
                     birthDate: data.birthDate,
+                    isBirthUnknown: data.isBirthDateUnknown,
                     weight: parseFloat(data.weight),
                     gender: data.gender,
-                    neutered: data.neutered,
+                    isNeutered: data.neutered,
                     profileImageUrl: profileImageUrl,
                 },
             }, {
