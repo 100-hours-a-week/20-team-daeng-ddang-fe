@@ -101,7 +101,7 @@ const ExpressionContent = () => {
       router.replace("/walk/expression/result");
     } catch (e) {
       console.error(e);
-      showToast({ message: "분석에 실패했습니다. 잠시 후 다시 시도해주세요.", type: "error" });
+      showToast({ message: "분석 실패. 강아지 얼굴을 찾을 수 없습니다.", type: "error" });
       handleCancel();
     } finally {
       setIsAnalyzing(false);
