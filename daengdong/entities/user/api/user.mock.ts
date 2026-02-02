@@ -109,6 +109,6 @@ export const userRepositoryMock: UserRepository = {
 
     async updateTermsAgreement(isAgreed: boolean): Promise<void> {
         await new Promise(resolve => setTimeout(resolve, 500));
-        console.log(`[Mock] Terms agreement updated: ${isAgreed}`);
+
     },
 };

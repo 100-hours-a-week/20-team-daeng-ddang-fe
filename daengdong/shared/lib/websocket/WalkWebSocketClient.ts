@@ -33,7 +33,6 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
                 },
                 debug: (str) => {
 
-                    console.log('[STOMP Debug]', str);
                 },
                 reconnectDelay: 5000, // 5초 후 재연결
                 heartbeatIncoming: 4000,
@@ -42,7 +41,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
             // 연결 성공 시 자동으로 walkId 토픽 구독
             this.client.onConnect = () => {
-                console.log('✅ WebSocket 연결 성공');
+
                 this.isConnected = true;
 
                 // walkId 기반 토픽 자동 구독
@@ -82,12 +81,12 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         }
 
         const topic = `/topic/walks/${this.walkId}`;
-        console.log(`📡 구독 시작: ${topic}`);
+
 
         this.subscription = this.client.subscribe(topic, (message: IMessage) => {
             try {
                 const data = JSON.parse(message.body) as ServerMessage;
-                console.log(`📨 메시지 수신 [${data.type}]:`, data);
+
 
                 // 메시지 타입별 처리
                 this.handleMessage(data);
@@ -100,28 +99,28 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
     // 메시지 타입별 처리
     private handleMessage(message: ServerMessage) {
-        console.log("DEBUG: WS Client handleMessage", message);
+
         switch (message.type) {
             case 'BLOCK_OCCUPIED':
-                console.log('🟢 블록 점유 성공:', message.data);
+
                 break;
             case 'BLOCK_OCCUPY_FAILED':
-                console.log('🔴 블록 점유 실패:', message.message);
+
                 break;
             case 'BLOCK_TAKEN':
-                console.log('⚠️ 블록 탈취됨:', message.data);
+
                 break;
             case 'BLOCKS_SYNC':
-                console.log('🔄 블록 동기화:', message.data);
+
                 break;
             case 'WALK_ENDED':
-                console.log('🏁 산책 종료:', message.data);
+
                 break;
             case 'ERROR':
                 console.error('❌ 에러 메시지:', message.message);
                 break;
             default:
-                console.log('📨 기타 메시지:', message);
+
         }
 
         // 상위 콜백 호출
@@ -142,12 +141,12 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         }
 
         const topic = `/topic/blocks/${areaKey}`;
-        console.log(`📡 Area 구독 시작: ${topic}`);
+
 
         this.areaSubscription = this.client.subscribe(topic, (message: IMessage) => {
             try {
                 const data = JSON.parse(message.body) as ServerMessage;
-                console.log(`📨 Area 메시지 수신 [${data.type}]:`, data);
+
                 this.handleMessage(data);
             } catch (error) {
                 console.error('❌ Area 메시지 파싱 에러:', error);
@@ -158,7 +157,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
     // Area 구독 해제
     unsubscribeFromArea() {
         if (this.areaSubscription) {
-            console.log('🔕 Area 구독 해제');
+
             this.areaSubscription.unsubscribe();
             this.areaSubscription = null;
         }
@@ -181,8 +180,8 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         };
 
         const destination = `/app/walks/${this.walkId}/location`;
-        console.log(`DEBUG: Sending Location to ${destination}`, { lat, lng });
-        console.log(`📤 위치 전송: ${destination}`, message);
+
+
 
         this.client.publish({
             destination,
@@ -198,7 +197,7 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         }
 
         if (this.client) {
-            console.log('🔌 WebSocket 연결 해제');
+
             this.client.deactivate();
             this.isConnected = false;
             this.walkId = null;

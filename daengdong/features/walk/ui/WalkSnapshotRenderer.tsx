@@ -317,7 +317,7 @@ export const WalkSnapshotRenderer = ({
             return new Promise<Blob | null>((resolve) => {
                 canvasRef.current?.toBlob((blob) => {
                     if (blob && blob.size > 0) {
-                        console.log('[WalkSnapshotRenderer] Snapshot blob created successfully, size:', blob.size);
+
                         resolve(blob);
                     } else {
                         console.warn('[WalkSnapshotRenderer] Blob creation failed or empty');

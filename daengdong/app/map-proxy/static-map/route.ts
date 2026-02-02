@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     try {
         const apiUrl = `${STATIC_MAP_BASE_URL}?${searchParams.toString()}`;
-        console.log("[API] Requesting:", apiUrl);
+
 
         const response = await fetch(apiUrl, {
             method: "GET",

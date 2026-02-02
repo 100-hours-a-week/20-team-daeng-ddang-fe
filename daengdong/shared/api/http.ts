@@ -23,19 +23,9 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
 }
 
+
 http.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 요청 데이터 로깅 (CORS로 인해 Network 탭에서 안 보일 때 유용)
-        console.log('🚀 API Request:', {
-            method: config.method?.toUpperCase(),
-            url: config.url,
-            baseURL: config.baseURL,
-            fullURL: `${config.baseURL}${config.url}`,
-            headers: config.headers,
-            data: config.data,
-            params: config.params,
-        });
-
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('accessToken');
 
@@ -74,12 +64,6 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 http.interceptors.response.use(
     (response: AxiosResponse) => {
-        console.log('✅ API Response:', {
-            status: response.status,
-            statusText: response.statusText,
-            url: response.config.url,
-            data: response.data,
-        });
         return response;
     },
     async (error: AxiosError) => {

@@ -65,7 +65,7 @@ export const useWalkControl = () => {
         const currentUser = userRef.current;
         const myDogId = currentUser?.dogId;
 
-        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
+
 
         switch (message.type) {
             case "BLOCK_OCCUPIED":
@@ -198,7 +198,7 @@ export const useWalkControl = () => {
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
             const token = localStorage.getItem('accessToken') || undefined;
-            console.log("[WebSocket] 세션 복구: 자동 재연결 시도", walkId);
+
             wsClientRef.current.connect(walkId, token)
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
@@ -244,7 +244,7 @@ export const useWalkControl = () => {
         }
 
         showLoading("산책을 시작하는 중입니다...");
-        console.log('[StartWalk] 요청 시작:', { lat: currentPos.lat, lng: currentPos.lng });
+
 
         try {
             const res = await startWalkMutate({
@@ -252,14 +252,14 @@ export const useWalkControl = () => {
                 startLng: currentPos.lng
             });
 
-            console.log('[StartWalk] 성공:', res);
+
             startWalk(res.walkId);
 
             // WebSocket 연결
             try {
                 const token = localStorage.getItem('accessToken') || undefined;
                 await wsClientRef.current?.connect(res.walkId, token);
-                console.log("[StartWalk] WebSocket 연결 성공:", res.walkId);
+
             } catch (e) {
                 console.error("[StartWalk] WebSocket 연결 실패:", e);
             }
@@ -386,7 +386,7 @@ export const useWalkControl = () => {
                         return new Promise((resolve) => {
                             const checkReady = () => {
                                 if (window.isWalkSnapshotReady) {
-                                    console.log(`[Snapshot] Ready after ${Date.now() - startTime}ms`);
+
                                     resolve(true);
                                     return;
                                 }
@@ -416,7 +416,7 @@ export const useWalkControl = () => {
                         const blob = await window.getWalkSnapshotBlob();
 
                         if (blob && blob.size > 0) {
-                            console.log("[Snapshot] 생성 성공, 크기:", blob.size);
+
 
                             // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
                             const base64Url = await new Promise<string>((resolve) => {
@@ -429,7 +429,7 @@ export const useWalkControl = () => {
                             try {
                                 const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                                console.log("[Snapshot] S3 업로드 성공:", objectKey);
+
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);
                             }

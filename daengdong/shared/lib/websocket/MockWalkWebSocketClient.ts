@@ -12,12 +12,12 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
 
     connect(walkId: number, accessToken?: string): Promise<void> {
         return new Promise((resolve) => {
-            console.log('[MockWS] Connecting...', { walkId, accessToken });
+
 
             setTimeout(() => {
                 this.isConnected = true;
                 this.walkId = walkId;
-                console.log('[MockWS] Connected!');
+
 
                 this.onMessage({
                     type: 'CONNECTED',
@@ -38,7 +38,7 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
             return;
         }
 
-        console.log(`[MockWS] Location sent: ${lat}, ${lng}`);
+
 
         // 확률적으로 블록 점유 이벤트 발생 (테스트용)
         if (Math.random() > 0.7) {
@@ -65,19 +65,19 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
                 }
             };
 
-            console.log('[MockWS] Server Message:', message);
+
             this.onMessage(message);
         }, 500);
     }
 
     disconnect() {
         this.isConnected = false;
-        console.log("🔌 [Mock] WebSocket 연결 해제");
+
     }
 
     subscribeToArea(areaKey: string) {
         if (!this.isConnected) return;
-        console.log(`📡 [Mock] Area 구독 시작: ${areaKey}`);
+
 
         // Mock: 구독 즉시 테스트용 메시지 전송 (선택 사항)
         // setTimeout(() => {
@@ -89,7 +89,7 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
     }
 
     unsubscribeFromArea() {
-        console.log('🔕 [Mock] Area 구독 해제');
+
     }
 
     getConnectionStatus() {

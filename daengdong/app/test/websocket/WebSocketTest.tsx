@@ -31,7 +31,7 @@ export function WebSocketTest() {
             lng: pos.coords.longitude,
           };
           setLocalPos(newPos);
-          console.log('📍 위치 업데이트:', newPos);
+
         },
         (err) => {
           console.error('❌ 위치 추적 에러:', err);
@@ -57,7 +57,7 @@ export function WebSocketTest() {
       const newClient = new WalkWebSocketClient(
         baseUrl,
         (message) => {
-          console.log('📨 메시지 수신:', message);
+
           setMessages((prev) => [...prev, message]);
         },
         (err) => {
@@ -70,7 +70,7 @@ export function WebSocketTest() {
       await newClient.connect(999); // 테스트용 walkId
       setClient(newClient);
       setIsConnected(true);
-      console.log('✅ 연결 성공! (자동으로 /topic/walks/999 구독됨)');
+
     } catch (err) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setError((err as any).message);
@@ -85,7 +85,7 @@ export function WebSocketTest() {
       setIsConnected(false);
       setMessages([]);
       setIsTrackingLocation(false);
-      console.log('🔌 연결 해제');
+
     }
   };
 
@@ -100,11 +100,6 @@ export function WebSocketTest() {
       const lng = currentPos?.lng ?? 127.11142;
 
       client.sendLocation(lat, lng);
-      console.log('📤 위치 전송 완료:', {
-        lat,
-        lng,
-        source: currentPos ? 'current position' : 'default test location'
-      });
     }
   };
 

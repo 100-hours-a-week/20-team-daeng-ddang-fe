@@ -32,19 +32,19 @@ const generateMockBlocks = (lat: number, lng: number) => {
 
 export const walkRepositoryMock: WalkRepository = {
     getNearbyBlocks: async (params) => {
-        console.log("[MOCK] getNearbyBlocks", params);
+
         await new Promise(resolve => setTimeout(resolve, 500));
 
         return generateMockBlocks(params.lat, params.lng);
     },
     getMyBlocks: async (lat, lng) => {
-        console.log("[MOCK] getMyBlocks", { lat, lng });
+
         await new Promise(resolve => setTimeout(resolve, 300));
 
         return generateMockBlocks(lat, lng).filter(b => b.dogId === 1);
     },
     judgeWalkMissions: async (walkId) => {
-        console.log("[MOCK] judgeWalkMissions", { walkId });
+
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         return {
@@ -58,7 +58,7 @@ export const walkRepositoryMock: WalkRepository = {
         };
     },
     startWalk: async (req) => {
-        console.log("[MOCK] startWalk", req);
+
         await new Promise(resolve => setTimeout(resolve, 500));
         return {
             walkId: Math.floor(Math.random() * 1000),
@@ -66,7 +66,7 @@ export const walkRepositoryMock: WalkRepository = {
         };
     },
     endWalk: async (req) => {
-        console.log("[MOCK] endWalk", req);
+
         await new Promise(resolve => setTimeout(resolve, 800));
         return {
             walkId: req.walkId,
@@ -79,7 +79,7 @@ export const walkRepositoryMock: WalkRepository = {
         };
     },
     postWalkDiary: async (req) => {
-        console.log("[MOCK] postWalkDiary", req);
+
         await new Promise(resolve => setTimeout(resolve, 500));
         return {
             message: "산책일지가 작성되었습니다.",
