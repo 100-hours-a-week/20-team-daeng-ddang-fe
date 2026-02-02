@@ -17,7 +17,7 @@ export const dogRepositoryReal: DogRepository = {
                 breed: data.breed,
                 breedId: data.breedId,
                 birthDate: data.birthDate ?? null,
-                isBirthDateUnknown: false,
+                isBirthDateUnknown: data.birthUnknown ?? false,
                 weight: data.weight,
                 gender: data.gender,
                 neutered: data.neutered,
