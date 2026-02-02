@@ -31,8 +31,8 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
                     Authorization: accessToken ? `Bearer ${accessToken}` : '',
                     walkId: walkId.toString(),
                 },
-                debug: (str) => {
-
+                debug: (_str) => {
+                    // Debug logging disabled
                 },
                 reconnectDelay: 5000, // 5초 후 재연결
                 heartbeatIncoming: 4000,
@@ -73,28 +73,41 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         });
     }
 
+    // 공통 구독 메서드
+    private subscribe(
+        topic: string,
+        onMessage: (data: ServerMessage) => void,
+        errorContext: string
+    ): StompSubscription | null {
+        if (!this.client || !this.isConnected) {
+            console.warn(`⚠️ WebSocket이 연결되지 않아 ${errorContext} 구독을 할 수 없습니다.`);
+            return null;
+        }
+
+        return this.client.subscribe(topic, (message: IMessage) => {
+            try {
+                const data = JSON.parse(message.body) as ServerMessage;
+                onMessage(data);
+            } catch (error) {
+                console.error(`❌ ${errorContext} 메시지 파싱 에러:`, error);
+                this.onError(error as Error);
+            }
+        });
+    }
+
     // walkId 기반 토픽 구독 (내부 메서드)
     private subscribeToWalk() {
-        if (!this.client || !this.isConnected || !this.walkId) {
-            console.warn('⚠️ WebSocket이 연결되지 않았거나 walkId가 없습니다');
+        if (!this.walkId) {
+            console.warn('⚠️ walkId가 없습니다');
             return;
         }
 
         const topic = `/topic/walks/${this.walkId}`;
-
-
-        this.subscription = this.client.subscribe(topic, (message: IMessage) => {
-            try {
-                const data = JSON.parse(message.body) as ServerMessage;
-
-
-                // 메시지 타입별 처리
-                this.handleMessage(data);
-            } catch (error) {
-                console.error('❌ 메시지 파싱 에러:', error);
-                this.onError(error as Error);
-            }
-        });
+        this.subscription = this.subscribe(
+            topic,
+            (data) => this.handleMessage(data),
+            'Walk'
+        );
     }
 
     // 메시지 타입별 처리
@@ -129,11 +142,6 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
     // Area 구독
     subscribeToArea(areaKey: string) {
-        if (!this.client || !this.isConnected) {
-            console.warn('⚠️ WebSocket이 연결되지 않아 Area 구독을 할 수 없습니다.');
-            return;
-        }
-
         // 이미 같은 Area를 구독 중이면 패스
         if (this.areaSubscription) {
             console.warn('⚠️ 이미 Area를 구독 중입니다. 먼저 구독을 해제해주세요.');
@@ -141,17 +149,11 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         }
 
         const topic = `/topic/blocks/${areaKey}`;
-
-
-        this.areaSubscription = this.client.subscribe(topic, (message: IMessage) => {
-            try {
-                const data = JSON.parse(message.body) as ServerMessage;
-
-                this.handleMessage(data);
-            } catch (error) {
-                console.error('❌ Area 메시지 파싱 에러:', error);
-            }
-        });
+        this.areaSubscription = this.subscribe(
+            topic,
+            (data) => this.handleMessage(data),
+            'Area'
+        );
     }
 
     // Area 구독 해제

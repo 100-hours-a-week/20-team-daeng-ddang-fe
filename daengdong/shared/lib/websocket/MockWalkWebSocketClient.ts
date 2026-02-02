@@ -10,7 +10,7 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
         private onError: (error: Error) => void
     ) { }
 
-    connect(walkId: number, accessToken?: string): Promise<void> {
+    connect(walkId: number, _accessToken?: string): Promise<void> {
         return new Promise((resolve) => {
 
 
@@ -75,7 +75,7 @@ export class MockWalkWebSocketClient implements IWalkWebSocketClient {
 
     }
 
-    subscribeToArea(areaKey: string) {
+    subscribeToArea(_areaKey: string) {
         if (!this.isConnected) return;
 
 
