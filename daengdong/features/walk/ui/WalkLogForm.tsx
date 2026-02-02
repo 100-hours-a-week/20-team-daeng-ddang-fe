@@ -7,6 +7,7 @@ import { useWriteWalkDiary } from '@/features/walk/model/useWalkMutations';
 
 export const WalkLogForm = () => {
   const [log, setLog] = useState('');
+  const MAX_LENGTH = 500;
   const router = useRouter();
   const { walkId } = useParams();
   const { showToast } = useToastStore();
@@ -33,11 +34,21 @@ export const WalkLogForm = () => {
   return (
     <Container>
       <Label>산책 후기</Label>
-      <TextArea
-        placeholder="오늘의 산책은 어떠셨나요? 즐거웠던 순간을 기록해주세요!"
-        value={log}
-        onChange={(e) => setLog(e.target.value)}
-      />
+      <TextAreaWrapper>
+        <TextArea
+          placeholder="오늘의 산책은 어떠셨나요? 즐거웠던 순간을 기록해주세요!"
+          value={log}
+          onChange={(e) => {
+            if (e.target.value.length <= MAX_LENGTH) {
+              setLog(e.target.value);
+            }
+          }}
+          maxLength={MAX_LENGTH}
+        />
+        <CharCounter isLimit={log.length >= MAX_LENGTH}>
+          {log.length}/{MAX_LENGTH}
+        </CharCounter>
+      </TextAreaWrapper>
       <SubmitButton onClick={handleSubmit}>
         기록 완료
       </SubmitButton>
@@ -50,6 +61,11 @@ const Container = styled.section`
   display: flex;
   flex-direction: column;
   gap: ${spacing[3]}px;
+`;
+
+const TextAreaWrapper = styled.div`
+  position: relative;
+  width: 100%;
 `;
 
 const Label = styled.label`
@@ -78,6 +94,15 @@ const TextArea = styled.textarea`
     border-color: ${colors.primary[500]};
     background-color: white;
   }
+`;
+
+const CharCounter = styled.div<{ isLimit: boolean }>`
+  position: absolute;
+  bottom: ${spacing[2]}px;
+  right: ${spacing[3]}px;
+  font-size: 12px;
+  color: ${props => props.isLimit ? colors.semantic.error : colors.gray[500]};
+  pointer-events: none;
 `;
 
 const SubmitButton = styled.button`
