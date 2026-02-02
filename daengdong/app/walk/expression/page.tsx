@@ -34,9 +34,10 @@ const ExpressionContent = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // 페이지 이탈 방지 
+  // 촬영 전/중/후 모두 새로고침 방지
   useConfirmPageLeave(
-    !isIdle || isAnalyzing,
-    "촬영 또는 분석이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+    true,
+    "페이지를 새로고침하면 진행 중인 작업이 취소됩니다."
   );
 
   const walkId = useMemo(() => {
