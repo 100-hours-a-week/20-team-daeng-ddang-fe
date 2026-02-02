@@ -15,6 +15,7 @@ import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/type
 import { ENV } from "@/shared/config/env";
 
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
+import { isAbnormalSpeed } from "@/shared/utils/walkMetricsValidator";
 
 export const useWalkControl = () => {
     const {
@@ -281,6 +282,8 @@ export const useWalkControl = () => {
         }
     };
 
+    // ... existing imports ...
+
     const handleCancel = () => {
         openModal({
             title: "산책 취소",
@@ -289,13 +292,24 @@ export const useWalkControl = () => {
             confirmText: "취소하기",
             cancelText: "계속 산책하기",
             onConfirm: () => {
+                // 비정상 속도 체크
+                const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
+                if (isAbnormal) {
+                    showToast({
+                        message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
+                        type: "error"
+                    });
+                }
+
+                const finalDistance = isAbnormal ? 0 : Number(distance.toFixed(4));
+
                 if (walkId && currentPos) {
                     endWalkMutate(
                         {
                             walkId: walkId,
                             endLat: currentPos.lat,
                             endLng: currentPos.lng,
-                            totalDistanceKm: Number(distance.toFixed(4)),
+                            totalDistanceKm: finalDistance,
                             durationSeconds: elapsedTime,
                             status: "FINISHED",
                         },
@@ -336,6 +350,17 @@ export const useWalkControl = () => {
             confirmText: "종료하기",
             cancelText: "계속 산책하기",
             onConfirm: async () => {
+                // 비정상 속도 체크
+                const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
+                const finalDistance = isAbnormal ? 0 : Number(distance.toFixed(4));
+
+                if (isAbnormal) {
+                    showToast({
+                        message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
+                        type: "error"
+                    });
+                }
+
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
 
                 useWalkStore.getState().setIsEnding(true);
@@ -413,7 +438,7 @@ export const useWalkControl = () => {
                         walkId: walkId,
                         endLat: currentPos.lat,
                         endLng: currentPos.lng,
-                        totalDistanceKm: Number(distance.toFixed(4)),
+                        totalDistanceKm: finalDistance,
                         durationSeconds: elapsedTime,
                         status: "FINISHED",
                     },
@@ -422,7 +447,7 @@ export const useWalkControl = () => {
                             wsClientRef.current?.disconnect();
                             setWalkResult({
                                 time: elapsedTime,
-                                distance: distance,
+                                distance: finalDistance,
                                 imageUrl: storedImageUrl,
                                 blockCount: myBlocks.length,
                             });
