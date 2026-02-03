@@ -65,6 +65,7 @@ export interface EndWalkRequest {
     totalDistanceKm: number;
     durationSeconds: number;
     status: "FINISHED";
+    isValidated: boolean;
 }
 
 export interface EndWalkResponse {

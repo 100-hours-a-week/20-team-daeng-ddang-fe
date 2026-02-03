@@ -305,7 +305,7 @@ export const useWalkControl = () => {
                 const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
                 if (isAbnormal) {
                     showToast({
-                        message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
+                        message: "비정상적인 이동 속도가 감지되어 이동 거리 및 점유 블록이 저장되지 않습니다.",
                         type: "error"
                     });
                 }
@@ -321,6 +321,7 @@ export const useWalkControl = () => {
                             totalDistanceKm: finalDistance,
                             durationSeconds: elapsedTime,
                             status: "FINISHED",
+                            isValidated: isAbnormal,
                         },
                         {
                             onSuccess: () => {
@@ -448,8 +449,10 @@ export const useWalkControl = () => {
                         endLat: currentPos.lat,
                         endLng: currentPos.lng,
                         totalDistanceKm: finalDistance,
+
                         durationSeconds: elapsedTime,
                         status: "FINISHED",
+                        isValidated: isAbnormal,
                     },
                     {
                         onSuccess: () => {
