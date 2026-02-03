@@ -92,7 +92,17 @@ const WalkMissionContent = () => {
                     onComplete={handleMissionComplete}
                     onIdleChange={setIsIdle}
                 />
+
+                <GuideTextWrapper>
+                    <GuideText>
+                        * 돌발 미션 결과는 산책 종료 후 분석되어 한 번에 확인할 수 있어요.
+                    </GuideText>
+                    <GuideText>
+                        * 촬영하기 버튼을 누르면 3초 카운트 다운 후에 자동으로 5초간 촬영됩니다.
+                    </GuideText>
+                </GuideTextWrapper>
             </ContentWrapper>
+
         </PageContainer>
     );
 };
@@ -109,4 +119,18 @@ const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
     padding: 0 ${spacing[4]}px ${spacing[6]}px;
+`;
+
+const GuideTextWrapper = styled.div`
+    margin-top: ${spacing[4]}px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
+
+const GuideText = styled.p`
+    font-size: 13px;
+    color: #888;
+    line-height: 1.5;
+    text-align: center;
 `;

@@ -123,7 +123,7 @@ function ExpressionResultContent() {
           <BubbleTitle>{EMOTION_LABELS[result.predictEmotion as PredictEmotion] || result.predictEmotion}</BubbleTitle>
           <BubbleText>{result.summary}</BubbleText>
         </Bubble>
-
+        <DisclaimerText>분석 결과는 100% 정확하지 않을 수 있습니다.</DisclaimerText>
         <CompleteButton onClick={handleComplete}>완료</CompleteButton>
       </ContentWrapper>
     </PageContainer>
@@ -301,4 +301,12 @@ const CompleteButton = styled.button`
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+`;
+
+const DisclaimerText = styled.p`
+  margin: 0;
+  font-size: 12px;
+  color: ${colors.gray[500]};
+  text-align: center;
+  margin-top: -8px;
 `;

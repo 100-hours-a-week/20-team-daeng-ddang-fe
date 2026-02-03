@@ -15,31 +15,54 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
     const router = useRouter();
     const { setCurrentMission } = useMissionStore();
     const { setActiveMissionAlert } = useWalkStore();
-    const [timeLeft, setTimeLeft] = useState(10);
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [progress, setProgress] = useState(100);
 
+    const STORAGE_KEY = `SUDDEN_KEY_ALERT_START_${mission.missionId}`;
+
     useEffect(() => {
+        // 초기 / 복구 시간 설정
+        const storedStart = sessionStorage.getItem(STORAGE_KEY);
+        let startTime = 0;
+
+        if (storedStart) {
+            startTime = parseInt(storedStart, 10);
+        } else {
+            startTime = Date.now();
+            sessionStorage.setItem(STORAGE_KEY, startTime.toString());
+        }
+
+        // 타이머
+        const updateTimer = () => {
+            const now = Date.now();
+            const elapsed = Math.floor((now - startTime) / 1000);
+            const remaining = 10 - elapsed;
+
+            if (remaining <= 0) {
+                sessionStorage.removeItem(STORAGE_KEY);
+                setActiveMissionAlert(null);
+                setTimeLeft(0);
+                return false;
+            }
+
+            setTimeLeft(remaining);
+            setProgress(Math.max(0, (remaining / 10) * 100)); // Update progress based on actual remaining time
+            return true;
+        };
+
+        if (!updateTimer()) return;
+
         const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 0) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-            setProgress((prev) => Math.max(0, prev - 10)); // 10s -> 10% per sec
+            if (!updateTimer()) {
+                clearInterval(timer);
+            }
         }, 1000);
 
         return () => clearInterval(timer);
-    }, []);
-
-    useEffect(() => {
-        if (timeLeft === 0) {
-            setActiveMissionAlert(null);
-        }
-    }, [timeLeft, setActiveMissionAlert]);
+    }, [mission.missionId, setActiveMissionAlert, STORAGE_KEY]);
 
     const handleClick = () => {
+        sessionStorage.removeItem(STORAGE_KEY);
         // Activate Mission
         setCurrentMission({
             missionId: mission.missionId,
@@ -49,6 +72,8 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
         setActiveMissionAlert(null); // Clear alert
         router.push("/walk/mission");
     };
+
+    if (timeLeft === null) return null;
 
     const alertWidth = Math.max(35, progress);
 
