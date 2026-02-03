@@ -26,6 +26,7 @@ export interface UserResponse {
     kakaoEmail: string;
     dogId?: number;
     profileImageUrl?: string | null;
+    isAgreed?: boolean;
 }
 
 export interface UserInfo {
@@ -36,4 +37,5 @@ export interface UserInfo {
     kakaoEmail: string;
     dogId?: number;
     profileImageUrl?: string | null;
+    isAgreed?: boolean;
 }

@@ -20,7 +20,7 @@ Input.displayName = 'Input';
 
 const InputBase = styled.input`
   width: 100%;
-  background-color: ${colors.gray[50]};
+  background-color: white;
   border: 1px solid ${colors.gray[200]};
   border-radius: ${radius.md};
   padding: ${spacing[3]}px;
@@ -40,5 +40,17 @@ const InputBase = styled.input`
 
   &::placeholder {
     color: ${colors.gray[500]};
+  }
+
+  /* Chrome, Safari, Edge, Opera - 스피너 숨김 */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox - 스피너 숨김 */
+  &[type=number] {
+    -moz-appearance: textfield;
   }
 `;

@@ -21,15 +21,18 @@ const DogSchema = z.object({
         .regex(/^[가-힣a-zA-Z]+$/, '올바르지 않은 이름형식입니다.'),
     breedId: z.number({ message: '견종을 선택해주세요.' }).min(1, '견종을 선택해주세요.'),
     breedName: z.string().min(1, '견종을 선택해주세요.'),
-    birthDate: z.string(),
+    birthDate: z.string().nullable(),
     isBirthDateUnknown: z.boolean(),
     weight: z
         .string()
         .min(1, '몸무게를 입력해주세요.')
+        .refine((val) => parseFloat(val) > 0, '몸무게는 0kg보다 커야 합니다.')
+        .refine((val) => parseFloat(val) <= 200, '몸무게는 200kg 이하로 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
     neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
+    isImageDeleted: z.boolean().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
     path: ["birthDate"],
@@ -56,19 +59,20 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
         setValue,
         trigger,
         reset,
-        formState: { errors, isValid },
+        formState: { errors, isValid, isDirty },
     } = useForm<DogFormValues>({
         resolver: zodResolver(DogSchema),
         defaultValues: {
             name: '',
             breedId: 0,
             breedName: '',
-            birthDate: '',
+            birthDate: null,
             isBirthDateUnknown: false,
             weight: '',
             gender: undefined,
             neutered: undefined,
             imageFile: null,
+            isImageDeleted: false,
             ...initialData,
         },
         mode: 'onChange',
@@ -88,12 +92,13 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                 name: '',
                 breedId: 0,
                 breedName: '',
-                birthDate: '',
+                birthDate: null,
                 isBirthDateUnknown: false,
                 weight: '',
                 gender: undefined,
                 neutered: undefined,
                 imageFile: null,
+                isImageDeleted: false,
                 ...initialData,
             });
 
@@ -104,17 +109,21 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             // 데이터 로드 후 유효성 검사 실행 (저장 버튼 활성화 위해)
             trigger();
         }
+    }, [initialData, reset, trigger]);
+
+    useEffect(() => {
         if (initialImageUrl) {
+            // eslint-disable-next-line
             setImagePreview(initialImageUrl);
-        } else if (!initialData) {
-            setImagePreview(null);
         }
-    }, [initialData, initialImageUrl, reset, trigger]);
+    }, [initialImageUrl]);
 
     const birthDate = useWatch({ control, name: 'birthDate' });
     const isBirthDateUnknown = useWatch({ control, name: 'isBirthDateUnknown' });
     const breedIdValue = useWatch({ control, name: 'breedId' });
     const breedNameValue = useWatch({ control, name: 'breedName' });
+
+    const searchContainerRef = useRef<HTMLDivElement>(null);
 
     // 기존 데이터에서 breedId가 없을 때, breedName으로 매칭해서 자동 설정
     useEffect(() => {
@@ -127,16 +136,35 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
         }
     }, [breedList, breedNameValue, breedIdValue, setValue]);
 
+    // 견종 검색 영역 외 클릭 시 초기화
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+                setIsBreedListOpen(false);
+                if (breedNameValue) {
+                    setBreedSearchKeyword(breedNameValue);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [breedNameValue]);
+
     // 이미지 변경
     const handleImageChange = (file: File | null) => {
         setValue('imageFile', file, { shouldDirty: true });
         if (file) {
+            setValue('isImageDeleted', false, { shouldDirty: true }); // 새 파일이 있으면 삭제 아님
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         } else {
+            setValue('isImageDeleted', true, { shouldDirty: true }); // 파일이 없으면(삭제) 삭제됨 표시
             setImagePreview(null);
         }
     };
@@ -159,8 +187,8 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const [isDateOpen, setIsDateOpen] = useState(false);
 
     const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', Number(id), { shouldValidate: true });
-        setValue('breedName', name, { shouldValidate: true });
+        setValue('breedId', Number(id), { shouldValidate: true, shouldDirty: true });
+        setValue('breedName', name, { shouldValidate: true, shouldDirty: true });
         setBreedSearchKeyword(name);
         setIsBreedListOpen(false);
     };
@@ -175,8 +203,14 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
         'FEMALE': '암컷'
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    };
+
     return (
-        <FormWrapper onSubmit={handleSubmit(onSubmit)}>
+        <FormWrapper onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
             <Section>
                 <ProfileImageUploader
                     imagePreview={imagePreview}
@@ -199,7 +233,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
 
             <FieldGroup>
                 <Label>견종 <Required>*</Required></Label>
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }} ref={searchContainerRef}>
                     <Input
                         value={breedSearchKeyword}
                         onChange={(e) => {
@@ -245,12 +279,12 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                         id="unknown-birth"
                         checked={isBirthDateUnknown}
                         onChange={(e) => {
-                            setValue('isBirthDateUnknown', e.target.checked);
+                            setValue('isBirthDateUnknown', e.target.checked, { shouldDirty: true });
                             if (e.target.checked) {
-                                // 모름 체크 시 오늘 날짜로 설정 (저장용)
-                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
+                                // 모름 체크 시 null로 설정
+                                setValue('birthDate', null, { shouldValidate: true, shouldDirty: true });
                             } else {
-                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
+                                setValue('birthDate', dayjs().format('YYYY-MM-DD'), { shouldValidate: true, shouldDirty: true });
                             }
                             trigger('birthDate');
                         }}
@@ -270,7 +304,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                                 placeholder="YYYY-MM-DD"
                                 disabled={isBirthDateUnknown || isSubmitting}
                                 isPlaceholder={!field.value}
-                                style={{ pointerEvents: 'none' }} // Let div handle click
+                                style={{ pointerEvents: 'none' }}
                             />
                         </div>
                     )}
@@ -282,10 +316,10 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                 isOpen={isDateOpen}
                 onClose={() => setIsDateOpen(false)}
                 onConfirm={(date) => {
-                    setValue('birthDate', date);
+                    setValue('birthDate', date, { shouldDirty: true });
                     trigger('birthDate');
                 }}
-                initialDate={birthDate}
+                initialDate={birthDate || undefined}
             />
 
             <FieldGroup>
@@ -302,6 +336,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                                 placeholder="ex) 3.6"
                                 inputMode="decimal"
                                 disabled={isSubmitting}
+                                style={{ paddingRight: '40px' }} // kg 텍스트 공간 확보
                             />
                         )}
                     />
@@ -358,7 +393,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                     type="submit"
                     variant="primary"
                     fullWidth
-                    disabled={!isValid || isSubmitting}
+                    disabled={!isValid || isSubmitting || !isDirty}
                 >
                     저장
                 </Button>
@@ -468,7 +503,7 @@ const SaveButtonWrapper = styled.div`
   background: white;
   border-top: 1px solid ${colors.gray[200]};
   z-index: 50;
-  max-width: 390px;
+  max-width: 400px;
   margin: 0 auto;
 `;
 

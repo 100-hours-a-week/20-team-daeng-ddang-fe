@@ -230,9 +230,11 @@ export const useWalkControl = () => {
         }
 
         if (!currentPos) {
-            showToast({
-                message: "위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.",
-                type: "error"
+            openModal({
+                title: "위치 정보 확인",
+                message: "현재 위치를 확인할 수 없습니다.\n 위치 권한이 허용되어 있는지 확인하거나, \n 실외로 이동 후 다시 시도해주세요.",
+                type: "alert",
+                confirmText: "확인"
             });
             return;
         }
@@ -305,7 +307,7 @@ export const useWalkControl = () => {
                 const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
                 if (isAbnormal) {
                     showToast({
-                        message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
+                        message: "비정상적인 이동 속도가 감지되어 이동 거리 및 점유 블록이 저장되지 않습니다.",
                         type: "error"
                     });
                 }
@@ -321,6 +323,7 @@ export const useWalkControl = () => {
                             totalDistanceKm: finalDistance,
                             durationSeconds: elapsedTime,
                             status: "FINISHED",
+                            isValidated: isAbnormal,
                         },
                         {
                             onSuccess: () => {
@@ -448,8 +451,10 @@ export const useWalkControl = () => {
                         endLat: currentPos.lat,
                         endLng: currentPos.lng,
                         totalDistanceKm: finalDistance,
+
                         durationSeconds: elapsedTime,
                         status: "FINISHED",
+                        isValidated: isAbnormal,
                     },
                     {
                         onSuccess: () => {

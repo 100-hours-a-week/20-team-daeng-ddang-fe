@@ -8,5 +8,6 @@ export const useDogInfoQuery = () => {
         queryFn: getDogInfo,
         staleTime: 1000 * 60 * 5,
         retry: 1,
+        refetchOnWindowFocus: false,
     });
 };

@@ -67,7 +67,7 @@ const Overlay = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 390px;
+  max-width: 400px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -115,6 +115,7 @@ const Message = styled.p`
   text-align: center;
   margin-bottom: 24px;
   line-height: 1.5;
+  white-space: pre-wrap;
 `;
 
 const ButtonGroup = styled.div<{ type: "alert" | "confirm" }>`

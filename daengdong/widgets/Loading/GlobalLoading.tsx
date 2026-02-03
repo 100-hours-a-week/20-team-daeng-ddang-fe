@@ -65,7 +65,7 @@ const Overlay = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 390px;
+  max-width: 400px;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.4); 
   backdrop-filter: blur(2px);

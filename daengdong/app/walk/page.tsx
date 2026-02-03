@@ -10,22 +10,14 @@ import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { useEffect } from "react";
 import { WalkSnapshotRenderer } from "@/features/walk/ui/WalkSnapshotRenderer";
 import { useRouter } from "next/navigation";
-
 import { useMissionScheduler } from "@/features/mission/model/useMissionScheduler";
 import { SuddenMissionAlert } from "@/features/mission/ui/SuddenMissionAlert";
 import styled from "@emotion/styled";
 
 export default function WalkPage() {
-  const router = useRouter();
   const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode, activeMissionAlert, path } = useWalkStore();
 
-  // 약관 동의 여부 확인
-  useEffect(() => {
-    const termsAgreed = localStorage.getItem('termsAgreed');
-    if (!termsAgreed) {
-      router.replace('/terms');
-    }
-  }, [router]);
+
 
   useIdleLocation();
   useMissionScheduler();
@@ -40,6 +32,14 @@ export default function WalkPage() {
   );
 
   const { data: user } = useUserQuery();
+  const router = useRouter();
+
+  // 서버 데이터 기반 약관 동의 체크
+  useEffect(() => {
+    if (user && user.isAgreed === false) {
+      router.replace('/terms');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     if (nearbyBlocks && user) {

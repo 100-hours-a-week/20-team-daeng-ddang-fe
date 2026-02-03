@@ -79,7 +79,10 @@ export function UserInfoScreen() {
     }
 
     const isSubmitting = saveMutation.isPending || deleteMutation.isPending;
-    const displayEmail = userInfo?.kakaoEmail || userData?.kakaoEmail;
+
+    // 이메일 표시 우선순위: 1. API 응답 2. User 쿼리 응답 3. 로컬 스토리지 (가입 미완료 시)
+    const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null;
+    const displayEmail = (userInfo?.kakaoEmail || userData?.kakaoEmail || savedEmail) ?? undefined;
 
     return (
         <Container>
