@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { startWalkApi, endWalkApi, postWalkDiary } from "@/entities/walk/api/walk";
 import { StartWalkRequest, EndWalkRequest, WriteWalkDiaryRequest } from "@/entities/walk/model/types";
 import { useToastStore } from "@/shared/stores/useToastStore";
@@ -19,8 +19,12 @@ export const useStartWalk = () => {
 };
 
 export const useEndWalk = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['myPageSummary'] });
+        },
         onError: (error) => {
             console.error("산책 종료 실패", error);
             const { showToast } = useToastStore.getState();
