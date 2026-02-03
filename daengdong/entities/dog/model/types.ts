@@ -13,7 +13,7 @@ export interface DogResponse {
     breedId?: number;
     gender: Gender;
     neutered: boolean;
-    birthDate: string; // "2021-01-01"
+    birthDate: string | null; // "2021-01-01" or null
     birthUnknown: boolean;
     weight: number;
     profileImageUrl: string | null;
@@ -38,7 +38,7 @@ export interface DogFormValues {
     name: string;
     breedId: number;
     breedName: string;
-    birthDate: string;
+    birthDate: string | null;
     isBirthDateUnknown: boolean;
     weight: string;
     gender: Gender;
@@ -49,7 +49,7 @@ export interface DogFormValues {
 export interface CreateDogParams {
     name: string;
     breedId: number;
-    birthDate: string;
+    birthDate: string | null;
     isBirthUnknown: boolean;
     weight: number;
     profileImageUrl?: string;
@@ -60,7 +60,7 @@ export interface CreateDogParams {
 export interface UpdateDogParams {
     name: string;
     breedId: number;
-    birthDate: string;
+    birthDate: string | null;
     isBirthUnknown: boolean;
     gender: Gender;
     isNeutered: boolean;

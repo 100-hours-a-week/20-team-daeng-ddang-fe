@@ -21,7 +21,7 @@ const DogSchema = z.object({
         .regex(/^[가-힣a-zA-Z]+$/, '올바르지 않은 이름형식입니다.'),
     breedId: z.number({ message: '견종을 선택해주세요.' }).min(1, '견종을 선택해주세요.'),
     breedName: z.string().min(1, '견종을 선택해주세요.'),
-    birthDate: z.string(),
+    birthDate: z.string().nullable(),
     isBirthDateUnknown: z.boolean(),
     weight: z
         .string()
@@ -64,7 +64,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             name: '',
             breedId: 0,
             breedName: '',
-            birthDate: '',
+            birthDate: null,
             isBirthDateUnknown: false,
             weight: '',
             gender: undefined,
@@ -89,7 +89,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                 name: '',
                 breedId: 0,
                 breedName: '',
-                birthDate: '',
+                birthDate: null,
                 isBirthDateUnknown: false,
                 weight: '',
                 gender: undefined,
@@ -248,10 +248,10 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                         onChange={(e) => {
                             setValue('isBirthDateUnknown', e.target.checked);
                             if (e.target.checked) {
-                                // 모름 체크 시 오늘 날짜로 설정 (저장용)
-                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
+                                // 모름 체크 시 null로 설정
+                                setValue('birthDate', null, { shouldValidate: true });
                             } else {
-                                setValue('birthDate', dayjs().format('YYYY-MM-DD'));
+                                setValue('birthDate', dayjs().format('YYYY-MM-DD'), { shouldValidate: true });
                             }
                             trigger('birthDate');
                         }}
@@ -271,7 +271,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                                 placeholder="YYYY-MM-DD"
                                 disabled={isBirthDateUnknown || isSubmitting}
                                 isPlaceholder={!field.value}
-                                style={{ pointerEvents: 'none' }} // Let div handle click
+                                style={{ pointerEvents: 'none' }}
                             />
                         </div>
                     )}
@@ -286,7 +286,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                     setValue('birthDate', date);
                     trigger('birthDate');
                 }}
-                initialDate={birthDate}
+                initialDate={birthDate || undefined}
             />
 
             <FieldGroup>
