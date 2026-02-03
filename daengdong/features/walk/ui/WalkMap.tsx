@@ -186,8 +186,8 @@ const RecenterButtonWrapper = styled.div`
 
 // 공통 버튼 (아이콘 필터 제거)
 const RecenterButton = styled.button`
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: white;
   border: 1px solid #ccc;
