@@ -95,7 +95,7 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
 
         const { naver } = window;
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
-        map.setCenter(newCenter);
+        map.morph(newCenter, 15);
     };
 
 
