@@ -122,6 +122,8 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const breedIdValue = useWatch({ control, name: 'breedId' });
     const breedNameValue = useWatch({ control, name: 'breedName' });
 
+    const searchContainerRef = useRef<HTMLDivElement>(null);
+
     // 기존 데이터에서 breedId가 없을 때, breedName으로 매칭해서 자동 설정
     useEffect(() => {
         if (!breedList || !breedNameValue) return;
@@ -132,6 +134,23 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             setValue('breedId', matched.breedId, { shouldValidate: true });
         }
     }, [breedList, breedNameValue, breedIdValue, setValue]);
+
+    // 견종 검색 영역 외 클릭 시 초기화
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+                setIsBreedListOpen(false);
+                if (breedNameValue) {
+                    setBreedSearchKeyword(breedNameValue);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [breedNameValue]);
 
     // 이미지 변경
     const handleImageChange = (file: File | null) => {
@@ -213,7 +232,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
 
             <FieldGroup>
                 <Label>견종 <Required>*</Required></Label>
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative' }} ref={searchContainerRef}>
                     <Input
                         value={breedSearchKeyword}
                         onChange={(e) => {
