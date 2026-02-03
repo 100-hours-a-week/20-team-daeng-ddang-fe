@@ -83,8 +83,12 @@ http.interceptors.response.use(
         return response;
     },
     async (error: AxiosError) => {
-        // CORS 에러 등 상세 로깅
-        if (error.code) {
+        const url = error.config?.url || '';
+
+        const isMissionAnalysis = url.includes('/missions/analysis');
+
+        // CORS 에러 등 상세 로깅 (미션 분석 제외)
+        if (error.code && !isMissionAnalysis) {
             console.error('❌ API Error Info:', {
                 message: error.message,
                 code: error.code,

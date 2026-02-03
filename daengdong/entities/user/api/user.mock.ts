@@ -106,4 +106,9 @@ export const userRepositoryMock: UserRepository = {
             return mockRegions.filter(r => !r.parentRegionId);
         }
     },
+
+    async updateTermsAgreement(isAgreed: boolean): Promise<void> {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log(`[Mock] Terms agreement updated: ${isAgreed}`);
+    },
 };

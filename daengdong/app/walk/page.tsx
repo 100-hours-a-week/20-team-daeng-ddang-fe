@@ -57,13 +57,9 @@ export default function WalkPage() {
   return (
     <div
       style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        position: "relative",
         width: "100%",
-        height: "100dvh",
+        height: "100%",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -93,7 +89,7 @@ export default function WalkPage() {
 }
 
 const BottomLayout = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: calc(60px + env(safe-area-inset-bottom));
   left: 0;
   right: 0;

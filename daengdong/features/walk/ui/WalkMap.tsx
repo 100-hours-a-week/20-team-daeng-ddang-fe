@@ -12,7 +12,9 @@ import { CurrentLocationMarker } from "./CurrentLocationMarker";
 import Image from "next/image";
 import TargetIcon from "@/shared/assets/icons/target.svg";
 import { BlockData, LatLng } from "@/entities/walk/model/types";
+import { OnboardingOverlay } from "./OnboardingOverlay";
 import { NaverMap } from "@/types/naver-maps";
+import HelpIcon from "@/shared/assets/icons/help.svg";
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
@@ -85,6 +87,26 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
 
 
 
+    // 온보딩 표시 여부
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    // 최초 방문 체크
+    useEffect(() => {
+        const hasVisited = localStorage.getItem('hasVisitedWalk');
+        if (!hasVisited) {
+            setShowOnboarding(true);
+            localStorage.setItem('hasVisitedWalk', 'true');
+        }
+    }, []);
+
+    const openOnboarding = () => {
+        setShowOnboarding(true);
+    };
+
+    const closeOnboarding = () => {
+        setShowOnboarding(false);
+    };
+
     return (
         <>
             <Script
@@ -97,9 +119,13 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
             </MapContainer>
 
             <RecenterButtonWrapper>
-                <RecenterButton onClick={recenterToCurrentLocation}>
+                <HelpButton onClick={openOnboarding}>
+                    <Image src={HelpIcon} alt="도움말" width={24} height={24} />
+                </HelpButton>
+
+                <PrimaryRecenterButton onClick={recenterToCurrentLocation}>
                     <Image src={TargetIcon} alt="현재 위치" width={24} height={24} />
-                </RecenterButton>
+                </PrimaryRecenterButton>
             </RecenterButtonWrapper>
 
             <CurrentLocationMarker map={map} position={currentPos} />
@@ -111,6 +137,8 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
                     <PathOverlay map={map} path={path} />
                 </>
             )}
+
+            {showOnboarding && <OnboardingOverlay onClose={closeOnboarding} />}
         </>
     );
 };
@@ -129,31 +157,49 @@ const MapElement = styled.div`
 const RecenterButtonWrapper = styled.div`
     position: fixed;
     top: 70px;
-    right: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 390px;
     z-index: 1000;
+    pointer-events: none; /* Pass clicks through wrapper */
+
     display: flex;
     flex-direction: column;
+    align-items: flex-end; /* Align buttons to right */
+    padding-right: 10px;
     gap: 10px;
 `;
 
+// 공통 버튼 (아이콘 필터 제거)
 const RecenterButton = styled.button`
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: white;
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  cursor: pointer;
+  pointer-events: auto;
 
-    img {
-        filter: brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(1234%) hue-rotate(340deg) brightness(98%) contrast(95%);
-    }
-
-    &:active {
-        background-color: #f0f0f0;
-    }
+  &:active {
+    background-color: #f0f0f0;
+  }
 `;
 
+const PrimaryRecenterButton = styled(RecenterButton)`
+  img {
+    filter: brightness(0) saturate(100%)
+      invert(45%) sepia(98%) saturate(1234%)
+      hue-rotate(340deg) brightness(98%) contrast(95%);
+  }
+`;
+
+const HelpButton = styled(RecenterButton)`
+  img {
+    filter: grayscale(100%) brightness(70%);
+  }
+`;

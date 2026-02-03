@@ -104,17 +104,32 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
             recorderRef.current = recorder;
 
             recorder.ondataavailable = (e) => {
-                if (e.data.size > 0) chunksRef.current.push(e.data);
+                if (e.data && e.data.size > 0) {
+                    console.log('[MissionCamera] Data chunk received:', e.data.size, 'bytes');
+                    chunksRef.current.push(e.data);
+                }
             };
 
             recorder.onstop = () => {
+                console.log('[MissionCamera] Recording stopped, chunks:', chunksRef.current.length);
                 const blob = new Blob(chunksRef.current, { type: mimeType });
+                console.log('[MissionCamera] Blob created, size:', blob.size, 'type:', blob.type);
+
+                // iOS에서 blob이 비어있는 경우 에러 처리
+                if (blob.size === 0) {
+                    console.error('[MissionCamera] Blob is empty!');
+                    showToast({ message: "녹화된 영상이 비어있습니다. 다시 시도해주세요.", type: "error" });
+                    setFlowState("IDLE");
+                    return;
+                }
+
                 const url = URL.createObjectURL(blob);
                 setPreviewURL(url);
                 handleUpload(blob);
             };
 
-            recorder.start(5000);
+            // iOS Safari: 작은 timeslice로 자주 데이터 수집 (100ms)
+            recorder.start(100);
             setRecordingTimeLeft(5);
 
             // 1초마다 카운트다운 - 각 초를 확실히 표시
@@ -127,10 +142,25 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
                 }
             }, 1000);
 
+            // iOS Safari: 주기적으로 데이터 요청 (백업)
+            const requestDataInterval = setInterval(() => {
+                if (recorderRef.current?.state === 'recording') {
+                    recorderRef.current.requestData();
+                }
+            }, 1000);
+
             // 5초 후 자동 종료
             recordingTimerRef.current = setTimeout(() => {
                 clearInterval(countdownInterval);
-                stopRecording();
+                clearInterval(requestDataInterval);
+                // 최종 데이터 요청
+                if (recorderRef.current && recorderRef.current.state === 'recording') {
+                    recorderRef.current.requestData();
+                }
+                // 약간의 딜레이 후 stop (데이터 수집 완료 대기)
+                setTimeout(() => {
+                    stopRecording();
+                }, 100);
             }, 5000);
         } catch (e) {
             console.error(e);

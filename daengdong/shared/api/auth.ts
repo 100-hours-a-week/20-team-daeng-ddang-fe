@@ -5,6 +5,7 @@ export interface LoginResponse {
     isNewUser: boolean;
     user: {
         userId: number;
+        isAgreed: boolean;
     };
 }
 

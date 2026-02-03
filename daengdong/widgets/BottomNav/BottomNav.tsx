@@ -75,8 +75,11 @@ export function BottomNav({ currentPath, onNavigate }: BottomNavProps) {
 const NavContainer = styled.nav`
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  right: auto;
+  width: 100%;
+  max-width: 390px;
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
@@ -89,7 +92,6 @@ const NavContainer = styled.nav`
 const NavList = styled.ul`
   display: flex;
   width: 100%;
-  max-width: 600px; /* Adjust based on mobile constraint */
   height: 100%;
   padding: 0;
   margin: 0;

@@ -45,22 +45,16 @@ export const walkRepositoryMock: WalkRepository = {
     },
     judgeWalkMissions: async (walkId) => {
         console.log("[MOCK] judgeWalkMissions", { walkId });
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         return {
-            analysisId: "mock-analysis-id",
+            analysisId: "mock-analysis-123",
             walkId,
-            analyzedAt: "2026-01-09T17:32:14+09:00",
+            analyzedAt: new Date().toISOString(),
             missions: [
-                {
-                    missionId: 1,
-                    success: true,
-                },
-                {
-                    missionId: 2,
-                    success: false,
-                }
-            ]
+                { missionId: 1, missionTitle: "돌아 수행 영상", success: true },
+                { missionId: 2, missionTitle: "앉아 수행 영상", success: false },
+            ],
         };
     },
     startWalk: async (req) => {

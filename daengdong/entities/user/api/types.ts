@@ -6,4 +6,5 @@ export interface UserRepository {
     updateUser(params: UpdateUserParams): Promise<UserResponse>;
     deleteUser(): Promise<void>;
     getRegions(parentId?: number): Promise<Region[]>;
+    updateTermsAgreement(isAgreed: boolean): Promise<void>;
 }

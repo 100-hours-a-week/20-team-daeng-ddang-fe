@@ -29,10 +29,10 @@ const WalkMissionContent = () => {
 
     const { mutateAsync: uploadMission } = useUploadMissionVideo();
 
-    // 촬영 중일 때 페이지 이탈 방지
+    // 페이지 이탈 방지
     useConfirmPageLeave(
-        !isIdle,
-        "돌발 미션 촬영이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+        true,
+        "페이지를 새로고침하면 촬영이 취소됩니다."
     );
 
     useEffect(() => {

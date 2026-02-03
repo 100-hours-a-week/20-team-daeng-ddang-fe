@@ -7,7 +7,7 @@ import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 import { BLOCK_SIZE_DEGREES } from "@/entities/walk/model/constants";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 
-const SNAPSHOT_SIZE = 1024;
+const SNAPSHOT_SIZE = 600;
 const SNAPSHOT_PADDING = 40;
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.9780 };
 
@@ -74,12 +74,30 @@ const getZoomLevel = (bounds: ReturnType<typeof getBounds>) => {
     return Math.max(3, Math.min(19, zoom));
 };
 
+// Naver Maps 좌표 변환 
 const latLngToPixel = (lat: number, lng: number, center: LatLng, zoom: number) => {
-    const worldSize = 256 * Math.pow(2, zoom);
-    const point = projectLatLng(lat, lng);
-    const centerPoint = projectLatLng(center.lat, center.lng);
-    const x = (point.x - centerPoint.x) * worldSize + SNAPSHOT_SIZE / 2;
-    const y = (point.y - centerPoint.y) * worldSize + SNAPSHOT_SIZE / 2;
+    // Naver Maps Static API 공식 스케일
+    // Level 20: 1픽셀 = 0.0745m 
+    // Level n: 1픽셀 = 0.0745 * 2^(20-n) 미터
+    const METERS_PER_PIXEL_AT_LEVEL_20 = 0.0745;
+    const metersPerPixel = METERS_PER_PIXEL_AT_LEVEL_20 * Math.pow(2, 20 - zoom);
+
+    // 위도/경도를 미터로 변환
+    // 위도 1도 ≈ 111,000m (지구 둘레 / 360)
+    // 경도 1도 ≈ 111,000m * cos(latitude)
+    const METERS_PER_DEGREE_LAT = 111000;
+    const metersPerDegreeLng = METERS_PER_DEGREE_LAT * Math.cos((center.lat * Math.PI) / 180);
+
+    // 중심점으로부터의 거리 (미터)
+    const deltaLat = lat - center.lat;
+    const deltaLng = lng - center.lng;
+    const metersY = deltaLat * METERS_PER_DEGREE_LAT;
+    const metersX = deltaLng * metersPerDegreeLng;
+
+    // 미터를 픽셀로 변환
+    const x = (metersX / metersPerPixel) + SNAPSHOT_SIZE / 2;
+    const y = -(metersY / metersPerPixel) + SNAPSHOT_SIZE / 2;
+
     return { x, y };
 };
 
@@ -176,12 +194,13 @@ export const WalkSnapshotRenderer = ({
                 console.error("Failed to draw map image", e);
             }
         } else if (imageStatus === "error") {
-            ctx.fillStyle = "#f5f5f5";
+            // 에러 시 회색 배경
+            ctx.fillStyle = "#f0f0f0";
             ctx.fillRect(0, 0, SNAPSHOT_SIZE, SNAPSHOT_SIZE);
-            ctx.fillStyle = "#ccc";
+            ctx.fillStyle = "#999";
             ctx.font = "24px sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("Map Image Unavailable", SNAPSHOT_SIZE / 2, SNAPSHOT_SIZE / 2);
+            ctx.fillText("지도 이미지를 불러올 수 없습니다", SNAPSHOT_SIZE / 2, SNAPSHOT_SIZE / 2);
         }
 
         const drawBlocks = (targetBlocks: BlockData[], fillStyle: string, strokeStyle: string) => {
@@ -240,13 +259,21 @@ export const WalkSnapshotRenderer = ({
     useEffect(() => {
         if (!staticMapUrl) return;
 
+        // 타임아웃 타이머
+        const timeoutId = setTimeout(() => {
+            console.warn("[WalkSnapshotRenderer] Image load timed out, falling back to error state");
+            setImageStatus("error");
+        }, 8000); // 8초 타임아웃
+
         setTimeout(() => {
             setIsReady(false);
             setImageStatus("loading");
         }, 0);
 
         const img = new Image();
+        img.crossOrigin = "anonymous"; // CORS 설정 추가
         img.onload = () => {
+            clearTimeout(timeoutId);
             // 이미지가 현재 URL과 일치하는지 확인
             if (img.src.includes(staticMapUrl)) {
                 imageRef.current = img;
@@ -254,11 +281,13 @@ export const WalkSnapshotRenderer = ({
             }
         };
         img.onerror = () => {
+            clearTimeout(timeoutId);
             setImageStatus("error");
         };
         img.src = staticMapUrl;
 
         return () => {
+            clearTimeout(timeoutId);
             imageRef.current = null;
         };
     }, [staticMapUrl]);

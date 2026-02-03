@@ -191,7 +191,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                     name="name"
                     control={control}
                     render={({ field }) => (
-                        <Input {...field} placeholder="ex) 댕동이" disabled={isSubmitting} />
+                        <Input {...field} placeholder="ex) 댕동이" maxLength={15} disabled={isSubmitting} />
                     )}
                 />
                 {errors.name && <ErrorText>{errors.name.message}</ErrorText>}

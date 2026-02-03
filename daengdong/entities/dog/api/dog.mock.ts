@@ -36,8 +36,9 @@ export const dogRepositoryMock: DogRepository = {
             breed: "진돗개",
             breedId: params.breedId,
             gender: params.gender || "MALE",
-            neutered: params.neutered || false,
+            neutered: params.isNeutered || false,
             birthDate: params.birthDate,
+            birthUnknown: params.isBirthUnknown || false,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
         };
@@ -65,8 +66,9 @@ export const dogRepositoryMock: DogRepository = {
             breed: "진돗개",
             breedId: params.breedId,
             gender: params.gender,
-            neutered: params.neutered,
+            neutered: params.isNeutered,
             birthDate: params.birthDate,
+            birthUnknown: params.isBirthUnknown,
             weight: params.weight,
             profileImageUrl: params.profileImageUrl ?? null,
         };

@@ -34,9 +34,10 @@ const ExpressionContent = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // 페이지 이탈 방지 
+  // 촬영 전/중/후 모두 새로고침 방지
   useConfirmPageLeave(
-    !isIdle || isAnalyzing,
-    "촬영 또는 분석이 진행 중입니다. 페이지를 나가면 데이터가 손실될 수 있습니다."
+    true,
+    "페이지를 새로고침하면 진행 중인 작업이 취소됩니다."
   );
 
   const walkId = useMemo(() => {
@@ -83,12 +84,14 @@ const ExpressionContent = () => {
         throw new Error("산책 정보가 없습니다.");
       }
 
+      const mimeType = videoBlob.type || "video/mp4";
+
       const presignedData = await fileApi.getPresignedUrl(
         "VIDEO",
-        "video/mp4",
+        mimeType,
         "EXPRESSION"
       );
-      await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, "video/mp4");
+      await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, mimeType);
       const videoUrl = presignedData.presignedUrl.split("?")[0];
 
       // 테스트용 영상  
@@ -99,7 +102,7 @@ const ExpressionContent = () => {
       router.replace("/walk/expression/result");
     } catch (e) {
       console.error(e);
-      showToast({ message: "분석에 실패했습니다. 잠시 후 다시 시도해주세요.", type: "error" });
+      showToast({ message: "분석 실패. 강아지 얼굴을 찾을 수 없습니다.", type: "error" });
       handleCancel();
     } finally {
       setIsAnalyzing(false);
