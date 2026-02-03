@@ -47,13 +47,15 @@ export function DogInfoScreen() {
     const saveMutation = useSaveDogMutation();
 
     const handleSave = async (data: DogFormValues) => {
-        let profileImageUrl = dogInfo?.imageUrl ?? undefined;
+        let profileImageUrl: string | null | undefined = dogInfo?.imageUrl ?? undefined;
 
         try {
             if (data.imageFile) {
                 const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", data.imageFile.type, "PROFILE");
                 await fileApi.uploadFile(presignedUrl, data.imageFile, data.imageFile.type);
                 profileImageUrl = objectKey;
+            } else if (data.isImageDeleted) {
+                profileImageUrl = null;
             }
 
             const isUpdate = !!dogInfo?.id;
