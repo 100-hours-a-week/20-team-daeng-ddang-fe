@@ -83,6 +83,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // initialData 변경 시 폼 업데이트 
+    // initialData 변경 시 폼 업데이트 
     useEffect(() => {
         if (initialData) {
             reset({
@@ -105,12 +106,14 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             // 데이터 로드 후 유효성 검사 실행 (저장 버튼 활성화 위해)
             trigger();
         }
+    }, [initialData, reset, trigger]);
+
+    useEffect(() => {
         if (initialImageUrl) {
+            // eslint-disable-next-line
             setImagePreview(initialImageUrl);
-        } else if (!initialData) {
-            setImagePreview(null);
         }
-    }, [initialData, initialImageUrl, reset, trigger]);
+    }, [initialImageUrl]);
 
     const birthDate = useWatch({ control, name: 'birthDate' });
     const isBirthDateUnknown = useWatch({ control, name: 'isBirthDateUnknown' });
