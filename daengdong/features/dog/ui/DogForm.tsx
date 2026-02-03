@@ -468,7 +468,7 @@ const SaveButtonWrapper = styled.div`
   background: white;
   border-top: 1px solid ${colors.gray[200]};
   z-index: 50;
-  max-width: 600px;
+  max-width: 390px;
   margin: 0 auto;
 `;
 
