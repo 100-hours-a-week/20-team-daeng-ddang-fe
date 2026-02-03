@@ -21,6 +21,7 @@ export const userRepositoryReal: UserRepository = {
                 kakaoEmail: data.kakaoEmail,
                 dogId: data.dogId,
                 profileImageUrl: data.profileImageUrl ?? null,
+                isAgreed: data.isAgreed,
             };
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
