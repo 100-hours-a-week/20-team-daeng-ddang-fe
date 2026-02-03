@@ -18,6 +18,9 @@ export const KakaoCallbackHandler = () => {
         mutationFn: kakaoLogin,
         onSuccess: (data) => {
             localStorage.setItem('accessToken', data.accessToken);
+            if (data.user.kakaoEmail) {
+                localStorage.setItem('userEmail', data.user.kakaoEmail);
+            }
             document.cookie = 'isLoggedIn=true; path=/; max-age=31536000'; // Middleware check
             setLoggedIn(true);
 

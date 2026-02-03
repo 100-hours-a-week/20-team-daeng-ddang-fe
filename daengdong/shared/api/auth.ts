@@ -6,6 +6,7 @@ export interface LoginResponse {
     user: {
         userId: number;
         isAgreed: boolean;
+        kakaoEmail?: string;
     };
 }
 
