@@ -31,6 +31,7 @@ const DogSchema = z.object({
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
     neutered: z.boolean({ message: '중성화 여부를 선택해주세요.' }),
     imageFile: z.any().optional(),
+    isImageDeleted: z.boolean().optional(),
 }).refine((data) => data.isBirthDateUnknown || (data.birthDate && data.birthDate.length > 0), {
     message: "생년월일을 선택해주세요.",
     path: ["birthDate"],
@@ -70,6 +71,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
             gender: undefined,
             neutered: undefined,
             imageFile: null,
+            isImageDeleted: false,
             ...initialData,
         },
         mode: 'onChange',
@@ -83,7 +85,6 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // initialData 변경 시 폼 업데이트 
-    // initialData 변경 시 폼 업데이트 
     useEffect(() => {
         if (initialData) {
             reset({
@@ -96,6 +97,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                 gender: undefined,
                 neutered: undefined,
                 imageFile: null,
+                isImageDeleted: false,
                 ...initialData,
             });
 
@@ -135,12 +137,14 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const handleImageChange = (file: File | null) => {
         setValue('imageFile', file, { shouldDirty: true });
         if (file) {
+            setValue('isImageDeleted', false, { shouldDirty: true }); // 새 파일이 있으면 삭제 아님
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         } else {
+            setValue('isImageDeleted', true, { shouldDirty: true }); // 파일이 없으면(삭제) 삭제됨 표시
             setImagePreview(null);
         }
     };

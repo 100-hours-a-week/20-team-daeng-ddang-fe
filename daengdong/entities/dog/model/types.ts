@@ -44,6 +44,7 @@ export interface DogFormValues {
     gender: Gender;
     neutered: boolean;
     imageFile?: File | null;
+    isImageDeleted?: boolean;
 }
 
 export interface CreateDogParams {
@@ -52,7 +53,7 @@ export interface CreateDogParams {
     birthDate: string | null;
     isBirthUnknown: boolean;
     weight: number;
-    profileImageUrl?: string;
+    profileImageUrl?: string | null;
     gender?: Gender;
     isNeutered?: boolean;
 }
@@ -65,5 +66,5 @@ export interface UpdateDogParams {
     gender: Gender;
     isNeutered: boolean;
     weight: number;
-    profileImageUrl?: string;
+    profileImageUrl?: string | null;
 }
