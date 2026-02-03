@@ -41,4 +41,16 @@ const InputBase = styled.input`
   &::placeholder {
     color: ${colors.gray[500]};
   }
+
+  /* Chrome, Safari, Edge, Opera - 스피너 숨김 */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox - 스피너 숨김 */
+  &[type=number] {
+    -moz-appearance: textfield;
+  }
 `;

@@ -302,6 +302,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                                 placeholder="ex) 3.6"
                                 inputMode="decimal"
                                 disabled={isSubmitting}
+                                style={{ paddingRight: '40px' }} // kg 텍스트 공간 확보
                             />
                         )}
                     />
