@@ -20,7 +20,7 @@ Input.displayName = 'Input';
 
 const InputBase = styled.input`
   width: 100%;
-  background-color: ${colors.gray[50]};
+  background-color: white;
   border: 1px solid ${colors.gray[200]};
   border-radius: ${radius.md};
   padding: ${spacing[3]}px;
