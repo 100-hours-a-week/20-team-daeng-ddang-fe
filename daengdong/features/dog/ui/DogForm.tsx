@@ -26,6 +26,7 @@ const DogSchema = z.object({
     weight: z
         .string()
         .min(1, '몸무게를 입력해주세요.')
+        .refine((val) => parseFloat(val) > 0, '몸무게는 0kg보다 커야 합니다.')
         .refine((val) => parseFloat(val) <= 200, '몸무게는 200kg 이하로 입력해주세요.')
         .regex(/^\d+(\.\d)?$/, '소수점 첫째 자리까지만 입력 가능합니다.'),
     gender: z.enum(['MALE', 'FEMALE'], { message: '성별을 선택해주세요.' }),
