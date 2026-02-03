@@ -48,7 +48,7 @@ const MobileRoot = styled.div`
 `;
 
 const MobileContainer = styled.div`
-    width: 390px;
+    width: 400px;
     min-height: 100vh;
     background-color: #ffffff;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);

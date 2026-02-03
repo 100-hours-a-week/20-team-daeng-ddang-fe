@@ -173,7 +173,7 @@ const RecenterButtonWrapper = styled.div`
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 390px;
+    max-width: 400px;
     z-index: 1000;
     pointer-events: none; /* Pass clicks through wrapper */
 
