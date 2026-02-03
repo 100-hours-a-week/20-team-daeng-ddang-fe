@@ -183,8 +183,14 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
         'FEMALE': '암컷'
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
+    };
+
     return (
-        <FormWrapper onSubmit={handleSubmit(onSubmit)}>
+        <FormWrapper onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
             <Section>
                 <ProfileImageUploader
                     imagePreview={imagePreview}
