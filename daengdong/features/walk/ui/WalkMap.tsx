@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 
 import Script from "next/script";
 import { useState, useEffect } from "react";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import { PathOverlay } from "./PathOverlay";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
@@ -77,8 +78,20 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
 
 
 
+    const { openModal } = useModalStore();
+
     const recenterToCurrentLocation = () => {
-        if (!currentPos || !map) return;
+        if (!currentPos) {
+            openModal({
+                title: "위치 정보 확인",
+                message: "현재 위치를 확인할 수 없습니다.\n 위치 권한이 허용되어 있는지 확인하거나, \n 실외로 이동 후 다시 시도해주세요.",
+                type: "alert",
+                confirmText: "확인"
+            });
+            return;
+        }
+
+        if (!map) return;
 
         const { naver } = window;
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);

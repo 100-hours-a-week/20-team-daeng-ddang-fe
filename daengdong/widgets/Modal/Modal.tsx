@@ -115,6 +115,7 @@ const Message = styled.p`
   text-align: center;
   margin-bottom: 24px;
   line-height: 1.5;
+  white-space: pre-wrap;
 `;
 
 const ButtonGroup = styled.div<{ type: "alert" | "confirm" }>`

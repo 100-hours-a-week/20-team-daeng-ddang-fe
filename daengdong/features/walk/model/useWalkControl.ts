@@ -230,9 +230,11 @@ export const useWalkControl = () => {
         }
 
         if (!currentPos) {
-            showToast({
-                message: "위치 정보를 불러오는 중입니다. 잠시만 기다려주세요.",
-                type: "error"
+            openModal({
+                title: "위치 정보 확인",
+                message: "현재 위치를 확인할 수 없습니다.\n 위치 권한이 허용되어 있는지 확인하거나, \n 실외로 이동 후 다시 시도해주세요.",
+                type: "alert",
+                confirmText: "확인"
             });
             return;
         }
