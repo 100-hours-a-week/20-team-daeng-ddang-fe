@@ -21,7 +21,6 @@ export const useSaveDogMutation = () => {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['dogInfo'] });
             queryClient.invalidateQueries({ queryKey: ['myPageSummary'] });
         },
     });
