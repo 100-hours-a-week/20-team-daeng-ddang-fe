@@ -186,8 +186,8 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     const [isDateOpen, setIsDateOpen] = useState(false);
 
     const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', Number(id), { shouldValidate: true });
-        setValue('breedName', name, { shouldValidate: true });
+        setValue('breedId', Number(id), { shouldValidate: true, shouldDirty: true });
+        setValue('breedName', name, { shouldValidate: true, shouldDirty: true });
         setBreedSearchKeyword(name);
         setIsBreedListOpen(false);
     };
@@ -278,12 +278,12 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                         id="unknown-birth"
                         checked={isBirthDateUnknown}
                         onChange={(e) => {
-                            setValue('isBirthDateUnknown', e.target.checked);
+                            setValue('isBirthDateUnknown', e.target.checked, { shouldDirty: true });
                             if (e.target.checked) {
                                 // 모름 체크 시 null로 설정
-                                setValue('birthDate', null, { shouldValidate: true });
+                                setValue('birthDate', null, { shouldValidate: true, shouldDirty: true });
                             } else {
-                                setValue('birthDate', dayjs().format('YYYY-MM-DD'), { shouldValidate: true });
+                                setValue('birthDate', dayjs().format('YYYY-MM-DD'), { shouldValidate: true, shouldDirty: true });
                             }
                             trigger('birthDate');
                         }}
@@ -315,7 +315,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                 isOpen={isDateOpen}
                 onClose={() => setIsDateOpen(false)}
                 onConfirm={(date) => {
-                    setValue('birthDate', date);
+                    setValue('birthDate', date, { shouldDirty: true });
                     trigger('birthDate');
                 }}
                 initialDate={birthDate || undefined}
