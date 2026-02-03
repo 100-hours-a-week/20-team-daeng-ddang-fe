@@ -58,7 +58,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
         setValue,
         trigger,
         reset,
-        formState: { errors, isValid },
+        formState: { errors, isValid, isDirty },
     } = useForm<DogFormValues>({
         resolver: zodResolver(DogSchema),
         defaultValues: {
@@ -367,7 +367,7 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                     type="submit"
                     variant="primary"
                     fullWidth
-                    disabled={!isValid || isSubmitting}
+                    disabled={!isValid || isSubmitting || !isDirty}
                 >
                     저장
                 </Button>

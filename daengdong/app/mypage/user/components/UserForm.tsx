@@ -32,7 +32,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
         control,
         handleSubmit,
         setValue,
-        formState: { errors, isValid },
+        formState: { errors, isValid, isDirty },
     } = useForm<UserFormValues & { regionId: number }>({
         resolver: zodResolver(UserSchema),
         defaultValues: { ...initialData, regionId: initialRegionId || 0 },
@@ -116,7 +116,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
                 <Button
                     type="submit"
                     variant="primary"
-                    disabled={!isValid || isSubmitting}
+                    disabled={!isValid || isSubmitting || !isDirty}
                     fullWidth
                 >
                     {isSubmitting ? '저장 중...' : '저장하기'}
