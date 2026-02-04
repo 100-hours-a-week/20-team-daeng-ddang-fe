@@ -31,7 +31,7 @@ const ToastContainer = styled(motion.div)`
   transform: translateX(-50%);
   z-index: 2000;
   width: auto;
-  max-width: 350px;
+  max-width: 390px;
 `;
 
 const ToastContent = styled.div<{ type: "success" | "error" | "info" }>`
