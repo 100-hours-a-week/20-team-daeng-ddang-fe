@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { NaverMap, NaverPolyline } from "@/types/naver-maps";
 import { LatLng } from "@/entities/walk/model/types";
 import { colors } from "@/shared/styles/tokens";
@@ -10,7 +10,7 @@ interface PathOverlayProps {
     path: LatLng[];
 }
 
-export const PathOverlay = ({ map, path }: PathOverlayProps) => {
+export const PathOverlay = memo(({ map, path }: PathOverlayProps) => {
     const polylineRef = useRef<NaverPolyline | null>(null);
 
     useEffect(() => {
@@ -47,4 +47,6 @@ export const PathOverlay = ({ map, path }: PathOverlayProps) => {
     }, [map, path]);
 
     return null;
-};
+});
+
+PathOverlay.displayName = "PathOverlay";
