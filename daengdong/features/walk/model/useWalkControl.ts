@@ -31,10 +31,9 @@ export const useWalkControl = () => {
         setWalkResult,
         setMyBlocks,
         setOthersBlocks,
-        addMyBlock,
         removeMyBlock,
-        removeOthersBlock,
-        updateOthersBlock
+        updateOthersBlock,
+        occupyBlock
     } = useWalkStore();
 
     const { openModal } = useModalStore();
@@ -70,13 +69,11 @@ export const useWalkControl = () => {
         switch (message.type) {
             case "BLOCK_OCCUPIED":
                 if (message.data.dogId === myDogId) {
-                    addMyBlock({
+                    occupyBlock({
                         blockId: message.data.blockId,
                         dogId: message.data.dogId,
                         occupiedAt: message.data.occupiedAt
                     });
-                    // 남의 땅이었다면 제거 
-                    removeOthersBlock(message.data.blockId);
 
                     showToast({ message: "새로운 영역을 획득했어요! 🚩", type: "success" });
                 } else {
@@ -111,7 +108,18 @@ export const useWalkControl = () => {
                     }
                 });
 
-                setMyBlocks(mine);
+                // 내 블록 병합 
+                // 서버가 가진 건 무조건 추가하되, 이미 있는 건 유지 
+                const { myBlocks: currentMyBlocks } = useWalkStore.getState();
+                const mergedMyBlocks = [...currentMyBlocks];
+
+                mine.forEach(serverBlock => {
+                    if (!mergedMyBlocks.some(local => local.blockId === serverBlock.blockId)) {
+                        mergedMyBlocks.push(serverBlock);
+                    }
+                });
+
+                setMyBlocks(mergedMyBlocks);
                 setOthersBlocks(others);
                 break;
             case "BLOCK_TAKEN":
@@ -119,12 +127,11 @@ export const useWalkControl = () => {
 
                 // 1. 내가 뺏은 경우
                 if (newDogId === myDogId) {
-                    addMyBlock({
+                    occupyBlock({
                         blockId,
                         dogId: newDogId,
                         occupiedAt: takenAt
                     });
-                    removeOthersBlock(blockId);
 
                     showToast({ message: "다른 강아지의 블록을 점령했어요! ⚔️", type: "success" });
                 }
@@ -150,7 +157,7 @@ export const useWalkControl = () => {
                 }
                 break;
         }
-    }, [addMyBlock, removeOthersBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock, showToast]);
+    }, [occupyBlock, updateOthersBlock, setMyBlocks, setOthersBlocks, removeMyBlock, showToast]);
 
 
 

@@ -14,6 +14,11 @@ const nanum = localFont({
   display: "swap",
 });
 
+export const metadata = {
+  title: "댕동여지도",
+  description: "우리 강아지 산책 지도 서비스",
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko" className={nanum.variable}>

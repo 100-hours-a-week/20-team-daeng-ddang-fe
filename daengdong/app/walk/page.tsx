@@ -13,9 +13,10 @@ import { useRouter } from "next/navigation";
 import { useMissionScheduler } from "@/features/mission/model/useMissionScheduler";
 import { SuddenMissionAlert } from "@/features/mission/ui/SuddenMissionAlert";
 import styled from "@emotion/styled";
+import { useBlockSynchronization } from "@/features/walk/model/useBlockSynchronization";
 
 export default function WalkPage() {
-  const { currentPos, myBlocks, othersBlocks, setMyBlocks, setOthersBlocks, walkMode, activeMissionAlert, path } = useWalkStore();
+  const { currentPos, myBlocks, othersBlocks, activeMissionAlert, path } = useWalkStore();
 
 
 
@@ -41,18 +42,7 @@ export default function WalkPage() {
     }
   }, [user, router]);
 
-  useEffect(() => {
-    if (nearbyBlocks && user) {
-      // 이제 useUserQuery가 실제 dogId를 가져오므로, 정확한 dogId 비교 사용
-      const myDogId = user.dogId;
-
-      const myBlocksData = nearbyBlocks.filter(b => b.dogId === myDogId);
-      const othersBlocksData = nearbyBlocks.filter(b => b.dogId !== myDogId);
-
-      setMyBlocks(myBlocksData);
-      setOthersBlocks(othersBlocksData);
-    }
-  }, [nearbyBlocks, user, setMyBlocks, setOthersBlocks, walkMode]);
+  useBlockSynchronization(nearbyBlocks, user || undefined);
 
   return (
     <div

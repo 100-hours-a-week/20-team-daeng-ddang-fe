@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 
 
 import Script from "next/script";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { PathOverlay } from "./PathOverlay";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
@@ -24,7 +24,7 @@ interface WalkMapProps {
     path?: LatLng[];
 }
 
-export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [] }: WalkMapProps) => {
+export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], path = [] }: WalkMapProps) => {
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<NaverMap | null>(null);
 
@@ -154,7 +154,9 @@ export const WalkMap = ({ currentPos, myBlocks = [], othersBlocks = [], path = [
             {showOnboarding && <OnboardingOverlay onClose={closeOnboarding} />}
         </>
     );
-};
+});
+
+WalkMap.displayName = "WalkMap";
 
 const MapContainer = styled.div`
     width: 100%;

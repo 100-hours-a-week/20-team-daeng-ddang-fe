@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { BlockData } from "@/entities/walk/model/types";
 import { calculateBlockCoordinates } from "@/entities/walk/lib/blockUtils";
 
@@ -13,7 +13,7 @@ interface BlockPolygonProps {
     blockSize?: number;
 }
 
-export const BlockPolygon = ({ map, block, isMine = false, blockSize = BLOCK_SIZE_DEGREES }: BlockPolygonProps) => {
+export const BlockPolygon = memo(({ map, block, isMine = false, blockSize = BLOCK_SIZE_DEGREES }: BlockPolygonProps) => {
     const polygonRef = useRef<NaverPolygon | null>(null);
 
     useEffect(() => {
@@ -54,7 +54,9 @@ export const BlockPolygon = ({ map, block, isMine = false, blockSize = BLOCK_SIZ
                 polygonRef.current = null;
             }
         };
-    }, [map, block, isMine, blockSize]);
+    }, [map, block.blockId, isMine, blockSize]);
 
     return null;
-};
+});
+
+BlockPolygon.displayName = "BlockPolygon";
