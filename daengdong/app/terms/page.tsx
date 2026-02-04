@@ -176,7 +176,7 @@ const Title = styled.h1`
 
 const AgreementSection = styled.div`
     width: 100%;
-    max-width: 400px;
+    max-width: 430px;
     background-color: white;
     border-radius: 12px;
     padding: 24px;
@@ -234,7 +234,7 @@ const Optional = styled.span`
 
 const SubmitButton = styled.button<{ disabled: boolean }>`
     width: 100%;
-    max-width: 400px;
+    max-width: 430px;
     padding: 16px;
     font-size: 16px;
     font-weight: 600;

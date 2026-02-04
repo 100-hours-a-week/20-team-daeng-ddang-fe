@@ -79,7 +79,7 @@ const NavContainer = styled.nav`
   transform: translateX(-50%);
   right: auto;
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
