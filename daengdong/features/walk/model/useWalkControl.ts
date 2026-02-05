@@ -224,11 +224,11 @@ export const useWalkControl = () => {
         // 반려견 정보 미등록 체크
         if (!user.dogId) {
             openModal({
-                title: "반려견 정보 필요",
-                message: "산책을 시작하려면 반려견 정보를 먼저 등록해주세요.",
+                title: "반려견 등록이 필요해요",
+                message: "반려견 정보를 등록하고 산책을 시작할까요?",
                 type: "confirm",
-                confirmText: "등록하러 가기",
-                cancelText: "취소",
+                confirmText: "등록하기",
+                cancelText: "나중에",
                 onConfirm: () => {
                     router.push("/mypage/dog");
                 },
