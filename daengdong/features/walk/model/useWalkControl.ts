@@ -14,7 +14,7 @@ import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/type
 
 
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
-import { isAbnormalSpeed } from "@/shared/utils/walkMetricsValidator";
+import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 
 export const useWalkControl = () => {
     const {

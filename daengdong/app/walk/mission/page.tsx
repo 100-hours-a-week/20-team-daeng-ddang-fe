@@ -3,7 +3,7 @@
 import styled from "@emotion/styled";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { MissionHeader } from "@/features/mission/ui/MissionHeader";
 import { MissionCamera } from "@/features/mission/ui/MissionCamera";
 import { useMissionStore } from "@/entities/mission/model/missionStore";

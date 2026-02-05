@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { UserInfo } from '@/entities/user/model/types';
 import { getUserInfo } from '@/entities/user/api/user';
 
-import { queryKeys } from '@/shared/api/queryKeys';
+import { queryKeys } from '@/shared/lib/queryKeys';
 
 export const useUserInfoQuery = () => {
     return useQuery<UserInfo | null>({

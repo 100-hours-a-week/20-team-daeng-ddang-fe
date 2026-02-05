@@ -3,7 +3,7 @@
 import styled from "@emotion/styled";
 import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { spacing, colors, radius } from "@/shared/styles/tokens";
 import { ExpressionCamera } from "@/features/expression/ui/ExpressionCamera";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";

@@ -18,7 +18,7 @@ export const useStartWalk = () => {
     });
 };
 
-import { queryKeys } from '@/shared/api/queryKeys';
+import { queryKeys } from '@/shared/lib/queryKeys';
 
 export const useEndWalk = () => {
     const queryClient = useQueryClient();

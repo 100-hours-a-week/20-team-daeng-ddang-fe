@@ -4,7 +4,7 @@ import { z } from 'zod';
 import styled from '@emotion/styled';
 import { spacing, colors } from '@/shared/styles/tokens';
 import { Button } from '@/shared/components/Button/Button';
-import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdown';
+import { SelectDropdown } from '@/shared/components/SelectDropdown';
 import { useState } from 'react';
 import { useRegionsQuery } from '@/features/user/api/useRegionsQuery';
 

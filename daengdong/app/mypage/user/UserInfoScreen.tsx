@@ -1,8 +1,8 @@
-import { Header } from '@/widgets/Header/Header';
+import { Header } from '@/widgets/Header';
 import { useUserInfoQuery } from '@/features/user/api/useUserInfoQuery';
 import { useUserLogic } from '@/features/user/model/useUserInfo';
 import { UserForm } from './ui/UserForm';
-import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
+import { GlobalLoading } from '@/widgets/GlobalLoading';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';
 import { useRouter } from 'next/navigation';

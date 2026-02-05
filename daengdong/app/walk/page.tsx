@@ -3,7 +3,7 @@
 import { WalkMap } from "@/features/walk/ui/WalkMap";
 import { WalkStatusPanel } from "@/features/walk/ui/WalkStatusPanel";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";

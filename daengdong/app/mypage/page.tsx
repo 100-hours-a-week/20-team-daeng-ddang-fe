@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/widgets/Header/Header';
+import { Header } from '@/widgets/Header';
 import { UserProfileSection } from '@/app/mypage/ui/UserProfileSection';
 import { MyPageMenuList } from '@/app/mypage/ui/MyPageMenuList';
 import { useToastStore } from '@/shared/stores/useToastStore';

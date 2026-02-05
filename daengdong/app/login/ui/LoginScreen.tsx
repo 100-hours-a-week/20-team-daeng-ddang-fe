@@ -2,7 +2,7 @@
 
 import { Container, ContentWrapper, BrandText, LogoImage, ButtonWrapper, HeaderWrapper, BrandTitle } from './styles';
 import { KakaoButton } from '@/shared/components/KakaoButton';
-import { Header } from '@/widgets/Header/Header';
+import { Header } from '@/widgets/Header';
 import { DevLoginButton } from '@/features/auth/ui/DevLoginButton';
 import MascotImage from "@/shared/assets/images/mascot.png";
 

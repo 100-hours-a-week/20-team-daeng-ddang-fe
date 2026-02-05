@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { kakaoLogin } from '@/shared/api/auth';
 import { useAuthStore } from '@/entities/session/model/store';
-import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
+import { GlobalLoading } from '@/widgets/GlobalLoading';
 import { useToastStore } from '@/shared/stores/useToastStore';
 
 export const KakaoCallbackHandler = () => {

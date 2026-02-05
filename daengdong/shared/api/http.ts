@@ -67,21 +67,6 @@ http.interceptors.response.use(
         return response;
     },
     async (error: AxiosError) => {
-        const url = error.config?.url || '';
-
-        const isExpressionAnalysis = url.includes('/expressions/analysis');
-        const isMissionAnalysis = url.includes('/missions/analysis');
-
-        // CORS 에러 등 상세 로깅 (미션/표정 분석 제외)
-        if (error.code && !isMissionAnalysis && !isExpressionAnalysis) {
-            console.error('❌ API Error Info:', {
-                message: error.message,
-                code: error.code,
-                status: error.response?.status,
-                url: error.config?.url,
-            });
-        }
-
         // 401 Unauthorized 에러 처리 (토큰 만료)
         if (error.response && error.response.status === 401) {
             const originalRequest = error.config as CustomAxiosRequestConfig;
@@ -93,9 +78,8 @@ http.interceptors.response.use(
             // _retry 속성이 있는지 확인 (이미 재시도한 요청인지)
             if (originalRequest._retry || originalRequest.url === '/auth/token') {
                 if (typeof window !== 'undefined') {
-                    console.warn("🚨 Reuse of expired token detected. Forcing logout.");
                     localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';
                 }
                 return Promise.reject(error);
@@ -141,9 +125,8 @@ http.interceptors.response.use(
                 // 갱신 실패 시 로그아웃 처리
                 processQueue(refreshError, null);
                 if (typeof window !== 'undefined') {
-                    console.error("❌ Token Refresh Failed. Logging out.");
                     localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);

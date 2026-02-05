@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import { useMemo, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";

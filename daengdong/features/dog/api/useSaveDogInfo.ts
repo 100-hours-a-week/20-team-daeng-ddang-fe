@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createDog, updateDog } from '@/entities/dog/api/dog';
 import { CreateDogParams, UpdateDogParams } from '@/entities/dog/model/types';
 
-import { queryKeys } from '@/shared/api/queryKeys';
+import { queryKeys } from '@/shared/lib/queryKeys';
 
 interface SaveDogParams {
     dogId?: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from 'react';
-import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
+import { GlobalLoading } from '@/widgets/GlobalLoading';
 import { KakaoCallbackHandler } from '@/features/auth/ui/KakaoCallbackHandler';
 
 export default function KakaoCallbackPage() {

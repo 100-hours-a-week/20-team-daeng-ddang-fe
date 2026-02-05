@@ -5,7 +5,7 @@ import localFont from "next/font/local";
 import { EmotionProvider } from "@/shared/lib/emotion-provider";
 import Providers from "./providers";
 import { LayoutClient } from "./layout-client";
-import { AuthInitializer } from "@/widgets/Init/AuthInitializer";
+import { AuthInitializer } from "@/widgets/AuthInitializer";
 
 const nanum = localFont({
   src: "../shared/assets/fonts/NanumSquareNeo-Variable.woff2",

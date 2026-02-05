@@ -19,11 +19,10 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
         return new Promise((resolve, reject) => {
             this.walkId = walkId;
 
-            // HTTP/HTTPS URL을 WebSocket URL로 변환하고 /api/v3 제거
             const wsUrl = this.baseUrl
                 .replace(/^http:\/\//, 'ws://')
                 .replace(/^https:\/\//, 'wss://')
-                .replace(/\/api\/v3$/, ''); // /api/v3 경로 제거
+                .replace(/\/api\/v3$/, '');
 
             this.client = new Client({
                 brokerURL: `${wsUrl}/ws/walks`,
@@ -31,24 +30,21 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
                     Authorization: accessToken ? `Bearer ${accessToken}` : '',
                     walkId: walkId.toString(),
                 },
-                reconnectDelay: 5000, // 5초 후 재연결
+                reconnectDelay: 5000,
                 heartbeatIncoming: 4000,
                 heartbeatOutgoing: 4000,
             });
-
-            // 연결 성공 시 자동으로 walkId 토픽 구독
             this.client.onConnect = () => {
                 this.isConnected = true;
 
-                // walkId 기반 토픽 자동 구독
                 this.subscribeToWalk();
 
                 resolve();
             };
-
-            // 연결 에러 시
             this.client.onStompError = (frame) => {
-                console.error('❌ STOMP 에러:', frame.headers['message']);
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('❌ STOMP 에러:', frame.headers['message']);
+                }
                 this.isConnected = false;
                 const error = new Error(frame.headers['message'] || 'STOMP 연결 실패');
                 this.onError(error);
@@ -57,7 +53,9 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
 
             // WebSocket 에러 시
             this.client.onWebSocketError = (event) => {
-                console.error('❌ WebSocket 에러:', event);
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('❌ WebSocket 에러:', event);
+                }
                 this.isConnected = false;
                 const error = new Error('WebSocket 연결 실패');
                 this.onError(error);
@@ -72,7 +70,9 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
     // walkId 기반 토픽 구독 (내부 메서드)
     private subscribeToWalk() {
         if (!this.client || !this.isConnected || !this.walkId) {
-            console.warn('⚠️ WebSocket이 연결되지 않았거나 walkId가 없습니다');
+            if (process.env.NODE_ENV === 'development') {
+                console.warn('⚠️ WebSocket이 연결되지 않았거나 walkId가 없습니다');
+            }
             return;
         }
 
@@ -99,13 +99,17 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
     // Area 구독
     subscribeToArea(areaKey: string) {
         if (!this.client || !this.isConnected) {
-            console.warn('⚠️ WebSocket이 연결되지 않아 Area 구독을 할 수 없습니다.');
+            if (process.env.NODE_ENV === 'development') {
+                console.warn('⚠️ WebSocket이 연결되지 않아 Area 구독을 할 수 없습니다.');
+            }
             return;
         }
 
         // 이미 같은 Area를 구독 중이면 패스
         if (this.areaSubscription) {
-            console.warn('⚠️ 이미 Area를 구독 중입니다. 먼저 구독을 해제해주세요.');
+            if (process.env.NODE_ENV === 'development') {
+                console.warn('⚠️ 이미 Area를 구독 중입니다. 먼저 구독을 해제해주세요.');
+            }
             return;
         }
 
@@ -115,7 +119,9 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
                 const data = JSON.parse(message.body) as ServerMessage;
                 this.handleMessage(data);
             } catch (error) {
-                console.error('❌ Area 메시지 파싱 에러:', error);
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('❌ Area 메시지 파싱 에러:', error);
+                }
             }
         });
     }

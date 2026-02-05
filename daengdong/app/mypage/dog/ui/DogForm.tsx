@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { Button } from '@/shared/components/Button/Button';
-import { SelectDropdown } from '@/shared/components/SelectDropdown/SelectDropdown';
+import { SelectDropdown } from '@/shared/components/SelectDropdown';
 import { Input } from '@/shared/components/Input/Input';
 import { DogFormValues } from '@/entities/dog/model/types';
 import { ProfileImageUploader } from './ProfileImageUploader';
 import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { ScrollDatePicker } from '@/widgets/ScrollDatePicker/ScrollDatePicker';
+import { ScrollDatePicker } from '@/widgets/ScrollDatePicker';
 import { FormWrapper, FieldGroup, Label, Required, ErrorText, LabelRow } from '@/shared/styles/FormStyles';
 import { DogSchema } from '@/entities/dog/model/schema';
 import { getAgeString } from '@/entities/dog/lib/dogUtils';

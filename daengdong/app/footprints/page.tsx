@@ -1,4 +1,4 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction/UnderConstruction";
+import { UnderConstruction } from "@/widgets/UnderConstruction";
 
 export default function FootprintsPage() {
     return <UnderConstruction />;

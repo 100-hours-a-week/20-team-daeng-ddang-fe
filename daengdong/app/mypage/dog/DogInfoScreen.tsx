@@ -1,4 +1,4 @@
-import { Header } from '@/widgets/Header/Header';
+import { Header } from '@/widgets/Header';
 import { useDogInfoQuery } from '@/features/dog/api/useDogInfoQuery';
 import { DogForm } from '@/app/mypage/dog/ui/DogForm';
 import { DogFormValues } from '@/entities/dog/model/types';
@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
 import { useDogInfo } from '@/features/dog/model/useDogInfo';
 import { spacing } from '@/shared/styles/tokens';
-import { LoadingView } from '@/widgets/Loading/GlobalLoading';
+import { LoadingView } from '@/widgets/GlobalLoading';
 
 export function DogInfoScreen() {
     const router = useRouter();
