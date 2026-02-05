@@ -1,10 +1,7 @@
 import { Header } from '@/widgets/Header/Header';
 import { useUserInfoQuery } from '@/features/user/api/useUserInfoQuery';
-import { useSaveUserMutation } from '@/features/user/api/useSaveUserInfo';
-import { useDeleteUser } from './hooks/useDeleteUser';
-import { UserForm } from './components/UserForm';
-import { useModalStore } from '@/shared/stores/useModalStore';
-import { useToastStore } from '@/shared/stores/useToastStore';
+import { useUserLogic } from '@/features/user/model/useUserInfo';
+import { UserForm } from './ui/UserForm';
 import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';
@@ -13,8 +10,6 @@ import { useUserQuery } from '@/entities/user/model/useUserQuery';
 
 export function UserInfoScreen() {
     const router = useRouter();
-    const { openModal } = useModalStore();
-    const { showToast } = useToastStore();
 
     const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
     // 이메일 표시용 fallback
@@ -26,59 +21,11 @@ export function UserInfoScreen() {
 
     const isNewUser = !userInfo?.userId;
 
-    const saveMutation = useSaveUserMutation();
-    const deleteMutation = useDeleteUser();
-
-    const handleUpdate = (data: { province: string; city: string; regionId: number }) => {
-        const isUpdate = !!userInfo?.userId;
-
-        saveMutation.mutate(
-            {
-                userId: userInfo?.userId,
-                regionId: data.regionId
-            },
-            {
-                onSuccess: () => {
-                    showToast({
-                        message: isUpdate ? '사용자 정보가 수정되었습니다.' : '사용자 정보가 등록되었습니다.',
-                        type: 'success'
-                    });
-                },
-                onError: () => {
-                    showToast({
-                        message: isUpdate ? '수정에 실패했습니다.' : '등록에 실패했습니다.',
-                        type: 'error'
-                    });
-                }
-            }
-        );
-    };
-
-    const handleWithdrawClick = () => {
-        openModal({
-            title: '회원 탈퇴',
-            message: '정말로 탈퇴하시겠습니까? 탈퇴 시 모든 정보가 삭제됩니다.',
-            type: 'confirm',
-            confirmText: '탈퇴하기',
-            cancelText: '취소',
-            onConfirm: () => {
-                deleteMutation.mutate(undefined, {
-                    onSuccess: () => {
-                        showToast({ message: '회원 탈퇴가 완료되었습니다.', type: 'success' });
-                    },
-                    onError: () => {
-                        showToast({ message: '탈퇴 처리에 실패했습니다.', type: 'error' });
-                    }
-                });
-            }
-        });
-    };
+    const { updateUser, withdrawUser, isSubmitting } = useUserLogic();
 
     if (isQueryLoading) {
         return <GlobalLoading />;
     }
-
-    const isSubmitting = saveMutation.isPending || deleteMutation.isPending;
 
     // 이메일 표시 우선순위: 1. API 응답 2. User 쿼리 응답 3. 로컬 스토리지 (가입 미완료 시)
     const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null;
@@ -96,8 +43,8 @@ export function UserInfoScreen() {
                     }}
                     initialParentRegionId={userInfo?.parentRegionId}
                     initialRegionId={userInfo?.regionId}
-                    onSubmit={handleUpdate}
-                    onWithdraw={handleWithdrawClick}
+                    onSubmit={(data) => updateUser(data, userInfo)}
+                    onWithdraw={withdrawUser}
                     isSubmitting={isSubmitting}
                     isNewUser={isNewUser}
                     kakaoEmail={displayEmail}

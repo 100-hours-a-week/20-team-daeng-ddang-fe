@@ -3,8 +3,8 @@
 import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/widgets/Header/Header';
-import { UserProfileSection } from '@/features/mypage/ui/UserProfileSection';
-import { MyPageMenuList } from '@/features/mypage/ui/MyPageMenuList';
+import { UserProfileSection } from '@/app/mypage/ui/UserProfileSection';
+import { MyPageMenuList } from '@/app/mypage/ui/MyPageMenuList';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { useModalStore } from '@/shared/stores/useModalStore';
 import { useMyPageSummaryQuery } from '@/features/mypage/api/useMyPageSummaryQuery';
