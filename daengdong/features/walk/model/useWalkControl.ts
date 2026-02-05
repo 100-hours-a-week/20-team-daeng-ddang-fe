@@ -383,7 +383,6 @@ export const useWalkControl = () => {
                         return new Promise((resolve) => {
                             const checkReady = () => {
                                 if (window.isWalkSnapshotReady) {
-                                    console.log(`[Snapshot] Ready after ${Date.now() - startTime}ms`);
                                     resolve(true);
                                     return;
                                 }

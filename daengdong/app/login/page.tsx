@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginScreen } from '@/widgets/LoginScreen/ui/LoginScreen';
+import { LoginScreen } from './ui/LoginScreen';
 
 export default function LoginPage() {
   return <LoginScreen />;

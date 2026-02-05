@@ -64,14 +64,6 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 http.interceptors.response.use(
     (response: AxiosResponse) => {
-        /*
-        console.log('✅ API Response:', {
-            status: response.status,
-            statusText: response.statusText,
-            url: response.config.url,
-            data: response.data,
-        });
-        */
         return response;
     },
     async (error: AxiosError) => {

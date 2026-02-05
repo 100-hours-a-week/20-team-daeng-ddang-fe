@@ -36,7 +36,6 @@ export const BrandTitle = styled.h1`
   text-align: center;
   width: 100%;
 `;
-// Fixed colors.primary to colors.primary[600] as per tokens structure to likely fix potential bug (or improve it).
 
 export const BrandText = styled.h2`
   font-family: sans-serif;
