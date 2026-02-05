@@ -105,9 +105,13 @@ export const useWalkStore = create<WalkState>()(
                 set({ othersBlocks: blocks }),
 
             addMyBlock: (block) =>
-                set((state) => ({
-                    myBlocks: [...state.myBlocks, block],
-                })),
+                set((state) => {
+                    // 중복 방지
+                    const filtered = state.myBlocks.filter((b) => b.blockId !== block.blockId);
+                    return {
+                        myBlocks: [...filtered, block],
+                    };
+                }),
 
             removeMyBlock: (blockId) =>
                 set((state) => ({
@@ -142,6 +146,17 @@ export const useWalkStore = create<WalkState>()(
 
             setIsEnding: (isEnding) =>
                 set({ isEnding }),
+
+            // 남의 블록 점유 
+            occupyBlock: (block) =>
+                set((state) => {
+                    const filteredMy = state.myBlocks.filter((b) => b.blockId !== block.blockId);
+                    const filteredOthers = state.othersBlocks.filter((b) => b.blockId !== block.blockId);
+                    return {
+                        myBlocks: [...filteredMy, block],
+                        othersBlocks: filteredOthers
+                    };
+                }),
         }),
         {
             name: "walk-storage",

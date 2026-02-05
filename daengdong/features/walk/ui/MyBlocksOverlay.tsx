@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { BlockData } from "@/entities/walk/model/types";
 import { BlockPolygon } from "./BlockPolygon";
 
@@ -11,7 +12,7 @@ interface MyBlocksOverlayProps {
     blockSize?: number;
 }
 
-export const MyBlocksOverlay = ({ map, myBlocks, blockSize = BLOCK_SIZE_DEGREES }: MyBlocksOverlayProps) => {
+export const MyBlocksOverlay = memo(({ map, myBlocks, blockSize = BLOCK_SIZE_DEGREES }: MyBlocksOverlayProps) => {
     return (
         <>
             {myBlocks.map((block) => (
@@ -25,4 +26,6 @@ export const MyBlocksOverlay = ({ map, myBlocks, blockSize = BLOCK_SIZE_DEGREES 
             ))}
         </>
     );
-};
+});
+
+MyBlocksOverlay.displayName = "MyBlocksOverlay";

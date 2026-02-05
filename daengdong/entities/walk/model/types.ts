@@ -46,6 +46,7 @@ export interface WalkState {
     setScheduledMissions: (missions: { mission: Mission; triggerAt: number; triggered: boolean }[]) => void;
     setActiveMissionAlert: (mission: Mission | null) => void;
     setIsEnding: (isEnding: boolean) => void;
+    occupyBlock: (block: BlockData) => void;
 }
 
 export interface StartWalkRequest {
