@@ -422,7 +422,7 @@ export const useWalkControl = () => {
                             storedImageUrl = base64Url;
 
                             try {
-                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                const { presignedUrl } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);

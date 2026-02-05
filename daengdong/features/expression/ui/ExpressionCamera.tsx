@@ -311,31 +311,6 @@ const RecordingDot = styled.span`
   }
 `;
 
-const RecordingInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: rgba(229, 115, 115, 0.1);
-  border-radius: ${radius.md};
-  margin-bottom: ${spacing[3]}px;
-`;
-
-const RecordingText = styled.span`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${colors.semantic.error};
-`;
-
-const CountdownBadge = styled.span`
-  font-size: 14px;
-  font-weight: 700;
-  color: ${colors.gray[700]};
-  background: ${colors.gray[100]};
-  padding: 2px 8px;
-  border-radius: ${radius.sm};
-`;
-
 const CTASection = styled.div`
   display: flex;
   flex-direction: column;
