@@ -1,6 +1,6 @@
 import { Header } from '@/widgets/Header/Header';
 import { useDogInfoQuery } from '@/features/dog/api/useDogInfoQuery';
-import { DogForm } from '@/features/dog/ui/DogForm';
+import { DogForm } from '@/app/mypage/dog/ui/DogForm';
 import { DogFormValues } from '@/entities/dog/model/types';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
