@@ -7,13 +7,13 @@ if (!API_BASE_URL) {
     throw new Error('API_BASE_URL is not defined');
 }
 
-// 1. 일반 API 요청용 인스턴스
+// 일반 API 요청용 인스턴스
 export const http = axios.create({
     baseURL: API_BASE_URL,
     timeout: 30000, // 30초 - 느린 네트워크 환경 고려
 });
 
-// 2. 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지용)
+// 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지)
 const tokenHttp = axios.create({
     baseURL: API_BASE_URL,
 });
@@ -25,16 +25,6 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 http.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 요청 데이터 로깅 (CORS로 인해 Network 탭에서 안 보일 때 유용)
-        console.log('🚀 API Request:', {
-            method: config.method?.toUpperCase(),
-            url: config.url,
-            baseURL: config.baseURL,
-            fullURL: `${config.baseURL}${config.url}`,
-            headers: config.headers,
-            data: config.data,
-            params: config.params,
-        });
 
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('accessToken');
@@ -74,21 +64,24 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 http.interceptors.response.use(
     (response: AxiosResponse) => {
+        /*
         console.log('✅ API Response:', {
             status: response.status,
             statusText: response.statusText,
             url: response.config.url,
             data: response.data,
         });
+        */
         return response;
     },
     async (error: AxiosError) => {
         const url = error.config?.url || '';
 
+        const isExpressionAnalysis = url.includes('/expressions/analysis');
         const isMissionAnalysis = url.includes('/missions/analysis');
 
-        // CORS 에러 등 상세 로깅 (미션 분석 제외)
-        if (error.code && !isMissionAnalysis) {
+        // CORS 에러 등 상세 로깅 (미션/표정 분석 제외)
+        if (error.code && !isMissionAnalysis && !isExpressionAnalysis) {
             console.error('❌ API Error Info:', {
                 message: error.message,
                 code: error.code,

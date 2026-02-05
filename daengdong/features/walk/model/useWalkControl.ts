@@ -63,7 +63,6 @@ export const useWalkControl = () => {
         const currentUser = userRef.current;
         const myDogId = currentUser?.dogId;
 
-        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
 
         switch (message.type) {
             case "BLOCK_OCCUPIED":
@@ -197,7 +196,6 @@ export const useWalkControl = () => {
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
             const token = localStorage.getItem('accessToken') || undefined;
-            console.log("[WebSocket] 세션 복구: 자동 재연결 시도", walkId);
             wsClientRef.current.connect(walkId, token)
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
@@ -245,7 +243,6 @@ export const useWalkControl = () => {
         }
 
         showLoading("산책을 시작하는 중입니다...");
-        console.log('[StartWalk] 요청 시작:', { lat: currentPos.lat, lng: currentPos.lng });
 
         try {
             const res = await startWalkMutate({
@@ -253,14 +250,12 @@ export const useWalkControl = () => {
                 startLng: currentPos.lng
             });
 
-            console.log('[StartWalk] 성공:', res);
             startWalk(res.walkId);
 
             // WebSocket 연결
             try {
                 const token = localStorage.getItem('accessToken') || undefined;
                 await wsClientRef.current?.connect(res.walkId, token);
-                console.log("[StartWalk] WebSocket 연결 성공:", res.walkId);
             } catch (e) {
                 console.error("[StartWalk] WebSocket 연결 실패:", e);
             }

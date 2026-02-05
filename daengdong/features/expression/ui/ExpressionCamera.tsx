@@ -78,15 +78,12 @@ export const ExpressionCamera = ({
 
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
-          console.log('[ExpressionCamera] Data chunk received:', e.data.size, 'bytes');
           chunksRef.current.push(e.data);
         }
       };
 
       recorder.onstop = () => {
-        console.log('[ExpressionCamera] Recording stopped, chunks:', chunksRef.current.length);
         const blob = new Blob(chunksRef.current, { type: mimeType });
-        console.log('[ExpressionCamera] Blob created, size:', blob.size, 'type:', blob.type);
 
         // iOS에서 blob이 비어있는 경우 에러 처리
         if (blob.size === 0) {
