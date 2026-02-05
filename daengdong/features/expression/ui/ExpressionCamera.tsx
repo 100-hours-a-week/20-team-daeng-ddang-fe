@@ -87,7 +87,7 @@ export const ExpressionCamera = ({
 
         // iOS에서 blob이 비어있는 경우 에러 처리
         if (blob.size === 0) {
-          console.error('[ExpressionCamera] Blob is empty!');
+          console.error('[돌발미션] 녹화된 영상이 비어있습니다.');
           showToast({ message: "녹화된 영상이 비어있습니다. 다시 시도해주세요.", type: "error" });
           setFlowState("IDLE");
           return;

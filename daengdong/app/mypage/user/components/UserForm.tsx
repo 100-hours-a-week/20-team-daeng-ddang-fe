@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useRegionsQuery } from '@/features/user/api/useRegionsQuery';
 
 import { UserFormValues } from '@/entities/user/model/types';
+import { FormWrapper, FieldGroup, Label, ErrorText } from '@/shared/styles/FormStyles';
 
 const UserSchema = z.object({
     province: z.string().min(1, '지역을 선택하세요.'),
@@ -136,24 +137,7 @@ export function UserForm({ initialData, onSubmit, onWithdraw, isSubmitting, isNe
     );
 }
 
-const FormWrapper = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing[6]}px;
-  width: 100%;
-`;
 
-const FieldGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing[3]}px;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${colors.gray[900]};
-`;
 
 const DropdownRow = styled.div`
   display: flex;
@@ -166,12 +150,6 @@ const DropdownContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0; 
-`;
-
-const ErrorText = styled.span`
-  color: ${colors.semantic.error};
-  font-size: 12px;
-  margin-top: ${spacing[1]}px;
 `;
 
 const ButtonGroup = styled.div`

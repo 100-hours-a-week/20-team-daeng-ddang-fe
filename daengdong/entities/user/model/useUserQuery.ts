@@ -3,12 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../api/user";
 import { dogRepository } from "@/entities/dog/api/dogRepository";
 
+import { queryKeys } from '@/shared/api/queryKeys';
+
 export const useUserQuery = () => {
     const { isLoggedIn } = useAuthStore();
     const hasToken = typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false;
 
     return useQuery({
-        queryKey: ["user", "info"],
+        queryKey: queryKeys.userInfoCombined,
         queryFn: async () => {
             const [userInfo, dogInfo] = await Promise.all([
                 getUserInfo(),

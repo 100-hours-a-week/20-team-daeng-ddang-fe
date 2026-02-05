@@ -31,10 +31,6 @@ export class WalkWebSocketClient implements IWalkWebSocketClient {
                     Authorization: accessToken ? `Bearer ${accessToken}` : '',
                     walkId: walkId.toString(),
                 },
-                debug: (str) => {
-
-                    console.log('[STOMP Debug]', str);
-                },
                 reconnectDelay: 5000, // 5초 후 재연결
                 heartbeatIncoming: 4000,
                 heartbeatOutgoing: 4000,

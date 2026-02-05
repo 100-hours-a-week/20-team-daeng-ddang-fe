@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createDog, updateDog } from '@/entities/dog/api/dog';
 import { CreateDogParams, UpdateDogParams } from '@/entities/dog/model/types';
 
+import { queryKeys } from '@/shared/api/queryKeys';
+
 interface SaveDogParams {
     dogId?: number;
     data: CreateDogParams | UpdateDogParams;
@@ -21,8 +23,9 @@ export const useSaveDogMutation = () => {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['dogInfo'] });
-            queryClient.invalidateQueries({ queryKey: ['myPageSummary'] });
+            queryClient.invalidateQueries({ queryKey: [queryKeys.dogInfo] });
+            queryClient.invalidateQueries({ queryKey: [queryKeys.myPageSummary] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.userInfoCombined });
         },
     });
 };

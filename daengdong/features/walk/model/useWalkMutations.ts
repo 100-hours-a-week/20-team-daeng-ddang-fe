@@ -18,12 +18,14 @@ export const useStartWalk = () => {
     });
 };
 
+import { queryKeys } from '@/shared/api/queryKeys';
+
 export const useEndWalk = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['myPageSummary'] });
+            queryClient.invalidateQueries({ queryKey: [queryKeys.myPageSummary] });
         },
         onError: (error) => {
             console.error("산책 종료 실패", error);

@@ -238,7 +238,7 @@ export const useWalkControl = () => {
 
         // 중복 요청 방지
         if (isStarting) {
-            console.warn('[StartWalk] 이미 요청 진행 중');
+            console.warn('[산책 시작] 이미 요청 진행 중');
             return;
         }
 
@@ -257,12 +257,12 @@ export const useWalkControl = () => {
                 const token = localStorage.getItem('accessToken') || undefined;
                 await wsClientRef.current?.connect(res.walkId, token);
             } catch (e) {
-                console.error("[StartWalk] WebSocket 연결 실패:", e);
+                console.error("[산책 시작] WebSocket 연결 실패:", e);
             }
 
             hideLoading();
         } catch (error) {
-            console.error('[StartWalk] 실패:', error);
+            console.error('[산책 시작] 실패:', error);
             hideLoading();
 
             // Axios 에러 타입 체크
@@ -413,8 +413,6 @@ export const useWalkControl = () => {
                         const blob = await window.getWalkSnapshotBlob();
 
                         if (blob && blob.size > 0) {
-                            console.log("[Snapshot] 생성 성공, 크기:", blob.size);
-
                             // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
                             const base64Url = await new Promise<string>((resolve) => {
                                 const reader = new FileReader();
@@ -426,12 +424,9 @@ export const useWalkControl = () => {
                             try {
                                 const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                                console.log("[Snapshot] S3 업로드 성공:", objectKey);
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);
                             }
-                        } else {
-                            console.warn("[Snapshot] Blob이 null이거나 비어있음, blob:", blob);
                         }
                     }
                 } catch (error) {

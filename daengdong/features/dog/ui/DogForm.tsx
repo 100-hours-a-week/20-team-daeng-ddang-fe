@@ -12,6 +12,7 @@ import { useState, useRef, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { ScrollDatePicker } from '@/widgets/ScrollDatePicker/ScrollDatePicker';
 import { useBreedsQuery } from '@/features/dog/api/useBreedsQuery';
+import { FormWrapper, FieldGroup, Label, Required, ErrorText, LabelRow } from '@/shared/styles/FormStyles';
 
 const DogSchema = z.object({
     name: z
@@ -402,50 +403,15 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
     );
 }
 
-const FormWrapper = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing[6]}px;
-  width: 100%;
-`;
-
 const Section = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: ${spacing[2]}px;
 `;
 
-const FieldGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${spacing[2]}px;
-`;
-
-const Label = styled.label`
-  font-size: 14px;
-  font-weight: 600;
-  color: ${colors.gray[900]};
-`;
-
-const Required = styled.span`
-  color: ${colors.semantic.error};
-  margin-left: 2px;
-`;
-
-const LabelRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const AgeText = styled.span`
   font-size: 13px;
   color: ${colors.gray[500]};
-`;
-
-const ErrorText = styled.span`
-  color: ${colors.semantic.error};
-  font-size: 12px;
 `;
 
 const CheckboxWrapper = styled.div`
@@ -472,12 +438,12 @@ const StyledDateInput = styled.input<{ isPlaceholder?: boolean }>`
   color: ${({ isPlaceholder }) => (isPlaceholder ? colors.gray[500] : colors.gray[900])};
   
   &:disabled {
-      background-color: ${colors.gray[50]};
-      color: ${colors.gray[500]};
+    background-color: ${colors.gray[50]};
+    color: ${colors.gray[500]};
   }
 
   &:focus {
-      border-color: ${colors.primary[500]};
+    border-color: ${colors.primary[500]};
   }
 `;
 
