@@ -18,6 +18,8 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [progress, setProgress] = useState(100);
 
+    console.log("[SuddenMissionAlert] Mount/Render", { missionId: mission.missionId, timeLeft });
+
     const STORAGE_KEY = `SUDDEN_KEY_ALERT_START_${mission.missionId}`;
 
     useEffect(() => {
@@ -39,11 +41,14 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
             const remaining = 10 - elapsed;
 
             if (remaining <= 0) {
+                console.log("[SuddenMissionAlert] Time expired", { remaining, elapsed });
                 sessionStorage.removeItem(STORAGE_KEY);
                 setActiveMissionAlert(null);
                 setTimeLeft(0);
                 return false;
             }
+
+            console.log("[SuddenMissionAlert] Tick", { remaining });
 
             setTimeLeft(remaining);
             setProgress(Math.max(0, (remaining / 10) * 100)); // Update progress based on actual remaining time

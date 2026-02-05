@@ -46,7 +46,7 @@ const ExpressionContent = () => {
     return walkIdFromStore ?? undefined;
   }, [searchParams, walkIdFromStore]);
 
-  const isMock = searchParams.get("mock") === "1";
+
 
   const handleCancel = () => {
     if (walkId) {
@@ -60,25 +60,7 @@ const ExpressionContent = () => {
     setIsAnalyzing(true);
     showLoading("표정 분석 중입니다...");
     try {
-      if (isMock) {
-        setAnalysis({
-          expressionId: "12",
-          predictEmotion: "HAPPY",
-          emotionScores: {
-            happy: 0.82,
-            relaxed: 0.1,
-            sad: 0.05,
-            angry: 0.03,
-          },
-          summary: "산책 후 반려견이 전반적으로 편안하고 즐거운 상태로 보입니다.",
-          imageUrl: "https://cdn.example.com/expressions/expr_12.jpg",
-          createdAt: "2026-01-08T16:40:13",
-          dogId: 3,
-          walkId: walkId ?? 0,
-        });
-        router.replace("/walk/expression/result?mock=1");
-        return;
-      }
+
 
       if (!walkId) {
         throw new Error("산책 정보가 없습니다.");
@@ -93,9 +75,6 @@ const ExpressionContent = () => {
       );
       await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, mimeType);
       const videoUrl = presignedData.presignedUrl.split("?")[0];
-
-      // 테스트용 영상  
-      // const videoUrl = "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/ANGRY_01.mp4";
 
       const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
       setAnalysis(analysis);

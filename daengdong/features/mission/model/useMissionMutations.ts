@@ -11,9 +11,6 @@ interface UploadMissionVideoParams {
 export const useUploadMissionVideo = () => {
     return useMutation({
         mutationFn: async ({ walkId, missionId, file }: UploadMissionVideoParams) => {
-            // mock 비디오 url 
-            // const videoUrl =
-            //     "https://daeng-map.s3.ap-northeast-2.amazonaws.com/test_set2/HAPPY_02.mp4";
 
             const mimeType = file.type || "video/mp4";
 

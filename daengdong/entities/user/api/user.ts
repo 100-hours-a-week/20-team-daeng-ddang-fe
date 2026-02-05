@@ -1,6 +1,6 @@
 import { Region, UserInfo, CreateUserParams, UpdateUserParams, UserResponse } from '@/entities/user/model/types';
 import { userApi } from './index';
-import { userRepositoryReal } from './user.real';
+import { userRepository } from './userRepository';
 
 export const getRegions = async (parentId?: number): Promise<Region[]> => {
     return userApi.getRegions(parentId);
@@ -19,9 +19,9 @@ export const updateUserInfo = async (params: UpdateUserParams): Promise<UserResp
 };
 
 export const deleteUser = async (): Promise<void> => {
-    return userRepositoryReal.deleteUser();
+    return userRepository.deleteUser();
 };
 
 export const updateTermsAgreement = async (isAgreed: boolean): Promise<void> => {
-    return userRepositoryReal.updateTermsAgreement(isAgreed);
+    return userRepository.updateTermsAgreement(isAgreed);
 };

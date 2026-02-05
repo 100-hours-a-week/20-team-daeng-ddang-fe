@@ -10,9 +10,8 @@ import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations
 import { fileApi } from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
-import { MockWalkWebSocketClient } from "@/shared/lib/websocket/MockWalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
-import { ENV } from "@/shared/config/env";
+
 
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/shared/utils/walkMetricsValidator";
@@ -188,18 +187,11 @@ export const useWalkControl = () => {
     useEffect(() => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-        if (ENV.USE_MOCK) {
-            wsClientRef.current = new MockWalkWebSocketClient(
-                handleWebSocketMessage,
-                (error) => console.error("Mock WebSocket Error:", error)
-            );
-        } else {
-            wsClientRef.current = new WalkWebSocketClient(
-                baseUrl,
-                handleWebSocketMessage,
-                (error) => console.error("WebSocket Error:", error)
-            );
-        }
+        wsClientRef.current = new WalkWebSocketClient(
+            baseUrl,
+            handleWebSocketMessage,
+            (error) => console.error("WebSocket Error:", error)
+        );
 
         // 산책 중 새로고침/페이지 이동 후 복귀 시 자동 재연결
         const { walkMode, walkId } = useWalkStore.getState();

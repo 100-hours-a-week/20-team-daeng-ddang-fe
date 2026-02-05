@@ -7,7 +7,7 @@ interface RegionsResponse {
     regions: Region[];
 }
 
-export const userRepositoryReal: UserRepository = {
+export const userRepository: UserRepository = {
     async getUserInfo(): Promise<UserInfo | null> {
         try {
             const response = await http.get<ApiResponse<UserResponse>>('/users/me');

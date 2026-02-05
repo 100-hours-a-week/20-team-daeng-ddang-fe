@@ -5,7 +5,7 @@ import { ApiResponse } from '@/shared/api/types';
 import { DogRepository } from './types';
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 
-export const dogRepositoryReal: DogRepository = {
+export const dogRepository: DogRepository = {
     async getDogInfo(): Promise<DogInfo | null> {
         try {
             const response = await http.get<ApiResponse<DogResponse>>('/users/dogs');

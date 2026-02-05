@@ -36,15 +36,7 @@ const WalkMissionContent = () => {
     );
 
     useEffect(() => {
-        const isMock = searchParams.get("mock") === "1";
-        if (!currentMission && isMock) {
-            setCurrentMission({
-                missionId: 101,
-                title: "돌발 미션",
-                description: "카메라를 바라보고 3초 동안 웃어주세요!",
-            });
-            return;
-        }
+
 
         if (!currentMission) {
             router.replace("/walk");

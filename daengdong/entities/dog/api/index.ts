@@ -1,6 +1,4 @@
-import { ENV } from '@/shared/config/env';
-import { dogRepositoryReal } from './dog.real';
-import { dogRepositoryMock } from './dog.mock';
+import { dogRepository } from './dogRepository';
 import { DogRepository } from './types';
 
-export const dogApi: DogRepository = ENV.USE_MOCK ? dogRepositoryMock : dogRepositoryReal;
+export const dogApi: DogRepository = dogRepository;
