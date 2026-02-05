@@ -6,7 +6,7 @@ import { BreedList, BreedItem } from './styles';
 interface BreedSelectorProps {
     initialBreedName?: string;
     currentBreedId?: number;
-    onSelect: (breedId: number, breedName: string) => void;
+    onSelect: (breedId: number, breedName: string, isAuto?: boolean) => void;
     disabled?: boolean;
 }
 
@@ -32,7 +32,7 @@ export function BreedSelector({ initialBreedName, currentBreedId, onSelect, disa
 
         const matched = breedList.find((breed) => breed.name === initialBreedName);
         if (matched) {
-            onSelect(matched.breedId, matched.name);
+            onSelect(matched.breedId, matched.name, true);
         }
     }, [breedList, initialBreedName, currentBreedId, onSelect]);
 

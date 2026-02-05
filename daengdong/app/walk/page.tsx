@@ -6,7 +6,8 @@ import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { Header } from "@/widgets/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
-import { useUserQuery } from "@/entities/user/model/useUserQuery";
+import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
+import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { useEffect } from "react";
 import { WalkSnapshotRenderer } from "@/features/walk/ui/WalkSnapshotRenderer";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,8 @@ export default function WalkPage() {
     1000
   );
 
-  const { data: user } = useUserQuery();
+  const { data: user } = useUserInfoQuery();
+  const { data: dog } = useDogInfoQuery();
   const router = useRouter();
 
   // 서버 데이터 기반 약관 동의 체크
@@ -42,7 +44,7 @@ export default function WalkPage() {
     }
   }, [user, router]);
 
-  useBlockSynchronization(nearbyBlocks, user || undefined);
+  useBlockSynchronization(nearbyBlocks, dog?.id);
 
   return (
     <div

@@ -100,9 +100,10 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
 
     const [isDateOpen, setIsDateOpen] = useState(false);
 
-    const handleBreedSelect = (id: number, name: string) => {
-        setValue('breedId', Number(id), { shouldValidate: true, shouldDirty: true });
-        setValue('breedName', name, { shouldValidate: true, shouldDirty: true });
+    const handleBreedSelect = (id: number, name: string, isAuto?: boolean) => {
+        const shouldDirty = !isAuto;
+        setValue('breedId', Number(id), { shouldValidate: true, shouldDirty });
+        setValue('breedName', name, { shouldValidate: true, shouldDirty });
     };
 
     const genderMap: { [key: string]: 'MALE' | 'FEMALE' } = {

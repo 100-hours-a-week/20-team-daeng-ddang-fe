@@ -1,17 +1,16 @@
 import { useEffect } from "react";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { BlockData } from "@/entities/walk/model/types";
-import { UserInfo } from "@/entities/user/model/types";
 
 export const useBlockSynchronization = (
     nearbyBlocks: BlockData[] | undefined,
-    user: UserInfo | undefined
+    dogId: number | undefined
 ) => {
     const { walkMode } = useWalkStore();
 
     useEffect(() => {
-        if (nearbyBlocks && user) {
-            const myDogId = user.dogId;
+        if (nearbyBlocks && dogId) {
+            const myDogId = dogId;
             if (!myDogId) return;
 
             const { myBlocks: currentMyBlocks, setMyBlocks, setOthersBlocks } = useWalkStore.getState();
@@ -42,5 +41,5 @@ export const useBlockSynchronization = (
             const filteredOthersBlocks = apiOthersBlocks.filter(b => !finalMyBlockIds.has(b.blockId));
             setOthersBlocks(filteredOthersBlocks);
         }
-    }, [nearbyBlocks, user, walkMode]);
+    }, [nearbyBlocks, dogId, walkMode]);
 };

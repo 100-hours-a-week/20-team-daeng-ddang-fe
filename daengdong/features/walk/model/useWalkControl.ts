@@ -8,7 +8,7 @@ import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
 import fileApi from "@/shared/api/file";
-import { useUserQuery } from "@/entities/user/model/useUserQuery";
+import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
 
@@ -41,18 +41,18 @@ export const useWalkControl = () => {
     const { mutateAsync: startWalkMutate, isPending: isStarting } = useStartWalk();
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
-    const { data: user, isError } = useUserQuery();
+    const { data: dog } = useDogInfoQuery();
 
     const wsClientRef = useRef<IWalkWebSocketClient | null>(null);
-    const userRef = useRef(user);
+    const dogRef = useRef(dog);
     const currentPosRef = useRef(currentPos);
     const lastLatRef = useRef<number | undefined>(undefined);
     const lastLngRef = useRef<number | undefined>(undefined);
 
-    // user 상태가 변경될 때마다 ref 업데이트
+    // dog 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
-        userRef.current = user;
-    }, [user]);
+        dogRef.current = dog;
+    }, [dog]);
 
     // currentPos ref 업데이트
     useEffect(() => {
@@ -60,8 +60,8 @@ export const useWalkControl = () => {
     }, [currentPos]);
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
-        const currentUser = userRef.current;
-        const myDogId = currentUser?.dogId;
+        const currentDog = dogRef.current;
+        const myDogId = currentDog?.id;
 
 
         switch (message.type) {
@@ -206,13 +206,8 @@ export const useWalkControl = () => {
     }, [handleWebSocketMessage]);
 
     const handleStart = async () => {
-        if (!user || isError) {
-            router.push("/login");
-            return;
-        }
-
-        // 반려견 정보 미등록 체크
-        if (!user.dogId) {
+        // 반려견 정보 미등록 체크 (dog 객체가 없거나 id가 없는 경우)
+        if (!dog?.id) {
             openModal({
                 title: "반려견 등록이 필요해요",
                 message: "반려견 정보를 등록하고 산책을 시작할까요?",

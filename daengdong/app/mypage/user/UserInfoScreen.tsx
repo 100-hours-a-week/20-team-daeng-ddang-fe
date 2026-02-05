@@ -6,14 +6,11 @@ import { GlobalLoading } from '@/widgets/GlobalLoading';
 import styled from '@emotion/styled';
 import { spacing } from '@/shared/styles/tokens';
 import { useRouter } from 'next/navigation';
-import { useUserQuery } from '@/entities/user/model/useUserQuery';
 
 export function UserInfoScreen() {
     const router = useRouter();
 
     const { data: userInfo, isLoading: isQueryLoading } = useUserInfoQuery();
-    // 이메일 표시용 fallback
-    const { data: userData } = useUserQuery();
 
     const regionParts = userInfo?.region ? userInfo.region.split(' ') : [];
     const province = regionParts[0] || '';
@@ -29,7 +26,7 @@ export function UserInfoScreen() {
 
     // 이메일 표시 우선순위: 1. API 응답 2. User 쿼리 응답 3. 로컬 스토리지 (가입 미완료 시)
     const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('userEmail') : null;
-    const displayEmail = (userInfo?.kakaoEmail || userData?.kakaoEmail || savedEmail) ?? undefined;
+    const displayEmail = (userInfo?.kakaoEmail || savedEmail) ?? undefined;
 
     return (
         <Container>
