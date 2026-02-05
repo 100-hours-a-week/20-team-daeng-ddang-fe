@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/entities/session/model/store";
 import { useQuery } from "@tanstack/react-query";
 import { getUserInfo } from "../api/user";
-import { dogRepository } from "@/entities/dog/api/dogRepository";
+import { getDogInfo } from "@/entities/dog/api/dog";
 
 import { queryKeys } from '@/shared/api/queryKeys';
 
@@ -14,7 +14,7 @@ export const useUserQuery = () => {
         queryFn: async () => {
             const [userInfo, dogInfo] = await Promise.all([
                 getUserInfo(),
-                dogRepository.getDogInfo()
+                getDogInfo()
             ]);
 
             if (!userInfo) return null;

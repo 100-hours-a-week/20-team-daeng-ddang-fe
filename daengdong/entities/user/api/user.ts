@@ -1,27 +1,64 @@
-import { Region, UserInfo, CreateUserParams, UpdateUserParams, UserResponse } from '@/entities/user/model/types';
-import { userApi } from './index';
-import { userRepository } from './userRepository';
+import { http } from '@/shared/api/http';
+import { UserInfo, UserResponse, CreateUserParams, UpdateUserParams, Region } from '../model/types';
+import { ApiResponse } from '@/shared/api/types';
 
-export const getRegions = async (parentId?: number): Promise<Region[]> => {
-    return userApi.getRegions(parentId);
+interface RegionsResponse {
+    regions: Region[];
+}
+
+export const userApi = {
+    async getUserInfo(): Promise<UserInfo | null> {
+        try {
+            const response = await http.get<ApiResponse<UserResponse>>('/users/me');
+            const data = response.data.data;
+
+            return {
+                userId: data.userId,
+                regionId: data.regionId,
+                parentRegionId: data.parentRegionId,
+                region: data.region,
+                kakaoEmail: data.kakaoEmail,
+                dogId: data.dogId,
+                profileImageUrl: data.profileImageUrl ?? null,
+                isAgreed: data.isAgreed,
+            };
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((error as any).response?.status === 404) {
+                return null;
+            }
+            throw error;
+        }
+    },
+
+    async createUser(params: CreateUserParams): Promise<UserResponse> {
+        const response = await http.post<ApiResponse<UserResponse>>('/users', params);
+        return response.data.data;
+    },
+
+    async updateUser(params: UpdateUserParams): Promise<UserResponse> {
+        const response = await http.patch<ApiResponse<UserResponse>>('/users', params);
+        return response.data.data;
+    },
+
+    async deleteUser(): Promise<void> {
+        await http.delete('/users');
+    },
+
+    async getRegions(parentId?: number): Promise<Region[]> {
+        const params = parentId ? { parentId } : {};
+        const response = await http.get<ApiResponse<RegionsResponse>>('/users/regions', { params });
+        return response.data.data.regions;
+    },
+
+    async updateTermsAgreement(isAgreed: boolean): Promise<void> {
+        await http.patch('/users/terms', { isAgreed });
+    },
 };
 
-export const registerUserInfo = async (params: CreateUserParams): Promise<UserResponse> => {
-    return userApi.createUser(params);
-};
-
-export const getUserInfo = async (): Promise<UserInfo | null> => {
-    return userApi.getUserInfo();
-};
-
-export const updateUserInfo = async (params: UpdateUserParams): Promise<UserResponse> => {
-    return userApi.updateUser(params);
-};
-
-export const deleteUser = async (): Promise<void> => {
-    return userRepository.deleteUser();
-};
-
-export const updateTermsAgreement = async (isAgreed: boolean): Promise<void> => {
-    return userRepository.updateTermsAgreement(isAgreed);
-};
+export const getUserInfo = userApi.getUserInfo;
+export const registerUserInfo = userApi.createUser;
+export const updateUserInfo = userApi.updateUser;
+export const deleteUser = userApi.deleteUser;
+export const getRegions = userApi.getRegions;
+export const updateTermsAgreement = userApi.updateTermsAgreement;
