@@ -7,7 +7,7 @@ import { useModalStore } from "@/shared/stores/useModalStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
-import { fileApi } from "@/shared/api/file";
+import fileApi from "@/shared/api/file";
 import { useUserQuery } from "@/entities/user/model/useUserQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";

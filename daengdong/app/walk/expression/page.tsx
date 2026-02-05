@@ -9,7 +9,7 @@ import { ExpressionCamera } from "@/features/expression/ui/ExpressionCamera";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { fileApi } from "@/shared/api/file";
+import fileApi from "@/shared/api/file";
 import { expressionApi } from "@/entities/expression/api/expression";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";

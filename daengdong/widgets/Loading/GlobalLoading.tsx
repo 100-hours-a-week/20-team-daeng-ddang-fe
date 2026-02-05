@@ -7,22 +7,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 
-export function GlobalLoading() {
-  const { isLoading, message } = useLoadingStore();
-
-  useEffect(() => {
-    if (isLoading) {
-      document.body.classList.add("modal-open");
-    } else {
-      document.body.classList.remove("modal-open");
-    }
-    return () => {
-      document.body.classList.remove("modal-open");
-    };
-  }, [isLoading]);
-
-  if (!isLoading) return null;
-
+export function LoadingView({ message }: { message?: string }) {
   const pawCount = 3;
   const paws = Array.from({ length: pawCount });
 
@@ -57,6 +42,25 @@ export function GlobalLoading() {
       </Container>
     </Overlay>
   );
+}
+
+export function GlobalLoading() {
+  const { isLoading, message } = useLoadingStore();
+
+  useEffect(() => {
+    if (isLoading) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isLoading]);
+
+  if (!isLoading) return null;
+
+  return <LoadingView message={message || undefined} />;
 }
 
 const Overlay = styled.div`

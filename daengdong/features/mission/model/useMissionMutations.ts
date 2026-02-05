@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { missionApi } from "@/entities/mission/api/mission";
-import { fileApi } from "@/shared/api/file";
+import fileApi from "@/shared/api/file";
 
 interface UploadMissionVideoParams {
     walkId: number;
