@@ -4,14 +4,14 @@ import { DogForm } from '@/app/mypage/dog/ui/DogForm';
 import { DogFormValues } from '@/entities/dog/model/types';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
-import { useDogProfile } from '@/features/dog/model/useDogProfile';
+import { useDogInfo } from '@/features/dog/model/useDogInfo';
 import { spacing } from '@/shared/styles/tokens';
 import { LoadingView } from '@/widgets/Loading/GlobalLoading';
 
 export function DogInfoScreen() {
     const router = useRouter();
     const { data: dogInfo, isLoading: isDogLoading } = useDogInfoQuery();
-    const { saveDogProfile, transformDogInfoToForm, isSaving } = useDogProfile();
+    const { saveDogProfile, transformDogInfoToForm, isSaving } = useDogInfo();
 
     const handleSave = async (data: DogFormValues) => {
         await saveDogProfile(data, dogInfo);

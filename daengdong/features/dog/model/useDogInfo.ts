@@ -3,7 +3,7 @@ import fileApi from '@/shared/api/file';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { DogFormValues, DogInfo } from '@/entities/dog/model/types';
 
-export const useDogProfile = () => {
+export const useDogInfo = () => {
     const { showToast } = useToastStore();
     const saveMutation = useSaveDogMutation();
 
