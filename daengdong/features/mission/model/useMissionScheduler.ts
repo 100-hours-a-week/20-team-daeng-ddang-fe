@@ -10,7 +10,6 @@ export const useMissionScheduler = () => {
     const setActiveMissionAlert = useWalkStore((state) => state.setActiveMissionAlert);
     const activeMissionAlert = useWalkStore((state) => state.activeMissionAlert);
 
-    // 산책이 시작되고 아직 예약된 미션이 없을 때 스케줄링 시작
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
         if (scheduledMissions.length > 0) return;
@@ -20,13 +19,8 @@ export const useMissionScheduler = () => {
                 const response = await missionApi.getMissions();
                 const availableMissions = response.missions;
 
-                // 랜덤 미션 3개 선택
                 const shuffled = [...availableMissions].sort(() => 0.5 - Math.random());
                 const selected = shuffled.slice(0, 3);
-
-                // M1: 5-10 분 후
-                // M2: 20-40 분 후
-                // M3: 40-60 분 후
 
                 const isTestMode = process.env.NEXT_PUBLIC_MISSION_TEST_MODE === "true";
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
@@ -70,6 +64,9 @@ export const useMissionScheduler = () => {
     // 주기적으로 스케줄 확인
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
+
+        const hasUnTriggeredMissions = scheduledMissions.some(item => !item.triggered);
+        if (!hasUnTriggeredMissions) return;
 
         const interval = setInterval(() => {
             const now = Date.now();
