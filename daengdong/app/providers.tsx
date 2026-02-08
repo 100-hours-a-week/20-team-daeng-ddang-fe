@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
-import { AuthInitializer } from '@/widgets/Init/AuthInitializer';
+import { AuthInitializer } from '@/widgets/AuthInitializer';
 
 export default function Providers({ children }: { children: ReactNode }) {
     const [queryClient] = useState(() => new QueryClient({

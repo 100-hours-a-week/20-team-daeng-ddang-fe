@@ -25,7 +25,6 @@ export const useAreaSubscription = (
         if (subscribedAreaKeyRef.current !== newAreaKey) {
             // 영역 변경 감지: 구독 해제 -> 구독
             if (subscribedAreaKeyRef.current) {
-                console.log(`🔄 Area 변경 감지: ${subscribedAreaKeyRef.current} -> ${newAreaKey}`);
                 wsClient.unsubscribeFromArea();
             }
 
@@ -39,7 +38,6 @@ export const useAreaSubscription = (
     useEffect(() => {
         return () => {
             if (subscribedAreaKeyRef.current && wsClient) {
-                console.log('🧹 컴포넌트 언마운트로 인한 Area 구독 해제');
                 wsClient.unsubscribeFromArea();
                 subscribedAreaKeyRef.current = null;
             }

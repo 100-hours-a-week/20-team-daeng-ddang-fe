@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { registerUserInfo, updateUserInfo } from '@/entities/user/api/user';
 import { CreateUserParams, UpdateUserParams } from '@/entities/user/model/types';
 
+import { queryKeys } from '@/shared/lib/queryKeys';
+
 interface SaveUserMutationParams {
     userId?: number;
     regionId: number;
@@ -23,7 +25,8 @@ export const useSaveUserMutation = () => {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+            queryClient.invalidateQueries({ queryKey: [queryKeys.userInfo] });
+            queryClient.invalidateQueries({ queryKey: queryKeys.userInfoCombined });
         },
     });
 };

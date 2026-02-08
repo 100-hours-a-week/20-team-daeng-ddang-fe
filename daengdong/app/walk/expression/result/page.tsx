@@ -2,9 +2,9 @@
 
 import styled from "@emotion/styled";
 import { useMemo, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useExpressionStore } from "@/entities/expression/model/expressionStore";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";
@@ -26,30 +26,16 @@ const EMOTION_CONFIG: Record<string, { label: string; icon: string; color: strin
 
 function ExpressionResultContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isMock = searchParams.get("mock") === "1";
+
 
   const { analysis, clearAnalysis } = useExpressionStore();
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const result = useMemo<ExpressionAnalysis>(() => {
-    if (!isMock && analysis) return analysis;
-    return {
-      expressionId: "12",
-      predictEmotion: "HAPPY",
-      emotionScores: {
-        happy: 0.82,
-        relaxed: 0.1,
-        sad: 0.05,
-        angry: 0.03,
-      },
-      summary: "산책 후 반려견이 전반적으로 편안하고 즐거운 상태로 보입니다.",
-      imageUrl: "https://cdn.example.com/expressions/expr_12.jpg",
-      createdAt: "2026-01-08T16:40:13",
-      dogId: 3,
-      walkId: 0,
-    };
-  }, [analysis, isMock]);
+  const result = useMemo<ExpressionAnalysis | undefined>(() => {
+    return analysis ?? undefined;
+  }, [analysis]);
+
+  if (!result) return null;
 
   const scores = result.emotionScores ?? {
     happy: 0,

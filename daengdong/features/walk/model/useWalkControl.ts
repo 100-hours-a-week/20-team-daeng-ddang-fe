@@ -7,15 +7,14 @@ import { useModalStore } from "@/shared/stores/useModalStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useToastStore } from "@/shared/stores/useToastStore";
 import { useStartWalk, useEndWalk } from "@/features/walk/model/useWalkMutations";
-import { fileApi } from "@/shared/api/file";
-import { useUserQuery } from "@/entities/user/model/useUserQuery";
+import fileApi from "@/shared/api/file";
+import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
-import { MockWalkWebSocketClient } from "@/shared/lib/websocket/MockWalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
-import { ENV } from "@/shared/config/env";
+
 
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
-import { isAbnormalSpeed } from "@/shared/utils/walkMetricsValidator";
+import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 
 export const useWalkControl = () => {
     const {
@@ -42,18 +41,18 @@ export const useWalkControl = () => {
     const { mutateAsync: startWalkMutate, isPending: isStarting } = useStartWalk();
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
-    const { data: user, isError } = useUserQuery();
+    const { data: dog } = useDogInfoQuery();
 
     const wsClientRef = useRef<IWalkWebSocketClient | null>(null);
-    const userRef = useRef(user);
+    const dogRef = useRef(dog);
     const currentPosRef = useRef(currentPos);
     const lastLatRef = useRef<number | undefined>(undefined);
     const lastLngRef = useRef<number | undefined>(undefined);
 
-    // user 상태가 변경될 때마다 ref 업데이트
+    // dog 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
-        userRef.current = user;
-    }, [user]);
+        dogRef.current = dog;
+    }, [dog]);
 
     // currentPos ref 업데이트
     useEffect(() => {
@@ -61,10 +60,9 @@ export const useWalkControl = () => {
     }, [currentPos]);
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
-        const currentUser = userRef.current;
-        const myDogId = currentUser?.dogId;
+        const currentDog = dogRef.current;
+        const myDogId = currentDog?.id;
 
-        console.log("DEBUG: handleWebSocketMessage received", message.type, message);
 
         switch (message.type) {
             case "BLOCK_OCCUPIED":
@@ -188,24 +186,16 @@ export const useWalkControl = () => {
     useEffect(() => {
         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-        if (ENV.USE_MOCK) {
-            wsClientRef.current = new MockWalkWebSocketClient(
-                handleWebSocketMessage,
-                (error) => console.error("Mock WebSocket Error:", error)
-            );
-        } else {
-            wsClientRef.current = new WalkWebSocketClient(
-                baseUrl,
-                handleWebSocketMessage,
-                (error) => console.error("WebSocket Error:", error)
-            );
-        }
+        wsClientRef.current = new WalkWebSocketClient(
+            baseUrl,
+            handleWebSocketMessage,
+            (error) => console.error("WebSocket Error:", error)
+        );
 
         // 산책 중 새로고침/페이지 이동 후 복귀 시 자동 재연결
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
             const token = localStorage.getItem('accessToken') || undefined;
-            console.log("[WebSocket] 세션 복구: 자동 재연결 시도", walkId);
             wsClientRef.current.connect(walkId, token)
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
@@ -216,19 +206,14 @@ export const useWalkControl = () => {
     }, [handleWebSocketMessage]);
 
     const handleStart = async () => {
-        if (!user || isError) {
-            router.push("/login");
-            return;
-        }
-
-        // 반려견 정보 미등록 체크
-        if (!user.dogId) {
+        // 반려견 정보 미등록 체크 (dog 객체가 없거나 id가 없는 경우)
+        if (!dog?.id) {
             openModal({
-                title: "반려견 정보 필요",
-                message: "산책을 시작하려면 반려견 정보를 먼저 등록해주세요.",
+                title: "반려견 등록이 필요해요",
+                message: "반려견 정보를 등록하고 산책을 시작할까요?",
                 type: "confirm",
-                confirmText: "등록하러 가기",
-                cancelText: "취소",
+                confirmText: "등록하기",
+                cancelText: "나중에",
                 onConfirm: () => {
                     router.push("/mypage/dog");
                 },
@@ -248,12 +233,11 @@ export const useWalkControl = () => {
 
         // 중복 요청 방지
         if (isStarting) {
-            console.warn('[StartWalk] 이미 요청 진행 중');
+            console.warn('[산책 시작] 이미 요청 진행 중');
             return;
         }
 
         showLoading("산책을 시작하는 중입니다...");
-        console.log('[StartWalk] 요청 시작:', { lat: currentPos.lat, lng: currentPos.lng });
 
         try {
             const res = await startWalkMutate({
@@ -261,21 +245,19 @@ export const useWalkControl = () => {
                 startLng: currentPos.lng
             });
 
-            console.log('[StartWalk] 성공:', res);
             startWalk(res.walkId);
 
             // WebSocket 연결
             try {
                 const token = localStorage.getItem('accessToken') || undefined;
                 await wsClientRef.current?.connect(res.walkId, token);
-                console.log("[StartWalk] WebSocket 연결 성공:", res.walkId);
             } catch (e) {
-                console.error("[StartWalk] WebSocket 연결 실패:", e);
+                console.error("[산책 시작] WebSocket 연결 실패:", e);
             }
 
             hideLoading();
         } catch (error) {
-            console.error('[StartWalk] 실패:', error);
+            console.error('[산책 시작] 실패:', error);
             hideLoading();
 
             // Axios 에러 타입 체크
@@ -396,7 +378,6 @@ export const useWalkControl = () => {
                         return new Promise((resolve) => {
                             const checkReady = () => {
                                 if (window.isWalkSnapshotReady) {
-                                    console.log(`[Snapshot] Ready after ${Date.now() - startTime}ms`);
                                     resolve(true);
                                     return;
                                 }
@@ -426,8 +407,6 @@ export const useWalkControl = () => {
                         const blob = await window.getWalkSnapshotBlob();
 
                         if (blob && blob.size > 0) {
-                            console.log("[Snapshot] 생성 성공, 크기:", blob.size);
-
                             // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
                             const base64Url = await new Promise<string>((resolve) => {
                                 const reader = new FileReader();
@@ -437,14 +416,11 @@ export const useWalkControl = () => {
                             storedImageUrl = base64Url;
 
                             try {
-                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                const { presignedUrl } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
-                                console.log("[Snapshot] S3 업로드 성공:", objectKey);
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);
                             }
-                        } else {
-                            console.warn("[Snapshot] Blob이 null이거나 비어있음, blob:", blob);
                         }
                     }
                 } catch (error) {

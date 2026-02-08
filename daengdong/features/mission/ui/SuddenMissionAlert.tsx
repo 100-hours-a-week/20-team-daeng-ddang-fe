@@ -14,11 +14,11 @@ interface SuddenMissionAlertProps {
 export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
     const router = useRouter();
     const { setCurrentMission } = useMissionStore();
-    const { setActiveMissionAlert } = useWalkStore();
+    const { setActiveMissionAlert, walkId } = useWalkStore();
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [progress, setProgress] = useState(100);
 
-    const STORAGE_KEY = `SUDDEN_KEY_ALERT_START_${mission.missionId}`;
+    const STORAGE_KEY = `SUDDEN_KEY_ALERT_START_${walkId}_${mission.missionId}`;
 
     useEffect(() => {
         // 초기 / 복구 시간 설정
@@ -46,7 +46,7 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
             }
 
             setTimeLeft(remaining);
-            setProgress(Math.max(0, (remaining / 10) * 100)); // Update progress based on actual remaining time
+            setProgress(Math.max(0, (remaining / 10) * 100));
             return true;
         };
 
@@ -63,13 +63,12 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
 
     const handleClick = () => {
         sessionStorage.removeItem(STORAGE_KEY);
-        // Activate Mission
         setCurrentMission({
             missionId: mission.missionId,
             title: mission.title,
             description: mission.description,
         });
-        setActiveMissionAlert(null); // Clear alert
+        setActiveMissionAlert(null);
         router.push("/walk/mission");
     };
 

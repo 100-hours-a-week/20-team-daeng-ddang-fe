@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { calculateDistance } from "@/shared/utils/geo";
+import { calculateDistance } from "@/entities/walk/lib/geo";
 
 export const WalkManager = () => {
     const { walkMode, incrementTime, addDistance, addPathPoint, setCurrentPos, currentPos } = useWalkStore();

@@ -3,13 +3,11 @@
 import { WalkMap } from "@/features/walk/ui/WalkMap";
 import { WalkStatusPanel } from "@/features/walk/ui/WalkStatusPanel";
 import { useWalkStore } from "@/entities/walk/model/walkStore";
-import { Header } from "@/widgets/Header/Header";
+import { Header } from "@/widgets/Header";
 import { useIdleLocation } from "@/features/walk/model/useIdleLocation";
 import { useNearbyBlocksQuery } from "@/entities/walk/model/useBlocksQuery";
-import { useUserQuery } from "@/entities/user/model/useUserQuery";
-import { useEffect } from "react";
+import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { WalkSnapshotRenderer } from "@/features/walk/ui/WalkSnapshotRenderer";
-import { useRouter } from "next/navigation";
 import { useMissionScheduler } from "@/features/mission/model/useMissionScheduler";
 import { SuddenMissionAlert } from "@/features/mission/ui/SuddenMissionAlert";
 import styled from "@emotion/styled";
@@ -17,8 +15,6 @@ import { useBlockSynchronization } from "@/features/walk/model/useBlockSynchroni
 
 export default function WalkPage() {
   const { currentPos, myBlocks, othersBlocks, activeMissionAlert, path } = useWalkStore();
-
-
 
   useIdleLocation();
   useMissionScheduler();
@@ -32,17 +28,9 @@ export default function WalkPage() {
     1000
   );
 
-  const { data: user } = useUserQuery();
-  const router = useRouter();
+  const { data: dog } = useDogInfoQuery();
 
-  // 서버 데이터 기반 약관 동의 체크
-  useEffect(() => {
-    if (user && user.isAgreed === false) {
-      router.replace('/terms');
-    }
-  }, [user, router]);
-
-  useBlockSynchronization(nearbyBlocks, user || undefined);
+  useBlockSynchronization(nearbyBlocks, dog?.id);
 
   return (
     <div

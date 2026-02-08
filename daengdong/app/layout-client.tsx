@@ -3,10 +3,10 @@
 import { ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import styled from "@emotion/styled";
-import { Modal } from '@/widgets/Modal/Modal';
-import { Toast } from '@/widgets/Toast/Toast';
-import { BottomNav } from '@/widgets/BottomNav/BottomNav';
-import { GlobalLoading } from '@/widgets/Loading/GlobalLoading';
+import { Modal } from '@/widgets/Modal';
+import { Toast } from '@/widgets/Toast';
+import { BottomNav } from '@/widgets/BottomNav';
+import { GlobalLoading } from '@/widgets/GlobalLoading';
 import { WalkManager } from '@/features/walk/ui/WalkManager';
 
 export function LayoutClient({ children }: { children: ReactNode }) {
