@@ -48,6 +48,7 @@ export const useWalkControl = () => {
     const currentPosRef = useRef(currentPos);
     const lastLatRef = useRef<number | undefined>(undefined);
     const lastLngRef = useRef<number | undefined>(undefined);
+    const isFirstSyncRef = useRef(true);
 
     // dog 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
@@ -106,19 +107,25 @@ export const useWalkControl = () => {
                     }
                 });
 
-                // 내 블록 병합 
-                // 서버가 가진 건 무조건 추가하되, 이미 있는 건 유지 
-                const { myBlocks: currentMyBlocks } = useWalkStore.getState();
-                const mergedMyBlocks = [...currentMyBlocks];
+                // 첫 BLOCK_SYNC: 서버 데이터로 완전 교체 (초기화)
+                // 이후 BLOCK_SYNC: 병합 (Optimistic Update 보존)
+                if (isFirstSyncRef.current) {
+                    setMyBlocks(mine);
+                    setOthersBlocks(others);
+                    isFirstSyncRef.current = false;
+                } else {
+                    // 서버에서 온 블록 + 로컬에만 있는 블록 병합
+                    const { myBlocks: currentMyBlocks, othersBlocks: currentOthersBlocks } = useWalkStore.getState();
+                    const serverMyBlockIds = new Set(mine.map(b => b.blockId));
+                    const localOnlyMyBlocks = currentMyBlocks.filter(b => !serverMyBlockIds.has(b.blockId));
 
-                mine.forEach(serverBlock => {
-                    if (!mergedMyBlocks.some(local => local.blockId === serverBlock.blockId)) {
-                        mergedMyBlocks.push(serverBlock);
-                    }
-                });
+                    // othersBlocks도 동일하게 병합
+                    const serverOthersBlockIds = new Set(others.map(b => b.blockId));
+                    const localOnlyOthersBlocks = currentOthersBlocks.filter(b => !serverOthersBlockIds.has(b.blockId));
 
-                setMyBlocks(mergedMyBlocks);
-                setOthersBlocks(others);
+                    setMyBlocks([...mine, ...localOnlyMyBlocks]);
+                    setOthersBlocks([...others, ...localOnlyOthersBlocks]);
+                }
                 break;
             case "BLOCK_TAKEN":
                 const { blockId, previousDogId, newDogId, takenAt } = message.data;
@@ -252,6 +259,8 @@ export const useWalkControl = () => {
             });
 
             startWalk(res.walkId);
+
+            isFirstSyncRef.current = true;
 
             // WebSocket 연결
             try {
