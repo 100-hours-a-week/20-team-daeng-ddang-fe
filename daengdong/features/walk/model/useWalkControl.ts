@@ -41,7 +41,7 @@ export const useWalkControl = () => {
     const { mutateAsync: startWalkMutate, isPending: isStarting } = useStartWalk();
     const { mutate: endWalkMutate } = useEndWalk();
     const router = useRouter();
-    const { data: dog } = useDogInfoQuery();
+    const { data: dog, isLoading: isDogLoading } = useDogInfoQuery();
 
     const wsClientRef = useRef<IWalkWebSocketClient | null>(null);
     const dogRef = useRef(dog);
@@ -206,6 +206,12 @@ export const useWalkControl = () => {
     }, [handleWebSocketMessage]);
 
     const handleStart = async () => {
+        // 데이터 로딩 중에는 아무 작업도 하지 않음
+        if (isDogLoading) {
+            console.log('[산책 시작] 반려견 정보 로딩 중...');
+            return;
+        }
+
         // 반려견 정보 미등록 체크 (dog 객체가 없거나 id가 없는 경우)
         if (!dog?.id) {
             openModal({
@@ -492,6 +498,7 @@ export const useWalkControl = () => {
         handleEnd,
         handleCancel,
         sendLocation,
-        wsClient: wsClientRef.current
+        wsClient: wsClientRef.current,
+        isDogLoading
     };
 };
