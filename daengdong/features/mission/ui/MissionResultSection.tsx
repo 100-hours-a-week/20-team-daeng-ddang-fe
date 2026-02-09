@@ -10,15 +10,7 @@ interface MissionResultSectionProps {
 export const MissionResultSection = ({ walkId }: MissionResultSectionProps) => {
   const { data: missionAnalysis, isLoading, isError, error } = useWalkMissionQuery(walkId);
 
-  console.log('[MissionResultSection] State:', {
-    walkId,
-    isLoading,
-    isError,
-    hasData: !!missionAnalysis,
-    missionCount: missionAnalysis?.missions?.length,
-    error: error?.message,
-    fullData: missionAnalysis
-  });
+
 
   if (isLoading) {
     return (

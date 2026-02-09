@@ -16,8 +16,7 @@ export interface GetPresignedUrlResponse {
     expiresIn: number;
 }
 
-const realFileApi = {
-    // Presigned URL 발급 요청
+const fileApi = {
     getPresignedUrl: async (fileType: FileType, contentType: string, uploadContext: UploadContext) => {
         const response = await http.post<ApiResponse<GetPresignedUrlResponse>>("/presigned-url", {
             fileType,
@@ -42,4 +41,4 @@ const realFileApi = {
     },
 };
 
-export const fileApi = realFileApi;
+export default fileApi;

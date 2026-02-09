@@ -5,49 +5,52 @@ import { colors } from "@/shared/styles/tokens";
 import { useWalkControl } from "@/features/walk/model/useWalkControl";
 
 export const WalkStatusPanel = () => {
-    const {
-        walkMode,
-        elapsedTime,
-        distance,
-        handleStart,
-        handleEnd,
-        handleCancel
-    } = useWalkControl();
+  const {
+    walkMode,
+    elapsedTime,
+    distance,
+    handleStart,
+    handleEnd,
+    handleCancel,
+    isDogLoading
+  } = useWalkControl();
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, "0")}`;
-    };
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
-    if (walkMode === "idle") {
-        return (
-            <Container>
-                <Message>산책 준비 완료!</Message>
-                <StartButton onClick={handleStart}>산책 시작 🐕</StartButton>
-            </Container>
-        );
-    }
-
+  if (walkMode === "idle") {
     return (
-        <Container>
-            <StatsRow>
-                <StatItem>
-                    <Label>시간</Label>
-                    <Value>{formatTime(elapsedTime)}</Value>
-                </StatItem>
-                <StatItem>
-                    <Label>거리</Label>
-                    <Value>{distance.toFixed(2)} km</Value>
-                </StatItem>
-            </StatsRow>
-
-            <ButtonRow>
-                <CancelButton onClick={handleCancel}>취소하기</CancelButton>
-                <EndButton onClick={handleEnd}>산책 종료</EndButton>
-            </ButtonRow>
-        </Container>
+      <Container>
+        <Message>산책 준비 완료!</Message>
+        <StartButton onClick={handleStart} disabled={isDogLoading}>
+          {isDogLoading ? '로딩 중...' : '산책 시작 🐕'}
+        </StartButton>
+      </Container>
     );
+  }
+
+  return (
+    <Container>
+      <StatsRow>
+        <StatItem>
+          <Label>시간</Label>
+          <Value>{formatTime(elapsedTime)}</Value>
+        </StatItem>
+        <StatItem>
+          <Label>거리</Label>
+          <Value>{distance.toFixed(2)} km</Value>
+        </StatItem>
+      </StatsRow>
+
+      <ButtonRow>
+        <CancelButton onClick={handleCancel}>취소하기</CancelButton>
+        <EndButton onClick={handleEnd}>산책 종료</EndButton>
+      </ButtonRow>
+    </Container>
+  );
 };
 
 const Container = styled.div`
@@ -69,19 +72,20 @@ const Message = styled.div`
   color: #333;
 `;
 
-const StartButton = styled.button`
+const StartButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
   padding: 16px;
-  background-color: ${colors.primary[500]};
+  background-color: ${props => props.disabled ? '#ccc' : colors.primary[500]};
   color: white;
   border: none;
   border-radius: 12px;
   font-size: 18px;
   font-weight: 700;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  opacity: ${props => props.disabled ? 0.6 : 1};
   
   &:active {
-    opacity: 0.9;
+    opacity: ${props => props.disabled ? 0.6 : 0.9};
   }
 `;
 

@@ -34,7 +34,6 @@ interface KakaoButtonProps {
 export const KakaoButton = ({ onClick, children }: KakaoButtonProps) => {
   return (
     <Button onClick={onClick}>
-      {/* Icon could go here */}
       {children}
     </Button>
   );

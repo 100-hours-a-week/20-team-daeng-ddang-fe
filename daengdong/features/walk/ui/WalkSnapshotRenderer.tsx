@@ -261,7 +261,7 @@ export const WalkSnapshotRenderer = ({
 
         // 타임아웃 타이머
         const timeoutId = setTimeout(() => {
-            console.warn("[WalkSnapshotRenderer] Image load timed out, falling back to error state");
+            console.warn("[WalkSnapshotRenderer] 이미지 로드 타임아웃");
             setImageStatus("error");
         }, 8000); // 8초 타임아웃
 
@@ -310,17 +310,14 @@ export const WalkSnapshotRenderer = ({
         window.getWalkSnapshotBlob = async () => {
             // 준비되지 않았으면 즉시 null 반환 (외부에서 폴링으로 대기하므로)
             if (!canvasRef.current || !isReady) {
-                console.warn('[WalkSnapshotRenderer] Snapshot not ready, canvas:', !!canvasRef.current, 'isReady:', isReady);
                 return null;
             }
 
             return new Promise<Blob | null>((resolve) => {
                 canvasRef.current?.toBlob((blob) => {
                     if (blob && blob.size > 0) {
-                        console.log('[WalkSnapshotRenderer] Snapshot blob created successfully, size:', blob.size);
                         resolve(blob);
                     } else {
-                        console.warn('[WalkSnapshotRenderer] Blob creation failed or empty');
                         resolve(null);
                     }
                 }, "image/png");

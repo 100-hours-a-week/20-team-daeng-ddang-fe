@@ -5,7 +5,6 @@ export interface Breed {
     name: string;
 }
 
-// 서버
 export interface DogResponse {
     dogId: number;
     name: string;
@@ -19,7 +18,6 @@ export interface DogResponse {
     profileImageUrl: string | null;
 }
 
-// 프론트
 export interface DogInfo {
     id?: number;
     name: string;
@@ -33,7 +31,6 @@ export interface DogInfo {
     imageUrl?: string | null;
 }
 
-// 폼
 export interface DogFormValues {
     name: string;
     breedId: number;

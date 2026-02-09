@@ -10,7 +10,6 @@ export const useMissionScheduler = () => {
     const setActiveMissionAlert = useWalkStore((state) => state.setActiveMissionAlert);
     const activeMissionAlert = useWalkStore((state) => state.activeMissionAlert);
 
-    // 산책이 시작되고 아직 예약된 미션이 없을 때 스케줄링 시작
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
         if (scheduledMissions.length > 0) return;
@@ -20,19 +19,13 @@ export const useMissionScheduler = () => {
                 const response = await missionApi.getMissions();
                 const availableMissions = response.missions;
 
-                // 랜덤 미션 3개 선택
                 const shuffled = [...availableMissions].sort(() => 0.5 - Math.random());
                 const selected = shuffled.slice(0, 3);
-
-                // M1: 5-10 분 후
-                // M2: 20-40 분 후
-                // M3: 40-60 분 후
 
                 const isTestMode = process.env.NEXT_PUBLIC_MISSION_TEST_MODE === "true";
                 const newSchedule: { mission: Mission; triggerAt: number; triggered: boolean }[] = [];
 
                 if (isTestMode) {
-                    console.log("[미션 스케줄러] 테스트 모드 (10초, 2분, 4분)");
                     // M1: 10초 후
                     const delay1 = 10 * 1000;
                     if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
@@ -45,8 +38,6 @@ export const useMissionScheduler = () => {
                     const delay3 = 4 * 60 * 1000;
                     if (selected[2]) newSchedule.push({ mission: selected[2], triggerAt: startTime + delay3, triggered: false });
                 } else {
-                    console.log("[미션 스케줄러] 운영 모드 (랜덤 3-60분)");
-
                     // M1: 3-7 분 후
                     const delay1 = (Math.floor(Math.random() * (7 - 3 + 1)) + 3) * 60 * 1000;
                     if (selected[0]) newSchedule.push({ mission: selected[0], triggerAt: startTime + delay1, triggered: false });
@@ -74,6 +65,9 @@ export const useMissionScheduler = () => {
     useEffect(() => {
         if (walkMode !== "walking" || !startTime) return;
 
+        const hasUnTriggeredMissions = scheduledMissions.some(item => !item.triggered);
+        if (!hasUnTriggeredMissions) return;
+
         const interval = setInterval(() => {
             const now = Date.now();
             const updated = scheduledMissions.map(item => {
@@ -86,7 +80,6 @@ export const useMissionScheduler = () => {
             // 새로 트리거된 미션이 있는지 확인
             const newlyTriggered = updated.find((item, idx) => item.triggered && !scheduledMissions[idx].triggered);
             if (newlyTriggered) {
-                console.log("[MissionScheduler] Triggering:", newlyTriggered.mission.title);
                 setActiveMissionAlert(newlyTriggered.mission);
                 setScheduledMissions(updated);
             }

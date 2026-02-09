@@ -7,13 +7,13 @@ if (!API_BASE_URL) {
     throw new Error('API_BASE_URL is not defined');
 }
 
-// 1. 일반 API 요청용 인스턴스
+// 일반 API 요청용 인스턴스
 export const http = axios.create({
     baseURL: API_BASE_URL,
     timeout: 30000, // 30초 - 느린 네트워크 환경 고려
 });
 
-// 2. 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지용)
+// 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지)
 const tokenHttp = axios.create({
     baseURL: API_BASE_URL,
 });
@@ -25,16 +25,6 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
 
 http.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        // 요청 데이터 로깅 (CORS로 인해 Network 탭에서 안 보일 때 유용)
-        console.log('🚀 API Request:', {
-            method: config.method?.toUpperCase(),
-            url: config.url,
-            baseURL: config.baseURL,
-            fullURL: `${config.baseURL}${config.url}`,
-            headers: config.headers,
-            data: config.data,
-            params: config.params,
-        });
 
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('accessToken');
@@ -74,29 +64,9 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 http.interceptors.response.use(
     (response: AxiosResponse) => {
-        console.log('✅ API Response:', {
-            status: response.status,
-            statusText: response.statusText,
-            url: response.config.url,
-            data: response.data,
-        });
         return response;
     },
     async (error: AxiosError) => {
-        const url = error.config?.url || '';
-
-        const isMissionAnalysis = url.includes('/missions/analysis');
-
-        // CORS 에러 등 상세 로깅 (미션 분석 제외)
-        if (error.code && !isMissionAnalysis) {
-            console.error('❌ API Error Info:', {
-                message: error.message,
-                code: error.code,
-                status: error.response?.status,
-                url: error.config?.url,
-            });
-        }
-
         // 401 Unauthorized 에러 처리 (토큰 만료)
         if (error.response && error.response.status === 401) {
             const originalRequest = error.config as CustomAxiosRequestConfig;
@@ -108,9 +78,8 @@ http.interceptors.response.use(
             // _retry 속성이 있는지 확인 (이미 재시도한 요청인지)
             if (originalRequest._retry || originalRequest.url === '/auth/token') {
                 if (typeof window !== 'undefined') {
-                    console.warn("🚨 Reuse of expired token detected. Forcing logout.");
                     localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';
                 }
                 return Promise.reject(error);
@@ -156,9 +125,8 @@ http.interceptors.response.use(
                 // 갱신 실패 시 로그아웃 처리
                 processQueue(refreshError, null);
                 if (typeof window !== 'undefined') {
-                    console.error("❌ Token Refresh Failed. Logging out.");
                     localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
+                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);

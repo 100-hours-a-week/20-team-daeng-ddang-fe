@@ -1,8 +1,4 @@
-import { ENV } from "@/shared/config/env";
 import { WalkRepository } from "./types";
-import { walkRepositoryReal } from "./blocks.real";
-import { walkRepositoryMock } from "./blocks.mock";
+import { walkRepository } from "./walkRepository";
 
-export const walkApi: WalkRepository = ENV.USE_MOCK
-    ? walkRepositoryMock
-    : walkRepositoryReal;
+export const walkApi: WalkRepository = walkRepository;

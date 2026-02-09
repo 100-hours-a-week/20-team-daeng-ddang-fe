@@ -46,8 +46,8 @@ export const useWalkStore = create<WalkState>()(
                     elapsedTime: 0,
                     distance: 0,
                     path: [],
-                    myBlocks: [],
-                    othersBlocks: [],
+                    // myBlocks preserved to show on walk page after walk end
+                    // othersBlocks preserved to show on walk page after walk end
                     scheduledMissions: [],
                     activeMissionAlert: null,
                     // walkResult preserved for summary page

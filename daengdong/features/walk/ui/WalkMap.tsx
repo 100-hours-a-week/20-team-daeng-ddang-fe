@@ -16,6 +16,20 @@ import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { OnboardingOverlay } from "./OnboardingOverlay";
 import { NaverMap } from "@/types/naver-maps";
 import HelpIcon from "@/shared/assets/icons/help.svg";
+import { useOnboarding } from "@/features/walk/model/useOnboarding";
+
+const MAP_CONFIG = {
+    DEFAULT_CENTER: { lat: 37.5665, lng: 126.9780 },
+    INITIAL_ZOOM: 15,
+    STYLE_ID: "767c7f0d-5728-4ff2-85ec-03e9a2475f18",
+    PADDING: { top: 0, right: 0, bottom: 250, left: 0 },
+} as const;
+
+const UI_CONFIG = {
+    MAX_WIDTH: 400,
+    BUTTON_TOP_OFFSET: 70,
+    BUTTON_SIZE: 42,
+} as const;
 
 interface WalkMapProps {
     currentPos: { lat: number; lng: number } | null;
@@ -28,42 +42,41 @@ export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], pat
     const [loaded, setLoaded] = useState(false);
     const [map, setMap] = useState<NaverMap | null>(null);
 
-    // 이미 스크립트가 로드되어 있는 경우 확인
+    // Naver Maps 스크립트 로드 확인 및 콜백 등록
     useEffect(() => {
-        if (typeof window !== "undefined" && window.naver && window.naver.maps) {
+        if (typeof window === "undefined") return;
+
+        if (window.naver && window.naver.maps) {
             setLoaded(true);
+            return;
         }
+
+        window.initNaverMap = () => {
+            setLoaded(true);
+        };
     }, []);
 
+    // 지도 초기화
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            window.initNaverMap = () => {
-                setLoaded(true);
-            };
-        }
-    }, []);
+        if (!loaded || map || !window.naver) return;
 
-    // 지도 초기화 (최초 1회)
-    useEffect(() => {
-        if (!loaded || map || !window.naver) return; // map이 이미 있으면 스킵
-
-        // 초기 중심값 설정 (현재 위치가 없으면 기본값 사용)
-        const centerLat = currentPos?.lat ?? 37.5665;
-        const centerLng = currentPos?.lng ?? 126.9780;
+        const centerLat = currentPos?.lat ?? MAP_CONFIG.DEFAULT_CENTER.lat;
+        const centerLng = currentPos?.lng ?? MAP_CONFIG.DEFAULT_CENTER.lng;
 
         const { naver } = window;
         const location = new naver.maps.LatLng(centerLat, centerLng);
 
         const newMap = new naver.maps.Map("map", {
             center: location,
-            zoom: 15, // 초기 줌 레벨
+            zoom: MAP_CONFIG.INITIAL_ZOOM,
             gl: true,
-            customStyleId: "767c7f0d-5728-4ff2-85ec-03e9a2475f18",
+            customStyleId: MAP_CONFIG.STYLE_ID,
             zoomControl: false,
-            padding: { top: 0, right: 0, bottom: 250, left: 0 },
+            padding: MAP_CONFIG.PADDING,
         });
 
         setMap(newMap);
+        // currentPos는 의도적으로 deps에서 제외 (지도는 최초 1회 생성, 위치 변경은 panTo로 처리)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loaded, map]);
 
@@ -76,9 +89,8 @@ export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], pat
         map.panTo(location);
     }, [map, currentPos]);
 
-
-
     const { openModal } = useModalStore();
+    const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedWalk');
 
     const recenterToCurrentLocation = () => {
         if (!currentPos) {
@@ -95,29 +107,7 @@ export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], pat
 
         const { naver } = window;
         const newCenter = new naver.maps.LatLng(currentPos.lat, currentPos.lng);
-        map.morph(newCenter, 15);
-    };
-
-
-
-    // 온보딩 표시 여부
-    const [showOnboarding, setShowOnboarding] = useState(false);
-
-    // 최초 방문 체크
-    useEffect(() => {
-        const hasVisited = localStorage.getItem('hasVisitedWalk');
-        if (!hasVisited) {
-            setShowOnboarding(true);
-            localStorage.setItem('hasVisitedWalk', 'true');
-        }
-    }, []);
-
-    const openOnboarding = () => {
-        setShowOnboarding(true);
-    };
-
-    const closeOnboarding = () => {
-        setShowOnboarding(false);
+        map.morph(newCenter, MAP_CONFIG.INITIAL_ZOOM);
     };
 
     return (
@@ -171,25 +161,24 @@ const MapElement = styled.div`
 
 const RecenterButtonWrapper = styled.div`
     position: fixed;
-    top: 70px;
+    top: ${UI_CONFIG.BUTTON_TOP_OFFSET}px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 400px;
+    max-width: ${UI_CONFIG.MAX_WIDTH}px;
     z-index: 1000;
-    pointer-events: none; /* Pass clicks through wrapper */
+    pointer-events: none;
 
     display: flex;
     flex-direction: column;
-    align-items: flex-end; /* Align buttons to right */
+    align-items: flex-end;
     padding-right: 10px;
     gap: 10px;
 `;
 
-// 공통 버튼 (아이콘 필터 제거)
 const RecenterButton = styled.button`
-  width: 42px;
-  height: 42px;
+  width: ${UI_CONFIG.BUTTON_SIZE}px;
+  height: ${UI_CONFIG.BUTTON_SIZE}px;
   border-radius: 50%;
   background: white;
   border: 1px solid #ccc;

@@ -105,19 +105,16 @@ export const MissionCamera = ({ onComplete, onIdleChange }: MissionCameraProps) 
 
             recorder.ondataavailable = (e) => {
                 if (e.data && e.data.size > 0) {
-                    console.log('[MissionCamera] Data chunk received:', e.data.size, 'bytes');
                     chunksRef.current.push(e.data);
                 }
             };
 
             recorder.onstop = () => {
-                console.log('[MissionCamera] Recording stopped, chunks:', chunksRef.current.length);
                 const blob = new Blob(chunksRef.current, { type: mimeType });
-                console.log('[MissionCamera] Blob created, size:', blob.size, 'type:', blob.type);
 
                 // iOS에서 blob이 비어있는 경우 에러 처리
                 if (blob.size === 0) {
-                    console.error('[MissionCamera] Blob is empty!');
+                    console.error('[돌발미션] 녹화된 영상이 비어있습니다.');
                     showToast({ message: "녹화된 영상이 비어있습니다. 다시 시도해주세요.", type: "error" });
                     setFlowState("IDLE");
                     return;
@@ -359,31 +356,6 @@ const RecordingDot = styled.span`
     @keyframes blink {
         50% { opacity: 0.5; }
     }
-`;
-
-const RecordingInfo = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: rgba(229, 115, 115, 0.1);
-    border-radius: ${radius.md};
-    margin-bottom: ${spacing[3]}px;
-`;
-
-const RecordingText = styled.span`
-    font-size: 14px;
-    font-weight: 700;
-    color: ${colors.semantic.error};
-`;
-
-const CountdownBadge = styled.span`
-    font-size: 14px;
-    font-weight: 700;
-    color: ${colors.gray[700]};
-    background: ${colors.gray[100]};
-    padding: 2px 8px;
-    border-radius: ${radius.sm};
 `;
 
 const CTASection = styled.div`
