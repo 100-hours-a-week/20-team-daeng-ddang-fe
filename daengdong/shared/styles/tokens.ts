@@ -23,7 +23,7 @@ export const colors = {
     },
     semantic: {
         success: '#66BB6A',
-        warning: '#FFEE58',
+        warning: '#ffd54cff',
         error: '#E57373',
         info: '#4FC3F7',
     },
