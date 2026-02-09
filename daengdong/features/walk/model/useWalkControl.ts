@@ -455,13 +455,14 @@ export const useWalkControl = () => {
                         isValidated: isAbnormal,
                     },
                     {
-                        onSuccess: () => {
+                        onSuccess: (response) => {
                             wsClientRef.current?.disconnect();
                             setWalkResult({
                                 time: elapsedTime,
                                 distance: finalDistance,
                                 imageUrl: storedImageUrl,
-                                blockCount: myBlocks.length,
+                                // 서버에서 반환하는 이번 산책의 점유 블록 수 사용
+                                blockCount: isAbnormal ? 0 : response.occupiedBlockCount,
                             });
                             hideLoading();
                             openModal({
