@@ -26,6 +26,7 @@ export const useEndWalk = () => {
         mutationFn: (req: EndWalkRequest) => endWalkApi(req),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [queryKeys.myPageSummary] });
+            queryClient.invalidateQueries({ queryKey: ["nearbyBlocks"] });
         },
         onError: (error) => {
             console.error("산책 종료 실패", error);
