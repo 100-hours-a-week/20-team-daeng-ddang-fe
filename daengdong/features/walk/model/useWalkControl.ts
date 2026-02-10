@@ -26,7 +26,6 @@ export const useWalkControl = () => {
         startWalk,
         endWalk,
         reset,
-        myBlocks,
         setWalkResult,
         setMyBlocks,
         setOthersBlocks,
