@@ -1,15 +1,27 @@
 'use client';
 
 import { CacheProvider } from '@emotion/react';
-import { ReactNode, useState } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { useState } from 'react';
 import { createEmotionCache } from './emotion-cache';
 
-interface EmotionProviderProps {
-    children: ReactNode;
-}
+export function EmotionProvider({ children }: { children: React.ReactNode }) {
+    const [cache] = useState(() => {
+        const cache = createEmotionCache();
+        cache.compat = true;
+        return cache;
+    });
 
-export function EmotionProvider({ children }: EmotionProviderProps) {
-    const [cache] = useState(() => createEmotionCache());
+    useServerInsertedHTML(() => {
+        return (
+            <style
+                data-emotion={`${cache.key} ${Object.keys(cache.inserted).join(' ')}`}
+                dangerouslySetInnerHTML={{
+                    __html: Object.values(cache.inserted).join(' '),
+                }}
+            />
+        );
+    });
 
     return <CacheProvider value={cache}>{children}</CacheProvider>;
 }

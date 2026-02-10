@@ -15,6 +15,7 @@ import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/type
 
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
+import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 
 export const useWalkControl = () => {
     const {
@@ -26,7 +27,6 @@ export const useWalkControl = () => {
         startWalk,
         endWalk,
         reset,
-        myBlocks,
         setWalkResult,
         setMyBlocks,
         setOthersBlocks,
@@ -428,11 +428,17 @@ export const useWalkControl = () => {
                                 reader.onloadend = () => resolve(reader.result as string);
                                 reader.readAsDataURL(blob);
                             });
+                            console.log('Snapshot generated:', base64Url.substring(0, 50) + '...');
                             storedImageUrl = base64Url;
 
                             try {
-                                const { presignedUrl } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
+
+                                const s3Url = resolveS3Url(objectKey);
+                                if (s3Url) {
+                                    storedImageUrl = s3Url;
+                                }
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);
                             }

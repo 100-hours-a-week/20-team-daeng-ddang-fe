@@ -1,5 +1,5 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+import FootprintsScreen from "./ui/FootprintsScreen";
 
 export default function FootprintsPage() {
-    return <UnderConstruction />;
+    return <FootprintsScreen />;
 }

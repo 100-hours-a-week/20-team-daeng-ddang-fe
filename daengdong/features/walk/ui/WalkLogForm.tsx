@@ -1,35 +1,9 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
-import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useToastStore } from '@/shared/stores/useToastStore';
-import { useWriteWalkDiary } from '@/features/walk/model/useWalkMutations';
+import { useWalkLogForm } from '@/features/walk/model/useWalkLogForm';
 
 export const WalkLogForm = () => {
-  const [log, setLog] = useState('');
-  const MAX_LENGTH = 500;
-  const router = useRouter();
-  const { walkId } = useParams();
-  const { showToast } = useToastStore();
-  const { mutate: writeDiary } = useWriteWalkDiary();
-
-  const handleSubmit = () => {
-    if (!walkId) return;
-
-    writeDiary(
-      { walkId: Number(walkId), memo: log },
-      {
-        onSuccess: () => {
-          showToast({
-            message: '산책일지가 작성되었습니다.',
-            type: 'success',
-            duration: 2000,
-          });
-          router.push('/walk');
-        },
-      }
-    );
-  };
+  const { log, setLog, isUploading, handleSubmit, MAX_LENGTH } = useWalkLogForm();
 
   return (
     <Container>
@@ -49,8 +23,8 @@ export const WalkLogForm = () => {
           {log.length}/{MAX_LENGTH}
         </CharCounter>
       </TextAreaWrapper>
-      <SubmitButton onClick={handleSubmit}>
-        기록 완료
+      <SubmitButton onClick={handleSubmit} disabled={isUploading}>
+        {isUploading ? '업로드 중...' : '기록 완료'}
       </SubmitButton>
     </Container>
   );

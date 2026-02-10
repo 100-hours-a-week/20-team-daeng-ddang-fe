@@ -205,10 +205,10 @@ export const HealthcareScreen = () => {
     }
 
     return (
-        <PageContainer isFullScreen={mode === 'record'}>
-            <Header title="건강 체크" showBackButton={mode !== 'record' || isCameraIdle} onBack={handleCancel} />
+        <PageContainer>
+            <Header title="헬스 케어" showBackButton={mode !== 'main' && (mode !== 'record' || isCameraIdle)} onBack={handleCancel} />
 
-            <ContentWrapper isFullScreen={mode === 'record'}>
+            <ContentWrapper>
                 {mode === 'main' && (
                     <>
                         <HealthcareMainSection
