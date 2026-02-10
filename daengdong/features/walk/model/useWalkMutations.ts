@@ -27,6 +27,7 @@ export const useEndWalk = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [queryKeys.myPageSummary] });
             queryClient.invalidateQueries({ queryKey: ["nearbyBlocks"] });
+            queryClient.invalidateQueries({ queryKey: ["footprints"] });
         },
         onError: (error) => {
             console.error("산책 종료 실패", error);
@@ -41,8 +42,12 @@ export const useEndWalk = () => {
 };
 
 export const useWriteWalkDiary = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (req: WriteWalkDiaryRequest) => postWalkDiary(req),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["footprints"] });
+        },
         onError: (error) => {
             console.error("산책 일지 작성 실패", error);
             const { showToast } = useToastStore.getState();

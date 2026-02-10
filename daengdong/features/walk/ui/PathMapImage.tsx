@@ -11,7 +11,7 @@ export const PathMapImage = ({ className }: { className?: string }) => {
       {imageUrl ? (
         <MapImage src={imageUrl} alt="산책 경로 스냅샷" />
       ) : (
-        <PlaceholderText>Map Snapshot Area</PlaceholderText>
+        <PlaceholderText>산책 경로 이미지를 불러오지 못했어요</PlaceholderText>
       )}
     </Container>
   );
