@@ -26,12 +26,12 @@ export function Toast() {
 
 const ToastContainer = styled(motion.div)`
   position: fixed;
-  top: 60px; /* Below header usually, or just top logic */
+  top: 60px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2000;
-  width: auto;
-  max-width: 430px;
+  width: max-content;
+  max-width: calc(100% - 40px);
 `;
 
 const ToastContent = styled.div<{ type: "success" | "error" | "info" }>`
