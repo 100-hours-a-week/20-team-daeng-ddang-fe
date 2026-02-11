@@ -43,6 +43,7 @@ const Container = styled.header<{ isSticky?: boolean }>`
   align-items: center;
   justify-content: space-between;
   height: 56px;
+  flex-shrink: 0;
   padding: 0 16px;
   background-color: white;
   border-bottom: 1px solid #f0f0f0;
