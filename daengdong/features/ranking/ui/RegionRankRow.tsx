@@ -22,7 +22,11 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
                     <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
                     <RegionDistance>{item.totalDistance.toLocaleString()}km</RegionDistance>
                 </Info>
-                <ArrowIcon isExpanded={isExpanded}>⌄</ArrowIcon>
+                <ArrowIcon isExpanded={isExpanded}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 4L6 8L10 4" />
+                    </svg>
+                </ArrowIcon>
             </RowHeader>
 
             <AnimatePresence>
@@ -108,7 +112,11 @@ const RegionDistance = styled.div`
 `;
 
 const ArrowIcon = styled.div<{ isExpanded: boolean }>`
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     color: ${colors.gray[400]};
     transform: ${({ isExpanded }) => isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};
     transition: transform 0.2s;
