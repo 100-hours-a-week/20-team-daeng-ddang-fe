@@ -1,5 +1,5 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+import { RankingScreen } from "./ui/RankingScreen";
 
 export default function RankingPage() {
-    return <UnderConstruction />;
+    return <RankingScreen />;
 }
