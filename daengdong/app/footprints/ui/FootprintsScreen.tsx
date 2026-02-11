@@ -89,4 +89,11 @@ const Content = styled.div`
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+
+    /* Hide scrollbar */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 `;

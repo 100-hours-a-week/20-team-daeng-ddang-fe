@@ -6,6 +6,7 @@ import { useWalkDetailQuery, useWalkExpressionQuery } from "@/features/footprint
 import Image from "next/image";
 import { Header } from "@/widgets/Header";
 import { format } from "date-fns";
+import { ko } from "date-fns/locale";
 
 interface WalkDetailScreenProps {
     walkId: number;
@@ -35,7 +36,7 @@ export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
     if (isWalkLoading) return null;
     if (!walk) return null;
 
-    const startTime = `${format(new Date(walk.createdAt), 'HH:mm')}`;
+    const startTime = `${format(new Date(walk.createdAt), 'a h시 mm분', { locale: ko })}`;
 
     const dateText = format(new Date(walk.createdAt), 'yyyy년 MM월 dd일');
 
@@ -73,7 +74,7 @@ export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
                     </InfoItem>
                     {walk.region && (
                         <InfoItem>
-                            <Label>산책 장소</Label>
+                            <Label>거주 지역</Label>
                             <Value>{walk.region}</Value>
                         </InfoItem>
                     )}
