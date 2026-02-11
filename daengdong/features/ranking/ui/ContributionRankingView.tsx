@@ -5,6 +5,7 @@ import { colors, radius, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import { LoadingView } from "@/widgets/GlobalLoading";
 import { resolveS3Url } from "@/shared/utils/resolveS3Url";
+import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface ContributionRankingViewProps {
     regionId: number;
@@ -70,7 +71,7 @@ const ContributionRow = ({ item, isTop = false, isMyRank = false }: { item: Cont
         </Avatar>
         <Info>
             <Name>{item.dogName}</Name>
-            <Meta>{(item.contributionRate * 100).toFixed(0)}% 기여 • {item.dogDistance.toLocaleString()}km</Meta>
+            <Meta>{(item.contributionRate * 100).toFixed(0)}% 기여 • {formatDistance(item.dogDistance)}km</Meta>
         </Info>
     </Row>
 );

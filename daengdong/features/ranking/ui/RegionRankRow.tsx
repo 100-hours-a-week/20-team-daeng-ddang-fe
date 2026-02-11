@@ -3,6 +3,7 @@ import { RegionRankingItem, PeriodType } from "@/entities/ranking/model/types";
 import { colors, spacing } from "@/shared/styles/tokens";
 import { ContributionRankingView } from "./ContributionRankingView";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface RegionRankRowProps {
     item: RegionRankingItem;
@@ -20,7 +21,7 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
                 <RankNum isTop={item.rank <= 3}>{item.rank}</RankNum>
                 <Info>
                     <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
-                    <RegionDistance>{item.totalDistance.toLocaleString()}km</RegionDistance>
+                    <RegionDistance>{formatDistance(item.totalDistance)}km</RegionDistance>
                 </Info>
                 <ArrowIcon isExpanded={isExpanded}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

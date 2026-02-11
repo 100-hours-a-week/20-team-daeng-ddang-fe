@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import { colors, spacing, radius } from "@/shared/styles/tokens";
 import Image from "next/image";
 import { resolveS3Url } from "@/shared/utils/resolveS3Url";
+import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface TopPodiumProps {
     topRanks: RankingItem[];
@@ -41,7 +42,7 @@ const RankCard = ({ item }: { item: RankingItem }) => {
                 <NameRow>
                     <Name isFirst={isFirst}>{item.dogName}</Name>
                 </NameRow>
-                <Distance isFirst={isFirst}>{item.totalDistance.toLocaleString()}km</Distance>
+                <Distance isFirst={isFirst}>{formatDistance(item.totalDistance)}km</Distance>
                 <DetailRow>
                     <DetailText>{item.breed} · {item.age}살</DetailText>
                 </DetailRow>

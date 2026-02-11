@@ -6,6 +6,7 @@ import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { useEffect, useRef } from "react";
+import { formatDistance } from "@/shared/utils/formatDistance";
 
 
 interface RankingListProps {
@@ -42,10 +43,10 @@ export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore }: RankingL
 
         if (itemRank === myRank - 1) {
             const diff = itemDistance - myDistance;
-            return { type: 'target' as const, diff: `+${diff.toFixed(1)}km` };
+            return { type: 'target' as const, diff: `+${formatDistance(diff)}km` };
         } else if (itemRank === myRank + 1) {
             const diff = myDistance - itemDistance;
-            return { type: 'chaser' as const, diff: `-${diff.toFixed(1)}km` };
+            return { type: 'chaser' as const, diff: `-${formatDistance(diff)}km` };
         }
         return null;
     };
@@ -79,7 +80,7 @@ export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore }: RankingL
                         </Info>
                         <DistanceContainer>
                             <DistanceValue>
-                                {item.totalDistance.toLocaleString()}
+                                {formatDistance(item.totalDistance)}
                                 <DistanceUnit>km</DistanceUnit>
                             </DistanceValue>
                         </DistanceContainer>
