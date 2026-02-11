@@ -100,8 +100,6 @@ export const usePersonalRanking = () => {
         const element = document.getElementById(`rank-item-${myRankInfo.dogId}`);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-            alert("순위가 너무 멀리 있습니다! 스크롤을 더 내려주세요.");
         }
     };
 
