@@ -44,17 +44,22 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
             <Header>{formattedDate}</Header>
             <List>
                 {records.map((record) => {
-                    const titleText = record.createdAt
-                        ? `${format(new Date(record.createdAt), 'HH:mm')} 산책`
-                        : record.title;
-
                     return (
                         <RecordItem key={`${record.type}-${record.id}`} onClick={() => onRecordClick(record)}>
                             <IconWrapper type={record.type}>
                                 {record.type === 'WALK' ? '🐾' : '🩺'}
                             </IconWrapper>
                             <Info>
-                                <Title>{titleText}</Title>
+                                <Title>
+                                    {record.createdAt ? (
+                                        <>
+                                            <TimeText>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
+                                            <span>산책일지</span>
+                                        </>
+                                    ) : (
+                                        record.title
+                                    )}
+                                </Title>
                             </Info>
                             {record.imageUrl && (
                                 <Thumbnail>
@@ -156,4 +161,11 @@ const EmptyIcon = styled.div`
     font-size: 32px;
     margin-bottom: ${spacing[2]}px;
     opacity: 0.5;
+`;
+
+const TimeText = styled.span`
+    font-size: 13px;
+    color: ${colors.primary[600]};
+    font-weight: 700;
+    margin-right: 6px;
 `;
