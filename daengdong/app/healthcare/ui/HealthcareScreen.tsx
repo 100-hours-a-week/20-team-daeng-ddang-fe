@@ -216,11 +216,6 @@ export const HealthcareScreen = () => {
                             onRecord={handleRecord}
                             onHelp={openOnboarding}
                         />
-                        <GuideBox>
-                            <GuideText>• 반려견이 걷는 모습을 측면으로 촬영해주세요. 🐕</GuideText>
-                            <GuideText>• 버튼을 누르면 촬영이 시작됩니다.</GuideText>
-                            <GuideText>• 촬영은 10초간 진행되며, 자동으로 종료됩니다.</GuideText>
-                        </GuideBox>
                     </>
                 )}
 

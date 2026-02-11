@@ -18,14 +18,13 @@ export function LoadingView({ message }: { message?: string }) {
           {paws.map((_, index) => (
             <PawWrapper
               key={index}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 1] }}
+              initial={{ opacity: 0.3, scale: 0.8 }}
+              animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
                 delay: index * 0.2,
                 ease: "easeInOut",
-                times: [0, 0.2, 0.8]
               }}
             >
               <Image
@@ -33,7 +32,7 @@ export function LoadingView({ message }: { message?: string }) {
                 alt="Loading paw"
                 width={32}
                 height={32}
-                style={{ width: "100%", height: "100%" }}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </PawWrapper>
           ))}
