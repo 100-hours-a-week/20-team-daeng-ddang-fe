@@ -56,9 +56,8 @@ export default function FootprintsScreen() {
 
     return (
         <ScreenContainer>
-            <Header title="발자국" showBackButton={false} />
-
             <Content>
+                <Header title="발자국" showBackButton={false} isSticky={false} />
                 <CalendarSection
                     year={viewDate.year}
                     month={viewDate.month}
@@ -80,8 +79,9 @@ const ScreenContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh; 
     background-color: ${colors.gray[50]};
-    padding-bottom: 70px;
+    overflow: hidden; 
 `;
 
 const Content = styled.div`
@@ -89,7 +89,7 @@ const Content = styled.div`
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-
+    padding-bottom: 90px; 
     /* Hide scrollbar */
     &::-webkit-scrollbar {
         display: none;
