@@ -11,33 +11,46 @@ interface RankingFiltersProps {
     onPeriodChange: (type: PeriodType) => void;
     onScopeChange: (scope: ScopeType) => void;
     onRegionClick: () => void;
+    showScopeSelector?: boolean;
+    className?: string;
 }
 
-export const RankingFilters = ({ period, scope, regionName, onPeriodChange, onScopeChange, onRegionClick }: RankingFiltersProps) => {
+export const RankingFilters = ({
+    period,
+    scope,
+    regionName,
+    onPeriodChange,
+    onScopeChange,
+    onRegionClick,
+    showScopeSelector = true,
+    className
+}: RankingFiltersProps) => {
     return (
-        <Container>
-            <ScopeSelector>
-                <ScopeButton
-                    isActive={scope === 'NATIONWIDE'}
-                    onClick={() => onScopeChange('NATIONWIDE')}
-                >
-                    전국
-                </ScopeButton>
-                <Divider />
-                <ScopeButton
-                    isActive={scope === 'REGIONAL'}
-                    onClick={() => {
-                        if (scope === 'REGIONAL') {
-                            onRegionClick();
-                        } else {
-                            onScopeChange('REGIONAL');
-                        }
-                    }}
-                >
-                    {scope === 'REGIONAL' ? (regionName || "지역 선택 ▾") : "지역별"}
-                    {scope === 'REGIONAL' && <DropdownIcon>▾</DropdownIcon>}
-                </ScopeButton>
-            </ScopeSelector>
+        <Container className={className}>
+            {showScopeSelector ? (
+                <ScopeSelector>
+                    <ScopeButton
+                        isActive={scope === 'NATIONWIDE'}
+                        onClick={() => onScopeChange('NATIONWIDE')}
+                    >
+                        전국
+                    </ScopeButton>
+                    <Divider />
+                    <ScopeButton
+                        isActive={scope === 'REGIONAL'}
+                        onClick={() => {
+                            if (scope === 'REGIONAL') {
+                                onRegionClick();
+                            } else {
+                                onScopeChange('REGIONAL');
+                            }
+                        }}
+                    >
+                        {scope === 'REGIONAL' ? (regionName || "지역 선택 ▾") : "지역별"}
+                        {scope === 'REGIONAL' && <DropdownIcon>▾</DropdownIcon>}
+                    </ScopeButton>
+                </ScopeSelector>
+            ) : <div />}
 
             <PeriodSelector>
                 <PeriodTab isActive={period === 'WEEK'} onClick={() => onPeriodChange('WEEK')}>주간</PeriodTab>
@@ -61,6 +74,10 @@ const Container = styled.div`
     padding: ${spacing[3]}px ${spacing[4]}px;
     padding-bottom: 0px;
     background-color: white;
+    
+    &.regional-ranking {
+        padding-bottom: ${spacing[5]}px;
+    }
 `;
 
 const ScopeSelector = styled.div`

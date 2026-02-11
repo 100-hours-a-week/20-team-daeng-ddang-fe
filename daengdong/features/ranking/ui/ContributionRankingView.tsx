@@ -1,0 +1,178 @@
+import styled from "@emotion/styled";
+import { useContributionRanking } from "../model/useContributionRanking";
+import { PeriodType, ContributionRankingItem } from "@/entities/ranking/model/types";
+import { colors, radius, spacing } from "@/shared/styles/tokens";
+import Image from "next/image";
+import { LoadingView } from "@/widgets/GlobalLoading";
+import { resolveS3Url } from "@/shared/utils/resolveS3Url";
+
+interface ContributionRankingViewProps {
+    regionId: number;
+    periodType: PeriodType;
+    periodValue: string;
+}
+
+export const ContributionRankingView = ({ regionId, periodType, periodValue }: ContributionRankingViewProps) => {
+    const {
+        summaryData,
+        isSummaryLoading,
+        contributionRanks,
+        fetchNextPage,
+        hasNextPage
+    } = useContributionRanking({ regionId, periodType, periodValue });
+
+    if (isSummaryLoading) return <LoadingView message="기여도 정보 불러오는 중..." />;
+
+    const topRanks = summaryData?.topRanks || [];
+    const myRank = summaryData?.myRank;
+
+    return (
+        <Container>
+            <Title>🎖️ 지역 기여도 TOP 3</Title>
+
+            <TopList>
+                {topRanks.map((item: ContributionRankingItem) => (
+                    <ContributionRow key={`top-${item.dogId}`} item={item} isTop={true} />
+                ))}
+            </TopList>
+
+            {myRank && (
+                <MyRankContainer>
+                    <SectionTitle>내 기여도</SectionTitle>
+                    <ContributionRow item={myRank} isMyRank={true} />
+                </MyRankContainer>
+            )}
+
+            <Divider />
+
+            <FullList>
+                {contributionRanks.map((item: ContributionRankingItem) => (
+                    <ContributionRow key={`list-${item.dogId}`} item={item} />
+                ))}
+            </FullList>
+
+            {hasNextPage && (
+                <LoadMoreBtn onClick={() => fetchNextPage()}>더 보기 ⌄</LoadMoreBtn>
+            )}
+        </Container>
+    );
+};
+
+const ContributionRow = ({ item, isTop = false, isMyRank = false }: { item: ContributionRankingItem, isTop?: boolean, isMyRank?: boolean }) => (
+    <Row isMyRank={isMyRank}>
+        <RankBadge isTop={isTop}>{item.rank}</RankBadge>
+        <Avatar>
+            {item.profileImageUrl ? (
+                <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={32} height={32} style={{ objectFit: 'cover' }} />
+            ) : (
+                <div style={{ background: '#eee', width: '100%', height: '100%' }} />
+            )}
+        </Avatar>
+        <Info>
+            <Name>{item.dogName}</Name>
+            <Meta>{(item.contributionRate * 100).toFixed(0)}% 기여 • {item.dogDistance.toLocaleString()}km</Meta>
+        </Info>
+    </Row>
+);
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${spacing[3]}px;
+`;
+
+const Title = styled.div`
+    font-size: 13px;
+    font-weight: 700;
+    color: ${colors.gray[800]};
+    margin-bottom: ${spacing[1]}px;
+`;
+
+const SectionTitle = styled.div`
+    font-size: 12px;
+    font-weight: 600;
+    color: ${colors.gray[500]};
+    margin-bottom: ${spacing[1]}px;
+`;
+
+const TopList = styled.div`
+    background-color: white;
+    border-radius: ${radius.md};
+    padding: ${spacing[2]}px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+`;
+
+const MyRankContainer = styled.div`
+    margin-top: ${spacing[1]}px;
+`;
+
+const FullList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${spacing[1]}px;
+`;
+
+const Row = styled.div<{ isMyRank?: boolean }>`
+    display: flex;
+    align-items: center;
+    padding: ${spacing[2]}px;
+    background-color: ${({ isMyRank }) => isMyRank ? colors.primary[50] : 'white'};
+    border-radius: ${radius.sm};
+    border: ${({ isMyRank }) => isMyRank ? `1px solid ${colors.primary[200]}` : 'none'};
+`;
+
+const RankBadge = styled.div<{ isTop: boolean }>`
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: ${({ isTop }) => isTop ? colors.primary[100] : colors.gray[100]};
+    color: ${({ isTop }) => isTop ? colors.primary[700] : colors.gray[600]};
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: ${spacing[2]}px;
+`;
+
+const Avatar = styled.div`
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: ${spacing[2]}px;
+    background-color: ${colors.gray[200]};
+`;
+
+const Info = styled.div`
+    flex: 1;
+`;
+
+const Name = styled.div`
+    font-size: 13px;
+    font-weight: 600;
+    color: ${colors.gray[900]};
+`;
+
+const Meta = styled.div`
+    font-size: 11px;
+    color: ${colors.gray[500]};
+`;
+
+const Divider = styled.div`
+    height: 1px;
+    background-color: ${colors.gray[200]};
+    margin: ${spacing[1]}px 0;
+`;
+
+const LoadMoreBtn = styled.button`
+    width: 100%;
+    padding: 8px;
+    font-size: 12px;
+    color: ${colors.gray[500]};
+    background: none;
+    border: none;
+    cursor: pointer;
+`;
+
+

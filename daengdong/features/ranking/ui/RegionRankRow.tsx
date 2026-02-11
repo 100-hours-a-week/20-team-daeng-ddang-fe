@@ -1,0 +1,121 @@
+import styled from "@emotion/styled";
+import { RegionRankingItem, PeriodType } from "@/entities/ranking/model/types";
+import { colors, spacing } from "@/shared/styles/tokens";
+import { ContributionRankingView } from "./ContributionRankingView";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface RegionRankRowProps {
+    item: RegionRankingItem;
+    isExpanded: boolean;
+    onToggle: () => void;
+    periodType: PeriodType;
+    periodValue: string;
+    isMyRegion?: boolean;
+}
+
+export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodValue, isMyRegion }: RegionRankRowProps) => {
+    return (
+        <Container id={`region-rank-item-${item.regionId}`}>
+            <RowHeader onClick={onToggle} isExpanded={isExpanded} isMyRegion={isMyRegion}>
+                <RankNum isTop={item.rank <= 3}>{item.rank}</RankNum>
+                <Info>
+                    <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
+                    <RegionDistance>{item.totalDistance.toLocaleString()}km</RegionDistance>
+                </Info>
+                <ArrowIcon isExpanded={isExpanded}>⌄</ArrowIcon>
+            </RowHeader>
+
+            <AnimatePresence>
+                {isExpanded && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ overflow: "hidden" }}
+                    >
+                        <DropdownContent>
+                            <ContributionRankingView
+                                regionId={item.regionId}
+                                periodType={periodType}
+                                periodValue={periodValue}
+                            />
+                        </DropdownContent>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </Container>
+    );
+};
+
+const Container = styled.div`
+    border-bottom: 1px solid ${colors.gray[100]};
+`;
+
+const RowHeader = styled.div<{ isExpanded: boolean, isMyRegion?: boolean }>`
+    display: flex;
+    align-items: center;
+    padding: ${spacing[4]}px 0;
+    cursor: pointer;
+    background-color: ${({ isExpanded, isMyRegion }) =>
+        isExpanded ? colors.gray[50] :
+            isMyRegion ? colors.primary[50] : 'transparent'};
+    margin: 0 -${spacing[4]}px;
+    padding-left: ${spacing[4]}px;
+    padding-right: ${spacing[4]}px;
+    border-left: ${({ isMyRegion }) => isMyRegion ? `4px solid ${colors.primary[500]}` : '4px solid transparent'};
+`;
+
+const RankNum = styled.div<{ isTop: boolean }>`
+    width: 30px;
+    font-size: 16px;
+    font-weight: 800;
+    color: ${({ isTop }) => isTop ? colors.primary[600] : colors.gray[500]};
+    margin-right: ${spacing[3]}px;
+`;
+
+const Info = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: ${spacing[2]}px;
+`;
+
+const RegionName = styled.div<{ isMyRegion?: boolean }>`
+    font-size: 15px;
+    font-weight: 600;
+    color: ${({ isMyRegion }) => isMyRegion ? colors.primary[700] : colors.gray[900]};
+    display: flex;
+    align-items: center;
+    gap: 6px;
+`;
+
+const MyRegionBadge = styled.span`
+    font-size: 10px;
+    background-color: white;
+    color: ${colors.primary[600]};
+    border: 1px solid ${colors.primary[200]};
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+`;
+
+const RegionDistance = styled.div`
+    font-size: 14px;
+    font-weight: 500;
+    color: ${colors.gray[600]};
+`;
+
+const ArrowIcon = styled.div<{ isExpanded: boolean }>`
+    font-size: 18px;
+    color: ${colors.gray[400]};
+    transform: ${({ isExpanded }) => isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+    transition: transform 0.2s;
+`;
+
+const DropdownContent = styled.div`
+    background-color: ${colors.gray[50]};
+    padding: ${spacing[3]}px;
+    padding-top: 0;
+`;

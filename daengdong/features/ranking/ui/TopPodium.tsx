@@ -2,6 +2,7 @@ import { RankingItem } from "@/entities/ranking/model/types";
 import styled from "@emotion/styled";
 import { colors, spacing, radius } from "@/shared/styles/tokens";
 import Image from "next/image";
+import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 
 interface TopPodiumProps {
     topRanks: RankingItem[];
@@ -28,7 +29,7 @@ const RankCard = ({ item }: { item: RankingItem }) => {
             <AvatarWrapper>
                 <Avatar size={size} rank={item.rank}>
                     {item.profileImageUrl ? (
-                        <Image src={item.profileImageUrl} alt={item.dogName} width={size} height={size} style={{ objectFit: 'cover' }} />
+                        <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={size} height={size} style={{ objectFit: 'cover' }} />
                     ) : (
                         <div style={{ backgroundColor: colors.gray[200], width: '100%', height: '100%' }} />
                     )}
