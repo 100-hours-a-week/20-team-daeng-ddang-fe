@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { rankingApi } from "@/entities/ranking/api/rankingApi";
-import { ContributionRankingList, ContributionRankingSummary, PeriodType } from "@/entities/ranking/model/types";
+import { ContributionRankingList, PeriodType } from "@/entities/ranking/model/types";
 import { ApiResponse } from "@/shared/api/types";
 
 interface UseContributionRankingParams {
@@ -11,7 +11,6 @@ interface UseContributionRankingParams {
 
 export const useContributionRanking = ({ regionId, periodType, periodValue }: UseContributionRankingParams) => {
 
-    // Summary Query (Top 3 + My Rank if applicable)
     const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
         queryKey: ['ranking', 'contribution-summary', regionId, periodType, periodValue],
         queryFn: () => rankingApi.getRegionContributionSummary({
@@ -22,7 +21,6 @@ export const useContributionRanking = ({ regionId, periodType, periodValue }: Us
         staleTime: 5 * 60 * 1000,
     });
 
-    // List Query (Infinite Scroll)
     const {
         data: listData,
         fetchNextPage,
@@ -35,7 +33,7 @@ export const useContributionRanking = ({ regionId, periodType, periodValue }: Us
             periodValue,
             regionId,
             cursor: pageParam as string | undefined,
-            limit: 10 // Smaller limit for dropdown
+            limit: 10
         }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
