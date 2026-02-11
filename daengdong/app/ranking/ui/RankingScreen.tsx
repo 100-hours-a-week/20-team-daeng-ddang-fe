@@ -5,7 +5,7 @@ import styled from "@emotion/styled";
 import { Header } from "@/widgets/Header";
 import { RankingTabs } from "@/features/ranking/ui/RankingTabs";
 import { PersonalRankingView } from "@/features/ranking/ui/PersonalRankingView";
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+import { RegionalRankingView } from "@/features/ranking/ui/RegionalRankingView";
 
 export const RankingScreen = () => {
     const [activeTab, setActiveTab] = useState<'PERSONAL' | 'REGIONAL'>('PERSONAL');
@@ -19,7 +19,7 @@ export const RankingScreen = () => {
                 {activeTab === 'PERSONAL' ? (
                     <PersonalRankingView />
                 ) : (
-                    <UnderConstruction title="지역 랭킹 준비 중" message="우리 동네 랭킹 기능은 곧 오픈될 예정입니다!" />
+                    <RegionalRankingView />
                 )}
             </Content>
         </ScreenContainer>

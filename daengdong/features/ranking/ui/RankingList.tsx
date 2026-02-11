@@ -4,6 +4,7 @@ import { RankingItem } from "@/entities/ranking/model/types";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
+import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { useEffect, useRef } from "react";
 
 
@@ -60,7 +61,7 @@ export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore }: RankingL
                         <RankNum isMyRank={isMyRank}>{item.rank}</RankNum>
                         <Avatar>
                             {item.profileImageUrl ? (
-                                <Image src={item.profileImageUrl} alt={item.dogName} width={40} height={40} style={{ objectFit: 'cover' }} />
+                                <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={40} height={40} style={{ objectFit: 'cover' }} />
                             ) : (
                                 <div style={{ backgroundColor: colors.gray[300], width: '100%', height: '100%' }} />
                             )}

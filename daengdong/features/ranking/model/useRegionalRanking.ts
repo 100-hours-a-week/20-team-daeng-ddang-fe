@@ -1,0 +1,100 @@
+import { useState, useMemo } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { rankingApi } from "@/entities/ranking/api/rankingApi";
+import { PeriodType, RegionRankingList } from "@/entities/ranking/model/types";
+import { ApiResponse } from "@/shared/api/types";
+import { format } from "date-fns";
+import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
+
+export const useRegionalRanking = () => {
+    const { data: userInfo } = useUserInfoQuery();
+    const [period, setPeriod] = useState<PeriodType>('WEEK');
+
+    const periodValue = useMemo(() => {
+        const now = new Date();
+        switch (period) {
+            case 'WEEK':
+                return format(now, "yyyy-'W'II");
+            case 'MONTH':
+                return format(now, "yyyy-MM");
+            case 'YEAR':
+                return format(now, "yyyy");
+            default:
+                return format(now, "yyyy-MM-dd");
+        }
+    }, [period]);
+
+    const {
+        data: regionListData,
+        fetchNextPage: fetchNextRegionPage,
+        hasNextPage: hasNextRegionPage,
+        isLoading: isRegionListLoading
+    } = useInfiniteQuery({
+        queryKey: ['ranking', 'region-list', period, periodValue],
+        queryFn: ({ pageParam }) => rankingApi.getRegionRankingList({
+            periodType: period,
+            periodValue,
+            cursor: pageParam as string | undefined,
+            limit: 20
+        }),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
+    });
+
+    const regionRanks = useMemo(() =>
+        regionListData?.pages.flatMap((page: ApiResponse<RegionRankingList>) => page.data.ranks) || []
+        , [regionListData]);
+
+    // Contribution Ranking Logic (Expanded Region)
+    const [expandedRegionId, setExpandedRegionId] = useState<number | null>(null);
+
+    const toggleRegion = (regionId: number) => {
+        setExpandedRegionId(prev => prev === regionId ? null : regionId);
+    };
+
+    // Summary Query (For My Rank)
+    const { data: summaryData } = useQuery({
+        queryKey: ['ranking', 'region-summary', period, periodValue, userInfo?.regionId],
+        queryFn: () => rankingApi.getRegionRankingSummary({
+            periodType: period,
+            periodValue,
+            regionId: userInfo?.regionId
+        }),
+        enabled: !!userInfo?.regionId
+    });
+
+    const userRankInfo = summaryData?.data.myRank;
+    const userRegionId = userRankInfo?.regionId;
+
+    const handleJumpToMyRegion = () => {
+        if (!userRegionId) return;
+
+        const targetId = userRegionId;
+
+        const element = document.getElementById(`region-rank-item-${targetId}`);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            alert("순위권 밖에 있거나 로딩되지 않았습니다. 리스트를 더 내려주세요!");
+        }
+    };
+
+    return {
+        // State
+        period,
+        expandedRegionId,
+        isRegionListLoading,
+        userRegionId,
+
+        // Actions
+        setPeriod,
+        toggleRegion,
+        fetchNextRegionPage,
+        handleJumpToMyRegion,
+
+        // Data
+        hasNextRegionPage,
+        regionRanks,
+        periodValue
+    };
+};

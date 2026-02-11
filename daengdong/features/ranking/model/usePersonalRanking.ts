@@ -11,7 +11,7 @@ export const usePersonalRanking = () => {
     const { data: userInfo, isLoading: isUserLoading } = useUserInfoQuery();
 
     const [period, setPeriod] = useState<PeriodType>('WEEK');
-    const [scope, setScope] = useState<ScopeType>('REGIONAL');
+    const [scope, setScope] = useState<ScopeType>('NATIONWIDE');
 
     const periodValue = useMemo(() => {
         const now = new Date();
@@ -70,7 +70,8 @@ export const usePersonalRanking = () => {
     });
 
     const rankingList = useMemo(() =>
-        listData?.pages.flatMap((page: ApiResponse<RankingListType>) => page.data.ranks) || []
+        listData?.pages.flatMap((page: ApiResponse<RankingListType>) => page.data.ranks)
+            .filter((item: RankingItem) => item.rank > 3) || []
         , [listData]);
 
     const myRankInfo = summaryData?.data?.myRank;
