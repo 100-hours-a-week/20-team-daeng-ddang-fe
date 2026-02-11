@@ -10,6 +10,9 @@ import { DailyRecordItem } from "@/entities/footprints/model/types";
 import { WalkDetailScreen } from "./WalkDetailScreen";
 import { HealthcareDetailScreen } from "./HealthcareDetailScreen";
 import { Header } from "@/widgets/Header";
+import { useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { radius } from "@/shared/styles/tokens";
 
 export default function FootprintsScreen() {
 
@@ -19,6 +22,27 @@ export default function FootprintsScreen() {
         month: new Date().getMonth() + 1
     });
     const [selectedRecord, setSelectedRecord] = useState<DailyRecordItem | null>(null);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const contentEl = contentRef.current;
+        if (!contentEl) return;
+
+        const handleScroll = () => {
+            setShowScrollTop(contentEl.scrollTop > 300);
+        };
+
+        contentEl.addEventListener('scroll', handleScroll);
+        return () => contentEl.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        contentRef.current?.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
 
     const handleDateSelect = (date: string) => {
         setSelectedDate(date);
@@ -56,7 +80,7 @@ export default function FootprintsScreen() {
 
     return (
         <ScreenContainer>
-            <Content>
+            <Content ref={contentRef}>
                 <Header title="발자국" showBackButton={false} isSticky={false} />
                 <CalendarSection
                     year={viewDate.year}
@@ -71,6 +95,22 @@ export default function FootprintsScreen() {
                     onRecordClick={handleRecordClick}
                 />
             </Content>
+
+            <AnimatePresence>
+                {showScrollTop && (
+                    <ScrollTopButton
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        onClick={scrollToTop}
+                        aria-label="Scroll to top"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 15l-6-6-6 6" />
+                        </svg>
+                    </ScrollTopButton>
+                )}
+            </AnimatePresence>
         </ScreenContainer>
     );
 }
@@ -82,6 +122,7 @@ const ScreenContainer = styled.div`
     height: 100dvh; 
     background-color: ${colors.gray[50]};
     overflow: hidden; 
+    padding-bottom: 70px;
 `;
 
 const Content = styled.div`
@@ -94,6 +135,28 @@ const Content = styled.div`
     &::-webkit-scrollbar {
         display: none;
     }
-    -ms-overflow-style: none; /* IE and Edge */
+    -ms-overflow-style: none; /* IE & Edge */
     scrollbar-width: none; /* Firefox */
+`;
+
+const ScrollTopButton = styled(motion.button)`
+    position: absolute;
+    right: 20px;
+    bottom: 90px; /* Above BottomNav */
+    width: 44px;
+    height: 44px;
+    border-radius: ${radius.full};
+    background-color: white;
+    color: ${colors.primary[500]};
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+
+    &:active {
+        transform: scale(0.95);
+    }
 `;
