@@ -2,14 +2,17 @@ import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import HelpIcon from "@/shared/assets/icons/help.svg";
+import ChatbotImage from "@/shared/assets/images/chatbot.png";
+import { keyframes } from "@emotion/react";
 
 interface HealthcareMainSectionProps {
   onUpload: () => void;
   onRecord: () => void;
+  onChat: () => void;
   onHelp?: () => void;
 }
 
-export const HealthcareMainSection = ({ onUpload, onRecord, onHelp }: HealthcareMainSectionProps) => {
+export const HealthcareMainSection = ({ onUpload, onRecord, onChat, onHelp }: HealthcareMainSectionProps) => {
   return (
     <Container>
       <TitleSection>
@@ -44,6 +47,15 @@ export const HealthcareMainSection = ({ onUpload, onRecord, onHelp }: Healthcare
           </ButtonContent>
         </RecordButton>
       </ButtonGroup>
+
+      <FabWrapper>
+        <TooltipBubble>
+          궁금한 점이 있나요? 🐾
+        </TooltipBubble>
+        <ChatFab onClick={onChat}>
+          <Image src={ChatbotImage} alt="AI 챗봇" width={40} height={40} style={{ objectFit: 'contain' }} />
+        </ChatFab>
+      </FabWrapper>
     </Container>
   );
 };
@@ -53,7 +65,9 @@ const Container = styled.div`
   flex-direction: column;
   gap: ${spacing[5]}px;
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
+  position: relative;
+  min-height: 100%;
 `;
 
 const TitleSection = styled.div`
@@ -144,6 +158,9 @@ const RecordButton = styled.button`
 const ButtonIcon = styled.div`
   font-size: 32px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ButtonContent = styled.div`
@@ -163,4 +180,77 @@ const ButtonText = styled.div<{ variant?: 'primary' | 'outline' }>`
 const ButtonHint = styled.div<{ variant?: 'primary' | 'outline' }>`
   font-size: 12px;
   color: ${props => props.variant === 'outline' ? colors.gray[700] : 'rgba(255, 255, 255, 0.9)'};
+`;
+
+const float = keyframes`
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+`;
+
+const FabWrapper = styled.div`
+  position: fixed;
+  bottom: 100px; /* Above bottom nav */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 20px;
+  pointer-events: none;
+`;
+
+const ChatFab = styled.button`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  pointer-events: auto;
+  
+  &:active {
+    transform: scale(0.95);
+  }
+
+  img {
+    transition: transform 0.3s;
+  }
+
+  &:hover img {
+    transform: scale(1.1) rotate(-10deg);
+  }
+`;
+
+const TooltipBubble = styled.div`
+  background-color: ${colors.primary[500]};
+  color: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: ${float} 2s ease-in-out infinite;
+  pointer-events: auto;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    right: 24px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid ${colors.primary[500]};
+  }
 `;

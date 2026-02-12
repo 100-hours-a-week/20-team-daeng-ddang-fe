@@ -12,6 +12,7 @@ import { useOnboarding } from "@/shared/hooks/useOnboarding";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcareMutations";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
+import { HealthcareChatbotSection } from "@/features/healthcare/ui/HealthcareChatbotSection";
 import {
     PageContainer,
     ContentWrapper,
@@ -44,10 +45,9 @@ export const HealthcareScreen = () => {
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
     const { uploadAndAnalyze } = useHealthcareMutations();
 
-    const [mode, setMode] = useState<'main' | 'upload' | 'record'>('main');
+    const [mode, setMode] = useState<'main' | 'upload' | 'record' | 'chatbot'>('main');
     const [isCameraIdle, setIsCameraIdle] = useState(true);
 
-    // Prevent accidental page leave during recording
     useConfirmPageLeave(mode === 'record' && !isCameraIdle);
 
 
@@ -65,6 +65,10 @@ export const HealthcareScreen = () => {
 
     const handleRecord = () => {
         setMode('record');
+    };
+
+    const handleChat = () => {
+        setMode('chatbot');
     };
 
     const handleComplete = async (videoBlob: Blob) => {
@@ -194,6 +198,15 @@ export const HealthcareScreen = () => {
         );
     }
 
+    if (mode === 'chatbot') {
+        return (
+            <PageContainer isFullScreen>
+                <Header title="AI 챗봇 상담" showBackButton onBack={() => setMode('main')} />
+                <HealthcareChatbotSection />
+            </PageContainer>
+        );
+    }
+
     return (
         <PageContainer>
             <Header title="헬스 케어" showBackButton={mode !== 'main' && (mode !== 'record' || isCameraIdle)} onBack={handleCancel} />
@@ -204,6 +217,7 @@ export const HealthcareScreen = () => {
                         <HealthcareMainSection
                             onUpload={handleUpload}
                             onRecord={handleRecord}
+                            onChat={handleChat}
                             onHelp={openOnboarding}
                         />
                     </>
