@@ -1,10 +1,9 @@
 import { RankingItem } from "@/entities/ranking/model/types";
 import styled from "@emotion/styled";
 import { colors, spacing, radius } from "@/shared/styles/tokens";
-import Image from "next/image";
-import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
+import { DogProfileImage } from "@/shared/components/DogProfileImage";
 
 interface TopPodiumProps {
     topRanks: RankingItem[];
@@ -30,11 +29,12 @@ const RankCard = ({ item }: { item: RankingItem }) => {
         <CardContainer isFirst={isFirst}>
             <AvatarWrapper>
                 <Avatar size={size} rank={item.rank}>
-                    {item.profileImageUrl ? (
-                        <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={size} height={size} style={{ objectFit: 'cover' }} />
-                    ) : (
-                        <div style={{ backgroundColor: colors.gray[200], width: '100%', height: '100%' }} />
-                    )}
+                    <DogProfileImage
+                        src={item.profileImageUrl}
+                        alt={item.dogName}
+                        size={size}
+                        priority={true}
+                    />
                 </Avatar>
                 <RankBadge rank={item.rank}>{item.rank}</RankBadge>
             </AvatarWrapper>
