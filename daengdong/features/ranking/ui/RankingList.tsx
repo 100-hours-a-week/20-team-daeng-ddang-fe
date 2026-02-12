@@ -7,6 +7,7 @@ import Image from "next/image";
 import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { useEffect, useRef } from "react";
 import { formatDistance } from "@/shared/utils/formatDistance";
+import { calculateAge } from "@/shared/utils/calculateAge";
 
 
 interface RankingListProps {
@@ -76,7 +77,12 @@ export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore }: RankingL
                                     </GapBadge>
                                 )}
                             </NameRow>
-                            <SubInfo>{item.breed || '견종 미입력'} • {item.age || '?'}살</SubInfo>
+                            <SubInfo>
+                                {[
+                                    item.breed,
+                                    item.birthDate ? `${calculateAge(item.birthDate)}살` : item.age ? `${item.age}살` : null
+                                ].filter(Boolean).join(' • ')}
+                            </SubInfo>
                         </Info>
                         <DistanceContainer>
                             <DistanceValue>
