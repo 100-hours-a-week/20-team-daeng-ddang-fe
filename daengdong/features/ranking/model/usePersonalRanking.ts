@@ -77,31 +77,7 @@ export const usePersonalRanking = () => {
     const myRankInfo = summaryData?.data?.myRank;
     const topRanks = summaryData?.data?.topRanks || [];
 
-    const [hasScrolledToMyRank, setHasScrolledToMyRank] = useState(false);
 
-    useEffect(() => {
-        if (!hasScrolledToMyRank && myRankInfo?.dogId && rankingList.length > 0) {
-            const isMyRankLoaded = rankingList.some((item: RankingItem) => item.dogId === myRankInfo.dogId);
-
-            if (isMyRankLoaded) {
-                setTimeout(() => {
-                    const element = document.getElementById(`rank-item-${myRankInfo.dogId}`);
-                    if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        setHasScrolledToMyRank(true);
-                    }
-                }, 300);
-            }
-        }
-    }, [myRankInfo, rankingList, hasScrolledToMyRank]);
-
-    const handleJumpToMyRank = () => {
-        if (!myRankInfo?.dogId) return;
-        const element = document.getElementById(`rank-item-${myRankInfo.dogId}`);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    };
 
     return {
         period,
@@ -114,7 +90,7 @@ export const usePersonalRanking = () => {
         setScope,
         setIsRegionModalOpen,
         setSelectedRegion,
-        handleJumpToMyRank,
+
         fetchNextPage,
 
         hasNextPage,
