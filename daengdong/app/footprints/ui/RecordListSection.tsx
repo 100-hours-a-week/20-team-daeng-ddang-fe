@@ -54,7 +54,7 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
                                     {record.createdAt ? (
                                         <>
                                             <TimeText>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
-                                            <span>산책일지</span>
+                                            <span>{record.type === 'WALK' ? '산책일지' : '헬스케어'}</span>
                                         </>
                                     ) : (
                                         record.title

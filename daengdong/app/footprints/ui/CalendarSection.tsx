@@ -44,7 +44,7 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
     const handleDateConfirm = (dateStr: string) => {
         const date = new Date(dateStr);
         onMonthChange(date.getFullYear(), date.getMonth() + 1);
-        onDateSelect(dateStr); // Optionally select the 1st of the month
+        onDateSelect(dateStr);
     };
 
     const getMetaForDate = (dateStr: string): CalendarDayMeta | undefined => {
