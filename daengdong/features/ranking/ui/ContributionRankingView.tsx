@@ -2,10 +2,9 @@ import styled from "@emotion/styled";
 import { useContributionRanking } from "../model/useContributionRanking";
 import { PeriodType, ContributionRankingItem } from "@/entities/ranking/model/types";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
-import Image from "next/image";
 import { LoadingView } from "@/widgets/GlobalLoading";
-import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { formatDistance } from "@/shared/utils/formatDistance";
+import { DogProfileImage } from "@/shared/components/DogProfileImage";
 
 interface ContributionRankingViewProps {
     regionId: number;
@@ -65,11 +64,11 @@ const ContributionRow = ({ item, isTop = false, isMyRank = false }: { item: Cont
     <Row isMyRank={isMyRank}>
         <RankBadge isTop={isTop}>{item.rank}</RankBadge>
         <Avatar>
-            {item.profileImageUrl ? (
-                <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={32} height={32} style={{ objectFit: 'cover' }} />
-            ) : (
-                <div style={{ background: '#eee', width: '100%', height: '100%' }} />
-            )}
+            <DogProfileImage
+                src={item.profileImageUrl}
+                alt={item.dogName}
+                size={32}
+            />
         </Avatar>
         <Info>
             <Name>{item.dogName}</Name>

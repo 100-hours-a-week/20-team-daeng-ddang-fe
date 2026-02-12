@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'placedog.net',
       },
+      {
+        protocol: 'https',
+        hostname: 's3.ap-northeast-2.amazonaws.com',
+      },
     ],
   },
 };

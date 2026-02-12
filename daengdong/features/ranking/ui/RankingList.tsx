@@ -3,11 +3,10 @@
 import { RankingItem } from "@/entities/ranking/model/types";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
-import Image from "next/image";
-import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { useEffect, useRef } from "react";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
+import { DogProfileImage } from "@/shared/components/DogProfileImage";
 
 
 interface RankingListProps {
@@ -62,11 +61,11 @@ export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore }: RankingL
                     <RankRow key={`rank-${item.rank}-${item.dogId}`} isMyRank={isMyRank} id={`rank-item-${item.dogId}`}>
                         <RankNum isMyRank={isMyRank}>{item.rank}</RankNum>
                         <Avatar>
-                            {item.profileImageUrl ? (
-                                <Image src={resolveS3Url(item.profileImageUrl) || ''} alt={item.dogName} width={40} height={40} style={{ objectFit: 'cover' }} />
-                            ) : (
-                                <div style={{ backgroundColor: colors.gray[300], width: '100%', height: '100%' }} />
-                            )}
+                            <DogProfileImage
+                                src={item.profileImageUrl}
+                                alt={item.dogName}
+                                size={40}
+                            />
                         </Avatar>
                         <Info>
                             <NameRow>

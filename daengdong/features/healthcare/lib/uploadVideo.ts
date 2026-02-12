@@ -7,6 +7,6 @@ export const uploadVideo = async (videoBlob: Blob): Promise<string> => {
 
     await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, contentType);
 
-    const cdnBaseUrl = process.env.NEXT_PUBLIC_CDN_URL || 'https://cdn.example.com';
+    const cdnBaseUrl = process.env.NEXT_PUBLIC_CDN_URL || 'https://daeng-map.s3.ap-northeast-2.amazonaws.com';
     return `${cdnBaseUrl}/${presignedData.objectKey}`;
 };
