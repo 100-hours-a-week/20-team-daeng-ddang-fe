@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/widgets/Header";
 import { HealthcareMainSection } from "@/features/healthcare/ui/HealthcareMainSection";
 import { VideoUploadSection } from "@/features/healthcare/ui/VideoUploadSection";
@@ -11,7 +11,6 @@ import { useHealthcareStore } from "@/entities/healthcare/model/healthcareStore"
 import { useOnboarding } from "@/shared/hooks/useOnboarding";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcareMutations";
-import { mockHealthcareResult } from "@/features/healthcare/lib/mockData";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 import {
     PageContainer,
@@ -41,8 +40,7 @@ import {
 
 export const HealthcareScreen = () => {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const { step, setStep, result, setResult } = useHealthcareStore();
+    const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
     const { uploadAndAnalyze } = useHealthcareMutations();
 
@@ -52,14 +50,6 @@ export const HealthcareScreen = () => {
     // Prevent accidental page leave during recording
     useConfirmPageLeave(mode === 'record' && !isCameraIdle);
 
-    // TODO: mock 데이터 삭제
-    useEffect(() => {
-        const isMockMode = searchParams.get('mock') === '1';
-        if (isMockMode && !result) {
-            setResult(mockHealthcareResult);
-            setStep('result');
-        }
-    }, [searchParams, result, setResult, setStep]);
 
     const handleCancel = () => {
         if (mode === 'main') {
@@ -85,8 +75,8 @@ export const HealthcareScreen = () => {
         }
     };
 
-    if (step === 'result') {
-        const displayResult = result || mockHealthcareResult;
+    if (step === 'result' && result) {
+        const displayResult = result;
 
         return (
             <PageContainer>
