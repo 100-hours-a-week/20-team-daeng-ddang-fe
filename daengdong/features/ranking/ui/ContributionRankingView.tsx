@@ -47,9 +47,11 @@ export const ContributionRankingView = ({ regionId, periodType, periodValue }: C
             <Divider />
 
             <FullList>
-                {contributionRanks.map((item: ContributionRankingItem) => (
-                    <ContributionRow key={`list-${item.dogId}`} item={item} />
-                ))}
+                {contributionRanks
+                    .filter((item: ContributionRankingItem) => item.rank > 3)
+                    .map((item: ContributionRankingItem) => (
+                        <ContributionRow key={`list-${item.dogId}`} item={item} />
+                    ))}
             </FullList>
 
             {hasNextPage && (
