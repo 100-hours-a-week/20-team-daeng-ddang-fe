@@ -4,6 +4,7 @@ import { colors, spacing, radius } from "@/shared/styles/tokens";
 import Image from "next/image";
 import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 import { formatDistance } from "@/shared/utils/formatDistance";
+import { calculateAge } from "@/shared/utils/calculateAge";
 
 interface TopPodiumProps {
     topRanks: RankingItem[];
@@ -44,7 +45,12 @@ const RankCard = ({ item }: { item: RankingItem }) => {
                 </NameRow>
                 <Distance isFirst={isFirst}>{formatDistance(item.totalDistance)}km</Distance>
                 <DetailRow>
-                    <DetailText>{item.breed} · {item.age}살</DetailText>
+                    <DetailText>
+                        {[
+                            item.breed,
+                            item.birthDate ? `${calculateAge(item.birthDate)}살` : item.age ? `${item.age}살` : null
+                        ].filter(Boolean).join(' · ')}
+                    </DetailText>
                 </DetailRow>
             </Info>
         </CardContainer>

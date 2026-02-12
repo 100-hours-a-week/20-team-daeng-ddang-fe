@@ -7,8 +7,9 @@ export interface RankingItem {
     dogName: string;
     profileImageUrl?: string;
     totalDistance: number;
-    breed: string;
-    age: number;
+    breed?: string;
+    age?: number;
+    birthDate?: string;
 }
 
 export type MyRankInfo = RankingItem;
