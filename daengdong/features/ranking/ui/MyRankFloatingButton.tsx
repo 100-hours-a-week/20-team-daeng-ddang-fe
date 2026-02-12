@@ -21,7 +21,7 @@ export const MyRankFloatingButton = ({ isVisible, onClick }: MyRankFloatingButto
                         onClick={onClick}
                     >
                         <Icon>🔎</Icon>
-                        <Text>내 순위</Text>
+                        <Text>우리동네 순위</Text>
                     </StyledButton>
                 </FixedContainer>
             )}
