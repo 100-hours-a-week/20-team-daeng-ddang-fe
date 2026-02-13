@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
 import { TopPodium } from "./TopPodium";
@@ -10,14 +11,19 @@ import { colors, spacing } from "@/shared/styles/tokens";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
 import { DogProfileImage } from "@/shared/components/DogProfileImage";
+import { useModalStore } from "@/shared/stores/useModalStore";
 
 export const PersonalRankingView = () => {
+    const router = useRouter();
+    const { openModal } = useModalStore();
     const {
         period,
         scope,
         selectedRegion,
         isRegionModalOpen,
         isSummaryLoading,
+        isUserLoading,
+        isDogRegistered,
         setPeriod,
         setScope,
         setIsRegionModalOpen,
@@ -27,13 +33,25 @@ export const PersonalRankingView = () => {
         rankingList,
         myRankInfo,
         topRanks,
-        summaryData
+        summaryData,
     } = usePersonalRanking();
 
     const containerRef = useRef<HTMLDivElement>(null);
 
-    if (isSummaryLoading && !summaryData) return <LoadingView message="랭킹 불러오는 중..." />;
-    if (!summaryData && !isSummaryLoading) return <LoadingView message="데이터가 없습니다." />;
+    useEffect(() => {
+        if (!isUserLoading && isDogRegistered === false) {
+            openModal({
+                title: "반려견 등록 필요",
+                message: "랭킹 서비스를 이용하려면 반려견 등록이 필요합니다.\n등록 페이지로 이동하시겠습니까?",
+                type: "confirm",
+                confirmText: "이동",
+                cancelText: "나중에 하기",
+                onConfirm: () => router.push('/register/dog'),
+            });
+        }
+    }, [isUserLoading, isDogRegistered, openModal, router]);
+
+    if (isSummaryLoading && !summaryData && topRanks.length === 0) return <LoadingView message="랭킹 불러오는 중..." />;
 
     return (
         <Container ref={containerRef}>
