@@ -7,8 +7,9 @@ import { format } from "date-fns";
 import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
 
 export const useRegionalRanking = () => {
-    const { data: userInfo } = useUserInfoQuery();
+    const { data: userInfo, isLoading: isUserLoading } = useUserInfoQuery();
     const [period, setPeriod] = useState<PeriodType>('WEEK');
+    const isRegionRegistered = !!userInfo?.regionId;
 
     const periodValue = useMemo(() => {
         const now = new Date();
@@ -45,14 +46,13 @@ export const useRegionalRanking = () => {
         regionListData?.pages.flatMap((page: ApiResponse<RegionRankingList>) => page.data.ranks) || []
         , [regionListData]);
 
-    // Contribution Ranking Logic (Expanded Region)
+
     const [expandedRegionId, setExpandedRegionId] = useState<number | null>(null);
 
     const toggleRegion = (regionId: number) => {
         setExpandedRegionId(prev => prev === regionId ? null : regionId);
     };
 
-    // Summary Query (For My Rank)
     const { data: summaryData } = useQuery({
         queryKey: ['ranking', 'region-summary', period, periodValue, userInfo?.regionId],
         queryFn: () => rankingApi.getRegionRankingSummary({
@@ -80,19 +80,18 @@ export const useRegionalRanking = () => {
     };
 
     return {
-        // State
         period,
         expandedRegionId,
         isRegionListLoading,
         userRegionId,
+        isRegionRegistered,
+        isUserLoading,
 
-        // Actions
         setPeriod,
         toggleRegion,
         fetchNextRegionPage,
         handleJumpToMyRegion,
 
-        // Data
         hasNextRegionPage,
         regionRanks,
         periodValue

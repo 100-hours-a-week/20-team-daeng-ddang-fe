@@ -40,20 +40,10 @@ export const usePersonalRanking = () => {
                     setSelectedRegion({ id: userInfo.regionId, name: regionName });
                 }, 0);
             }
-        } else if (!isUserLoading && !userInfo?.regionId) {
-            if (scope === 'REGIONAL') {
-                setTimeout(() => {
-                    if (confirm("지역 설정이 필요합니다. 설정 페이지로 이동하시겠습니까?")) {
-                        router.push('/mypage/user');
-                    } else {
-                        setScope('NATIONWIDE');
-                    }
-                }, 100);
-            }
         }
-    }, [userInfo, isUserLoading, scope, router, selectedRegion]);
+    }, [userInfo, isUserLoading, selectedRegion]);
 
-    const { data: summaryData, isLoading: isSummaryLoading } = useRankingSummaryQuery({
+    const { data: summaryData, isLoading: isSummaryLoading, isError: isSummaryError } = useRankingSummaryQuery({
         periodType: period,
         periodValue,
         regionId: scope === 'REGIONAL' ? selectedRegion?.id : undefined,
@@ -75,9 +65,9 @@ export const usePersonalRanking = () => {
         , [listData]);
 
     const myRankInfo = summaryData?.data?.myRank;
-    const topRanks = summaryData?.data?.topRanks || [];
+    const topRanks = summaryData?.data?.topRanks || listData?.pages[0]?.data?.ranks.slice(0, 3) || [];
 
-
+    const isDogRegistered = !!userInfo?.dogId;
 
     return {
         period,
@@ -85,6 +75,8 @@ export const usePersonalRanking = () => {
         selectedRegion,
         isRegionModalOpen,
         isSummaryLoading,
+        isUserLoading,
+        isDogRegistered,
 
         setPeriod,
         setScope,
@@ -97,6 +89,7 @@ export const usePersonalRanking = () => {
         rankingList,
         myRankInfo,
         topRanks,
-        summaryData
+        summaryData,
+        isSummaryError
     };
 };

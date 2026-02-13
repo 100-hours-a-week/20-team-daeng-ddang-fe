@@ -1,9 +1,12 @@
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
 import { RegionRankingList } from "./RegionRankingList";
 import { LoadingView } from "@/widgets/GlobalLoading";
 import { useRegionalRanking } from "../model/useRegionalRanking";
 import { MyRankFloatingButton } from "./MyRankFloatingButton";
+import { useModalStore } from "@/shared/stores/useModalStore";
 
 export const RegionalRankingView = () => {
     const {
@@ -17,8 +20,26 @@ export const RegionalRankingView = () => {
         toggleRegion,
         periodValue,
         userRegionId,
-        handleJumpToMyRegion
+        handleJumpToMyRegion,
+        isRegionRegistered,
+        isUserLoading
     } = useRegionalRanking();
+
+    const router = useRouter();
+    const { openModal } = useModalStore();
+
+    useEffect(() => {
+        if (!isUserLoading && isRegionRegistered === false) {
+            openModal({
+                title: "지역 설정 필요",
+                message: "지역 랭킹을 보려면 지역 설정이 필요합니다.\n설정 페이지로 이동하시겠습니까?",
+                type: "confirm",
+                confirmText: "이동",
+                cancelText: "나중에 하기",
+                onConfirm: () => router.push('/mypage/user'),
+            });
+        }
+    }, [isUserLoading, isRegionRegistered, openModal, router]);
 
     if (isRegionListLoading && regionRanks.length === 0) return <LoadingView message="지역 랭킹 불러오는 중..." />;
 
