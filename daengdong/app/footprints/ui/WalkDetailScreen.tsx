@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Header } from "@/widgets/Header";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface WalkDetailScreenProps {
     walkId: number;
@@ -66,7 +67,7 @@ export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
                     </InfoItem>
                     <InfoItem>
                         <Label>산책 거리</Label>
-                        <Value>{walk.distance.toFixed(2)} km</Value>
+                        <Value>{formatDistance(walk.distance, 2)} km</Value>
                     </InfoItem>
                     <InfoItem>
                         <Label>소요 시간</Label>
