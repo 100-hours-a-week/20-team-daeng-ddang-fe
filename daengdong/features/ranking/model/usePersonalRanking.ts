@@ -1,14 +1,14 @@
 import { useState, useMemo, useEffect } from "react";
 import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
+import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { useRankingListInfiniteQuery, useRankingSummaryQuery } from "../api/useRankingQuery";
 import { PeriodType, ScopeType, RankingItem, RankingList as RankingListType } from "@/entities/ranking/model/types";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
 import { ApiResponse } from "@/shared/api/types";
 
 export const usePersonalRanking = () => {
-    const router = useRouter();
     const { data: userInfo, isLoading: isUserLoading } = useUserInfoQuery();
+    const { data: dogInfo, isLoading: isDogLoading } = useDogInfoQuery();
 
     const [period, setPeriod] = useState<PeriodType>('WEEK');
     const [scope, setScope] = useState<ScopeType>('NATIONWIDE');
@@ -67,7 +67,7 @@ export const usePersonalRanking = () => {
     const myRankInfo = summaryData?.data?.myRank;
     const topRanks = summaryData?.data?.topRanks || listData?.pages[0]?.data?.ranks.slice(0, 3) || [];
 
-    const isDogRegistered = !!userInfo?.dogId;
+    const isDogRegistered = !!dogInfo;
 
     return {
         period,
@@ -76,6 +76,7 @@ export const usePersonalRanking = () => {
         isRegionModalOpen,
         isSummaryLoading,
         isUserLoading,
+        isDogLoading,
         isDogRegistered,
 
         setPeriod,

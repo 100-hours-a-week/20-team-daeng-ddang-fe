@@ -31,10 +31,10 @@ export const RegionalRankingView = () => {
     useEffect(() => {
         if (!isUserLoading && isRegionRegistered === false) {
             openModal({
-                title: "지역 설정 필요",
-                message: "지역 랭킹을 보려면 지역 설정이 필요합니다.\n설정 페이지로 이동하시겠습니까?",
+                title: "지역 설정 필요!",
+                message: "지역 랭킹을 보려면 지역 정보가 필요합니다! \n등록하시겠어요?",
                 type: "confirm",
-                confirmText: "이동",
+                confirmText: "등록하기",
                 cancelText: "나중에 하기",
                 onConfirm: () => router.push('/mypage/user'),
             });

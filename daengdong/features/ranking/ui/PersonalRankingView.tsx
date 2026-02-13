@@ -23,6 +23,7 @@ export const PersonalRankingView = () => {
         isRegionModalOpen,
         isSummaryLoading,
         isUserLoading,
+        isDogLoading,
         isDogRegistered,
         setPeriod,
         setScope,
@@ -39,17 +40,17 @@ export const PersonalRankingView = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!isUserLoading && isDogRegistered === false) {
+        if (!isUserLoading && !isDogLoading && isDogRegistered === false) {
             openModal({
                 title: "반려견 등록 필요",
-                message: "랭킹 서비스를 이용하려면 반려견 등록이 필요합니다.\n등록 페이지로 이동하시겠습니까?",
+                message: "내 순위를 보려면 반려견 등록이 필요합니다! \n등록하시겠어요?",
                 type: "confirm",
-                confirmText: "이동",
+                confirmText: "등록하기",
                 cancelText: "나중에 하기",
-                onConfirm: () => router.push('/register/dog'),
+                onConfirm: () => router.push('/mypage/dog'),
             });
         }
-    }, [isUserLoading, isDogRegistered, openModal, router]);
+    }, [isUserLoading, isDogLoading, isDogRegistered, openModal, router]);
 
     if (isSummaryLoading && !summaryData && topRanks.length === 0) return <LoadingView message="랭킹 불러오는 중..." />;
 
