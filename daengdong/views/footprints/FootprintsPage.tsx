@@ -4,24 +4,22 @@ import { useState } from "react";
 import styled from "@emotion/styled";
 import { format } from "date-fns";
 import { colors } from "@/shared/styles/tokens";
-import { CalendarSection } from "./CalendarSection";
-import { RecordListSection } from "./RecordListSection";
+import { CalendarSection } from "../../features/footprints/ui/CalendarSection";
+import { RecordListSection } from "../../features/footprints/ui/RecordListSection";
 import { DailyRecordItem } from "@/entities/footprints/model/types";
-import { WalkDetailScreen } from "./WalkDetailScreen";
-import { HealthcareDetailScreen } from "./HealthcareDetailScreen";
 import { Header } from "@/widgets/Header";
 import { useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { radius } from "@/shared/styles/tokens";
+import { useRouter } from "next/navigation";
 
-export default function FootprintsScreen() {
-
+export const FootprintsPage = () => {
+    const router = useRouter();
     const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
     const [viewDate, setViewDate] = useState({
         year: new Date().getFullYear(),
         month: new Date().getMonth() + 1
     });
-    const [selectedRecord, setSelectedRecord] = useState<DailyRecordItem | null>(null);
     const [showScrollTop, setShowScrollTop] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -53,30 +51,12 @@ export default function FootprintsScreen() {
     };
 
     const handleRecordClick = (record: DailyRecordItem) => {
-        setSelectedRecord(record);
+        if (record.type === 'WALK') {
+            router.push(`/footprints/walk/${record.id}`);
+        } else if (record.type === 'HEALTH') {
+            router.push(`/footprints/healthcare/${record.id}`);
+        }
     };
-
-    const handleBack = () => {
-        setSelectedRecord(null);
-    };
-
-    if (selectedRecord?.type === 'WALK') {
-        return (
-            <WalkDetailScreen
-                walkId={selectedRecord.id}
-                onBack={handleBack}
-            />
-        );
-    }
-
-    if (selectedRecord?.type === 'HEALTH') {
-        return (
-            <HealthcareDetailScreen
-                healthcareId={selectedRecord.id}
-                onBack={handleBack}
-            />
-        );
-    }
 
     return (
         <ScreenContainer>
@@ -160,3 +140,5 @@ const ScrollTopButton = styled(motion.button)`
         transform: scale(0.95);
     }
 `;
+
+export default FootprintsPage;

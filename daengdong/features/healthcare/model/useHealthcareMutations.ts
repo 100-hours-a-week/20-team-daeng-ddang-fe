@@ -9,13 +9,18 @@ export const useHealthcareMutations = () => {
     const { showToast } = useToastStore();
     const { showLoading, hideLoading } = useLoadingStore();
 
-    const uploadAndAnalyze = async (videoBlob: Blob): Promise<HealthcareAnalysisResponse> => {
+    const uploadAndAnalyze = async (videoBlob: Blob, backVideoBlob?: Blob): Promise<HealthcareAnalysisResponse> => {
         showLoading("영상을 업로드하고 분석 중입니다...");
 
         try {
             const videoUrl = await uploadVideo(videoBlob);
 
-            const analysisResult = await healthcareApi.analyzeHealthcare(videoUrl);
+            let backVideoUrl: string | undefined;
+            if (backVideoBlob) {
+                backVideoUrl = await uploadVideo(backVideoBlob);
+            }
+
+            const analysisResult = await healthcareApi.analyzeHealthcare(videoUrl, backVideoUrl);
 
             setResult(analysisResult);
             setStep('result');

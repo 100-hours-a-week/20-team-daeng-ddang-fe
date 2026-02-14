@@ -1,5 +1,5 @@
-import FootprintsScreen from "./ui/FootprintsScreen";
+import { FootprintsPage } from "@/views/footprints/FootprintsPage";
 
-export default function FootprintsPage() {
-    return <FootprintsScreen />;
+export default function Page() {
+    return <FootprintsPage />;
 }

@@ -37,9 +37,9 @@ import {
     RetryButton,
     GuideBox,
     GuideText
-} from "./style";
+} from "./_style";
 
-export const HealthcareScreen = () => {
+export const HealthcarePage = () => {
     const router = useRouter();
     const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
@@ -71,9 +71,9 @@ export const HealthcareScreen = () => {
         setMode('chatbot');
     };
 
-    const handleComplete = async (videoBlob: Blob) => {
+    const handleComplete = async (videoBlob: Blob, backVideoBlob?: Blob) => {
         try {
-            await uploadAndAnalyze(videoBlob);
+            await uploadAndAnalyze(videoBlob, backVideoBlob);
         } catch {
             setMode('main');
         }
@@ -249,3 +249,5 @@ export const HealthcareScreen = () => {
         </PageContainer>
     );
 };
+
+export default HealthcarePage;

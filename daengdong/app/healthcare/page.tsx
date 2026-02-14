@@ -1,12 +1,9 @@
 "use client";
 
-import { Suspense } from "react";
-import { HealthcareScreen } from "./ui/HealthcareScreen";
+import { HealthcarePage } from "@/views/healthcare/HealthcarePage";
 
-export default function HealthcarePage() {
+export default function Page() {
     return (
-        <Suspense fallback={null}>
-            <HealthcareScreen />
-        </Suspense>
+        <HealthcarePage />
     );
 }

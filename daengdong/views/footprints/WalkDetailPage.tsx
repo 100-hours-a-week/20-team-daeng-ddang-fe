@@ -8,10 +8,11 @@ import { Header } from "@/widgets/Header";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { formatDistance } from "@/shared/utils/formatDistance";
+import { useRouter } from "next/navigation";
 
 interface WalkDetailScreenProps {
     walkId: number;
-    onBack: () => void;
+    onBack?: () => void;
 }
 
 const getEmotionLabel = (emotion: string) => {
@@ -30,7 +31,10 @@ const formatDuration = (seconds: number) => {
     return `${minutes.toString().padStart(2, '0')}분 ${remainingSeconds.toString().padStart(2, '0')}초`;
 };
 
-export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
+export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
+    const router = useRouter();
+    const handleBack = onBack || (() => router.back());
+
     const { data: walk, isLoading: isWalkLoading } = useWalkDetailQuery(walkId);
     const { data: expression, isLoading: isExpressionLoading } = useWalkExpressionQuery(walkId);
 
@@ -43,7 +47,7 @@ export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
 
     return (
         <ScreenContainer>
-            <Header title="산책 상세 기록" showBackButton={true} onBack={onBack} />
+            <Header title="산책 상세 기록" showBackButton={true} onBack={handleBack} />
             <Content>
                 <DateText>{dateText}</DateText>
 
@@ -341,3 +345,5 @@ const DateText = styled.h2`
     margin-bottom: ${spacing[2]}px;
     padding-left: ${spacing[1]}px;
 `;
+
+export default WalkDetailPage;

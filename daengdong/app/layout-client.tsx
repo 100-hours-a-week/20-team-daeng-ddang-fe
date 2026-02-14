@@ -15,7 +15,7 @@ export function LayoutClient({ children }: { children: ReactNode }) {
 
     // BottomNav를 숨길 페이지 목록
     const hideBottomNavPaths = ['/login', '/oauth/kakao/callback', '/terms', '/walk/mission', '/walk/expression'];
-    const shouldHideBottomNav = hideBottomNavPaths.some(path => pathname.startsWith(path));
+    const shouldHideBottomNav = pathname ? hideBottomNavPaths.some(path => pathname.startsWith(path)) : false;
 
     return (
         <MobileRoot>
@@ -29,7 +29,7 @@ export function LayoutClient({ children }: { children: ReactNode }) {
                     <GlobalLoading />
                     {!shouldHideBottomNav && (
                         <BottomNav
-                            currentPath={pathname}
+                            currentPath={pathname || ''}
                             onNavigate={(path) => router.push(path)}
                         />
                     )}

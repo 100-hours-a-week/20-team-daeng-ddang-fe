@@ -97,3 +97,5 @@ export const SubmitButton = styled.button<{ disabled: boolean }>`
         background-color: ${props => props.disabled ? '#d1d5db' : colors.primary[700]};
     }
 `;
+
+export default function Style() { return null; }

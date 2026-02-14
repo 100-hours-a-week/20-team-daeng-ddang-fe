@@ -66,3 +66,5 @@ export const ButtonWrapper = styled.div`
     margin-top: 0;
   }
 `;
+
+export default function Style() { return null; }

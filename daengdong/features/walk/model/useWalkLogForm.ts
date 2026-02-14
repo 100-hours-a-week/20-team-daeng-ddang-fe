@@ -33,7 +33,8 @@ export const useWalkLogForm = () => {
     const MAX_LENGTH = 500;
 
     const router = useRouter();
-    const { walkId } = useParams();
+    const params = useParams();
+    const walkId = params?.walkId;
     const { showToast } = useToastStore();
     const { mutate: writeDiary } = useWriteWalkDiary();
     const { walkResult } = useWalkStore();

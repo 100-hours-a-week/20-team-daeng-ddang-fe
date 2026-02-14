@@ -256,3 +256,5 @@ export const RetryButton = styled.button`
     background: ${colors.primary[600]};
   }
 `;
+
+export default function Style() { return null; }

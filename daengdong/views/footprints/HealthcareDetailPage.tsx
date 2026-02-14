@@ -4,13 +4,16 @@ import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useHealthcareDetailQuery } from "@/features/footprints/api/useFootprintsQuery";
 import { Header } from "@/widgets/Header";
+import { useRouter } from "next/navigation";
 
 interface HealthcareDetailScreenProps {
     healthcareId: number;
-    onBack: () => void;
+    onBack?: () => void;
 }
 
-export const HealthcareDetailScreen = ({ healthcareId, onBack }: HealthcareDetailScreenProps) => {
+export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailScreenProps) => {
+    const router = useRouter();
+    const handleBack = onBack || (() => router.back());
     const { data: healthcare, isLoading } = useHealthcareDetailQuery(healthcareId);
 
     if (isLoading) return null;
@@ -18,7 +21,7 @@ export const HealthcareDetailScreen = ({ healthcareId, onBack }: HealthcareDetai
 
     return (
         <ScreenContainer>
-            <Header title="헬스 케어 상세 기록" showBackButton={true} onBack={onBack} />
+            <Header title="헬스 케어 상세 기록" showBackButton={true} onBack={handleBack} />
             <Content>
                 {/* 전체 위험도 */}
                 <RiskBanner level={healthcare.overallRiskLevel}>
@@ -194,3 +197,5 @@ const GuideTooltip = styled.p`
     text-align: center;
     margin-top: ${spacing[4]}px;
 `;
+
+export default HealthcareDetailPage;

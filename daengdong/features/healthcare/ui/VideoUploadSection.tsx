@@ -1,80 +1,46 @@
 import styled from "@emotion/styled";
-import { useRef } from "react";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
-import { useToastStore } from "@/shared/stores/useToastStore";
+import { useVideoUpload } from "../model/useVideoUpload";
 
 interface VideoUploadSectionProps {
-  onComplete: (videoBlob: Blob) => Promise<void>;
+  onComplete: (videoBlob: Blob, backVideoBlob?: Blob) => Promise<void>;
   onCancel: () => void;
 }
 
 export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionProps) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showToast } = useToastStore();
-
-  const validateVideoDuration = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-
-      video.onloadedmetadata = () => {
-        window.URL.revokeObjectURL(video.src);
-        const duration = video.duration;
-
-        if (duration > 10) {
-          showToast({
-            message: "10초 이내의 영상만 업로드 가능합니다.",
-            type: "error"
-          });
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      };
-
-      video.onerror = () => {
-        showToast({
-          message: "영상 파일을 읽을 수 없습니다.",
-          type: "error"
-        });
-        resolve(false);
-      };
-
-      video.src = URL.createObjectURL(file);
-    });
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // 파일 타입 검증
-    if (!file.type.startsWith('video/')) {
-      showToast({
-        message: "영상 파일만 업로드 가능합니다.",
-        type: "error"
-      });
-      return;
-    }
-
-    // 영상 길이 검증
-    const isValid = await validateVideoDuration(file);
-    if (!isValid) return;
-
-    // Blob으로 변환하여 전달
-    onComplete(file);
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+  const {
+    fileInputRef,
+    step,
+    handleFileChange,
+    handleSkip,
+    handleUploadClick
+  } = useVideoUpload({ onComplete });
 
   return (
     <Container>
-      <Title>영상 업로드</Title>
+      <Title>
+        {step === 'SIDE' ? '측면 영상 업로드 (1/2)' : '후면 영상 업로드 (2/2)'}
+      </Title>
+
       <Description>
-        10초 이내의 반려견이 걷는 측면 모습을 업로드해주세요
+        {step === 'SIDE' ? (
+          <>
+            반려견이 걷는 <b>측면 모습</b>을 업로드해주세요.<br />
+            다리와 관절의 움직임을 분석합니다.
+          </>
+        ) : (
+          <>
+            반려견이 걷는 <b>후면 모습</b>을 업로드해주세요.<br />
+            슬개골 움직임을 더 자세히 분석할 수 있습니다.
+          </>
+        )}
       </Description>
+
+      <StepIndicator>
+        <StepDot active={step === 'SIDE'} completed={step === 'BACK'} />
+        <Line />
+        <StepDot active={step === 'BACK'} />
+      </StepIndicator>
 
       <HiddenInput
         ref={fileInputRef}
@@ -85,8 +51,15 @@ export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionP
 
       <ButtonGroup>
         <UploadButton onClick={handleUploadClick}>
-          파일 선택
+          영상 선택하기
         </UploadButton>
+
+        {step === 'BACK' && (
+          <SkipButton onClick={handleSkip}>
+            건너뛰기 (측면 영상만 분석)
+          </SkipButton>
+        )}
+
         <CancelButton onClick={onCancel}>
           취소
         </CancelButton>
@@ -94,6 +67,7 @@ export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionP
     </Container>
   );
 };
+
 
 const Container = styled.div`
   display: flex;
@@ -157,3 +131,36 @@ const CancelButton = styled(BaseButton)`
     background: ${colors.gray[300]};
   }
 `;
+
+const StepIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${spacing[2]}px;
+  margin: ${spacing[2]}px 0;
+`;
+
+const StepDot = styled.div<{ active?: boolean; completed?: boolean }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: ${({ active, completed }) =>
+    active || completed ? colors.primary[500] : colors.gray[300]};
+  transition: all 0.3s ease;
+`;
+
+const Line = styled.div`
+  width: 40px;
+  height: 2px;
+  background-color: ${colors.gray[300]};
+`;
+
+const SkipButton = styled(BaseButton)`
+  background: ${colors.gray[100]};
+  color: ${colors.gray[600]};
+  
+  &:active {
+    background: ${colors.gray[200]};
+  }
+`;
+

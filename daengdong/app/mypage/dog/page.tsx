@@ -1,7 +1,7 @@
 'use client';
 
-import { DogInfoScreen } from './DogInfoScreen';
+import { DogInfoPage } from '@/views/mypage/dog/DogInfoPage';
 
 export default function Page() {
-    return <DogInfoScreen />;
+    return <DogInfoPage />;
 }

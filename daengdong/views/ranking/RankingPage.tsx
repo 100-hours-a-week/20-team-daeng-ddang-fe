@@ -7,7 +7,7 @@ import { RankingTabs } from "@/features/ranking/ui/RankingTabs";
 import { PersonalRankingView } from "@/features/ranking/ui/PersonalRankingView";
 import { RegionalRankingView } from "@/features/ranking/ui/RegionalRankingView";
 
-export const RankingScreen = () => {
+export const RankingPage = () => {
     const [activeTab, setActiveTab] = useState<'PERSONAL' | 'REGIONAL'>('PERSONAL');
 
     return (
@@ -25,6 +25,8 @@ export const RankingScreen = () => {
         </ScreenContainer>
     );
 };
+
+export default RankingPage;
 
 const ScreenContainer = styled.div`
     display: flex;

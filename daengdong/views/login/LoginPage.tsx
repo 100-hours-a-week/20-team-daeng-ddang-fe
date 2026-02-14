@@ -1,12 +1,12 @@
 "use client";
 
-import { Container, ContentWrapper, BrandText, LogoImage, ButtonWrapper, HeaderWrapper, BrandTitle } from './styles';
+import { Container, ContentWrapper, BrandText, LogoImage, ButtonWrapper, HeaderWrapper, BrandTitle } from './_styles';
 import { KakaoButton } from '@/shared/components/KakaoButton';
 import { Header } from '@/widgets/Header';
 import { DevLoginButton } from '@/features/auth/ui/DevLoginButton';
 import MascotImage from "@/shared/assets/images/mascot.png";
 
-export const LoginScreen = () => {
+export const LoginPage = () => {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const handleKakaoLogin = () => {
@@ -39,3 +39,5 @@ export const LoginScreen = () => {
         </Container>
     );
 };
+
+export default LoginPage;
