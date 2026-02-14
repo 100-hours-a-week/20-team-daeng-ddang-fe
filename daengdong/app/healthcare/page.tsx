@@ -1,6 +1,6 @@
 "use client";
 
-import { HealthcarePage } from "@/pages/healthcare/HealthcarePage";
+import { HealthcarePage } from "@/views/healthcare/HealthcarePage";
 
 export default function Page() {
     return (

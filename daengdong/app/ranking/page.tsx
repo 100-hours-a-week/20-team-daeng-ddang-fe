@@ -1,4 +1,4 @@
-import { RankingPage } from "@/pages/ranking/RankingPage";
+import { RankingPage } from "@/views/ranking/RankingPage";
 
 export default function Page() {
     return <RankingPage />;

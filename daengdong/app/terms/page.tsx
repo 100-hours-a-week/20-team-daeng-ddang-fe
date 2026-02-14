@@ -1,6 +1,6 @@
 "use client";
 
-import { TermsPage } from '@/pages/terms/TermsPage';
+import { TermsPage } from '@/views/terms/TermsPage';
 
 export default function Page() {
     return <TermsPage />;
