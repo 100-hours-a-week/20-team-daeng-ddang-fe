@@ -39,7 +39,7 @@ import {
     GuideText
 } from "./style";
 
-export const HealthcareScreen = () => {
+export const HealthcarePage = () => {
     const router = useRouter();
     const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');

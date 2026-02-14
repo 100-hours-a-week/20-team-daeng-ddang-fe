@@ -4,17 +4,17 @@ import { useState } from "react";
 import styled from "@emotion/styled";
 import { format } from "date-fns";
 import { colors } from "@/shared/styles/tokens";
-import { CalendarSection } from "./CalendarSection";
-import { RecordListSection } from "./RecordListSection";
+import { CalendarSection } from "../../features/footprints/ui/CalendarSection";
+import { RecordListSection } from "../../features/footprints/ui/RecordListSection";
 import { DailyRecordItem } from "@/entities/footprints/model/types";
-import { WalkDetailScreen } from "./WalkDetailScreen";
-import { HealthcareDetailScreen } from "./HealthcareDetailScreen";
+import { WalkDetailPage } from "./WalkDetailPage";
+import { HealthcareDetailPage } from "./HealthcareDetailPage";
 import { Header } from "@/widgets/Header";
 import { useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { radius } from "@/shared/styles/tokens";
 
-export default function FootprintsScreen() {
+export const FootprintsPage = () => {
 
     const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
     const [viewDate, setViewDate] = useState({
@@ -62,7 +62,7 @@ export default function FootprintsScreen() {
 
     if (selectedRecord?.type === 'WALK') {
         return (
-            <WalkDetailScreen
+            <WalkDetailPage
                 walkId={selectedRecord.id}
                 onBack={handleBack}
             />
@@ -71,7 +71,7 @@ export default function FootprintsScreen() {
 
     if (selectedRecord?.type === 'HEALTH') {
         return (
-            <HealthcareDetailScreen
+            <HealthcareDetailPage
                 healthcareId={selectedRecord.id}
                 onBack={handleBack}
             />

@@ -6,7 +6,7 @@ import { Header } from '@/widgets/Header';
 import { DevLoginButton } from '@/features/auth/ui/DevLoginButton';
 import MascotImage from "@/shared/assets/images/mascot.png";
 
-export const LoginScreen = () => {
+export const LoginPage = () => {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const handleKakaoLogin = () => {

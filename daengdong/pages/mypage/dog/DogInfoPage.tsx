@@ -1,6 +1,6 @@
 import { Header } from '@/widgets/Header';
 import { useDogInfoQuery } from '@/features/dog/api/useDogInfoQuery';
-import { DogForm } from '@/app/mypage/dog/ui/DogForm';
+import { DogForm } from '../../../features/dog/ui/DogForm';
 import { DogFormValues } from '@/entities/dog/model/types';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/navigation';
@@ -8,7 +8,7 @@ import { useDogInfo } from '@/features/dog/model/useDogInfo';
 import { spacing } from '@/shared/styles/tokens';
 import { LoadingView } from '@/widgets/GlobalLoading';
 
-export function DogInfoScreen() {
+export function DogInfoPage() {
     const router = useRouter();
     const { data: dogInfo, isLoading: isDogLoading } = useDogInfoQuery();
     const { saveDogProfile, transformDogInfoToForm, isSaving } = useDogInfo();

@@ -3,7 +3,7 @@ import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '@/shared/constants/terms';
 import { useTermsAgreement } from '@/features/auth/model/useTermsAgreement';
 import { Container, Title, AgreementSection, AgreementItem, Checkbox, Label, TermsLink, Required, Optional, SubmitButton } from './styles';
 
-export const TermsScreen = () => {
+export const TermsPage = () => {
     const {
         termsAgreed,
         setTermsAgreed,

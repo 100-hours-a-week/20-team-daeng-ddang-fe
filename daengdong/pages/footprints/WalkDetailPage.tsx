@@ -30,7 +30,7 @@ const formatDuration = (seconds: number) => {
     return `${minutes.toString().padStart(2, '0')}분 ${remainingSeconds.toString().padStart(2, '0')}초`;
 };
 
-export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
+export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
     const { data: walk, isLoading: isWalkLoading } = useWalkDetailQuery(walkId);
     const { data: expression, isLoading: isExpressionLoading } = useWalkExpressionQuery(walkId);
 

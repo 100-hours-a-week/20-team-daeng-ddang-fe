@@ -71,35 +71,4 @@ export const SaveButtonWrapper = styled.div`
   margin: 0 auto;
 `;
 
-export const BreedList = styled.ul`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid ${colors.gray[200]};
-  border-radius: ${radius.md};
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10;
-  margin-top: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  list-style: none;
-  padding: 0;
-`;
 
-export const BreedItem = styled.li`
-  padding: 12px 16px;
-  font-size: 14px;
-  color: ${colors.gray[900]};
-  cursor: pointer;
-  border-bottom: 1px solid ${colors.gray[200]};
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background-color: ${colors.gray[50]};
-  }
-`;

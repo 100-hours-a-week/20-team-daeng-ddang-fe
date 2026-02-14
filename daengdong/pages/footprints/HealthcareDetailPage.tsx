@@ -10,7 +10,7 @@ interface HealthcareDetailScreenProps {
     onBack: () => void;
 }
 
-export const HealthcareDetailScreen = ({ healthcareId, onBack }: HealthcareDetailScreenProps) => {
+export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailScreenProps) => {
     const { data: healthcare, isLoading } = useHealthcareDetailQuery(healthcareId);
 
     if (isLoading) return null;

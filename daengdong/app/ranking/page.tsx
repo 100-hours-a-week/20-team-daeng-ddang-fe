@@ -1,5 +1,5 @@
-import { RankingScreen } from "./ui/RankingScreen";
+import { RankingPage } from "@/pages/ranking/RankingPage";
 
-export default function RankingPage() {
-    return <RankingScreen />;
+export default function Page() {
+    return <RankingPage />;
 }

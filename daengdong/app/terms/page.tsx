@@ -1,7 +1,7 @@
 "use client";
 
-import { TermsScreen } from '@/app/terms/ui/TermsScreen';
+import { TermsPage } from '@/pages/terms/TermsPage';
 
-export default function TermsPage() {
-    return <TermsScreen />;
+export default function Page() {
+    return <TermsPage />;
 }
