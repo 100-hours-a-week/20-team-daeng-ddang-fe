@@ -16,10 +16,10 @@ interface WalkDetailScreenProps {
 
 const getEmotionLabel = (emotion: string) => {
     switch (emotion) {
-        case 'happy': return '행복';
-        case 'sad': return '슬픔';
-        case 'angry': return '화남';
-        case 'relaxed': return '편안';
+        case 'happy': return '행복해요';
+        case 'sad': return '슬퍼요';
+        case 'angry': return '화났어요';
+        case 'relaxed': return '편안해요';
         default: return emotion;
     }
 };
@@ -148,7 +148,7 @@ export const WalkDetailScreen = ({ walkId, onBack }: WalkDetailScreenProps) => {
                         </ExpressionCard>
 
                         <SummaryCard>
-                            <SummaryTitle>{getEmotionLabel(expression.predictedEmotion)}해요</SummaryTitle>
+                            <SummaryTitle>{getEmotionLabel(expression.predictedEmotion)}</SummaryTitle>
                             <SummaryText>{expression.summary}</SummaryText>
                             <Disclaimer>분석 결과는 100% 정확하지 않을 수 있습니다.</Disclaimer>
                         </SummaryCard>
