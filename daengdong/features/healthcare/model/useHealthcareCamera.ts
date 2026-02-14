@@ -20,12 +20,14 @@ export const useHealthcareCamera = ({ onComplete, onIdleChange }: UseHealthcareC
     const [error, setError] = useState<string | null>(null);
     const { showToast } = useToastStore();
 
-    // Idle 상태 변경 알림
+    // 카메라 상태 전달 
     useEffect(() => {
         onIdleChange(flowState === "IDLE");
     }, [flowState, onIdleChange]);
 
+    // ==============================
     // 카메라 초기화
+    // ==============================
     const initializeCamera = useCallback(async () => {
         if (!navigator.mediaDevices?.getUserMedia) {
             setError("이 브라우저에서는 카메라를 사용할 수 없습니다.");
@@ -43,7 +45,7 @@ export const useHealthcareCamera = ({ onComplete, onIdleChange }: UseHealthcareC
         }
     }, []);
 
-    // 카메라 스트림을 video 엘리먼트에 연결
+    // 비디오 스트림 연결 
     useEffect(() => {
         if (videoRef.current && stream) {
             videoRef.current.srcObject = stream;
@@ -51,7 +53,7 @@ export const useHealthcareCamera = ({ onComplete, onIdleChange }: UseHealthcareC
         }
     }, [stream]);
 
-    // 스트림 정리 (Cleanup)
+    // 스트림 clean up 
     useEffect(() => {
         return () => {
             if (stream) {
@@ -77,6 +79,9 @@ export const useHealthcareCamera = ({ onComplete, onIdleChange }: UseHealthcareC
         }
     }, []);
 
+    // ==============================
+    // 녹화 시작 로직
+    // ==============================
     const startRecording = useCallback(() => {
         if (!stream) return;
         setFlowState("RECORDING");
@@ -158,6 +163,8 @@ export const useHealthcareCamera = ({ onComplete, onIdleChange }: UseHealthcareC
         flowState,
         recordingTimeLeft,
         error,
-        startRecording
+        startRecording,
+        reset: () => setFlowState("IDLE")
     };
 };
+

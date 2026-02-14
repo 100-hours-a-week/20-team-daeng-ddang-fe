@@ -3,7 +3,10 @@ import { ApiResponse } from "./types";
 
 export interface HealthcareAnalysisRequest {
     videoUrl: string;
+    backVideoUrl?: string;
 }
+
+// ... (existing interfaces)
 
 export interface HealthcareMetrics {
     patellaRisk: {
@@ -40,9 +43,10 @@ export interface HealthcareAnalysisResponse {
 }
 
 const healthcareApi = {
-    analyzeHealthcare: async (videoUrl: string): Promise<HealthcareAnalysisResponse> => {
+    analyzeHealthcare: async (videoUrl: string, backVideoUrl?: string): Promise<HealthcareAnalysisResponse> => {
         const response = await http.post<ApiResponse<HealthcareAnalysisResponse>>("/api/v3/healthcares", {
             videoUrl,
+            backVideoUrl,
         });
         return response.data.data;
     },
