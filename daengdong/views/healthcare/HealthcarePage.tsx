@@ -71,9 +71,9 @@ export const HealthcarePage = () => {
         setMode('chatbot');
     };
 
-    const handleComplete = async (videoBlob: Blob) => {
+    const handleComplete = async (videoBlob: Blob, backVideoBlob?: Blob) => {
         try {
-            await uploadAndAnalyze(videoBlob);
+            await uploadAndAnalyze(videoBlob, backVideoBlob);
         } catch {
             setMode('main');
         }

@@ -1,60 +1,110 @@
 import styled from "@emotion/styled";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useHealthcareCamera } from "../model/useHealthcareCamera";
 
 interface HealthcareCameraProps {
-    onComplete: (videoBlob: Blob) => Promise<void>;
-    onIdleChange: (isIdle: boolean) => void;
-    guideContent?: ReactNode;
+  onComplete: (videoBlob: Blob, backVideoBlob?: Blob) => Promise<void>;
+  onIdleChange: (isIdle: boolean) => void;
+  guideContent?: ReactNode;
 }
-
 export const HealthcareCamera = ({
-    onComplete,
-    onIdleChange,
-    guideContent,
+  onComplete,
+  onIdleChange,
 }: HealthcareCameraProps) => {
-    const {
-        videoRef,
-        flowState,
-        recordingTimeLeft,
-        error,
-        startRecording
-    } = useHealthcareCamera({ onComplete, onIdleChange });
+  const [step, setStep] = useState<'SIDE' | 'BACK'>('SIDE');
+  const [sideBlob, setSideBlob] = useState<Blob | null>(null);
 
-    if (error) {
-        return (
-            <ErrorContainer>
-                <ErrorMessage>{error}</ErrorMessage>
-                <ErrorHint>카메라 접근 권한을 확인해주세요.</ErrorHint>
-            </ErrorContainer>
-        );
+  const handleStepComplete = async (blob: Blob) => {
+    if (step === 'SIDE') {
+      setSideBlob(blob);
+      setStep('BACK');
+      reset();
+    } else {
+      if (sideBlob) {
+        await onComplete(sideBlob, blob);
+      }
     }
+  };
 
+  const {
+    videoRef,
+    flowState,
+    recordingTimeLeft,
+    error,
+    startRecording,
+    reset
+  } = useHealthcareCamera({
+    onComplete: handleStepComplete,
+    onIdleChange
+  });
+
+  const handleSkip = async () => {
+    if (sideBlob) {
+      await onComplete(sideBlob);
+    }
+  };
+
+  if (error) {
     return (
-        <Container>
-            <VideoWrapper>
-                <VideoElement ref={videoRef} playsInline muted />
-
-                {flowState === "RECORDING" && (
-                    <RecordingBadge>
-                        <RecordingDot />
-                        REC {recordingTimeLeft}s
-                    </RecordingBadge>
-                )}
-            </VideoWrapper>
-
-            {guideContent}
-
-            <CTASection>
-                {flowState === "IDLE" && (
-                    <PrimaryButton onClick={startRecording}>촬영하기</PrimaryButton>
-                )}
-                {flowState === "RECORDING" && <InfoBox>촬영 중입니다...</InfoBox>}
-                {flowState === "UPLOADING" && <InfoBox>업로드 중...</InfoBox>}
-            </CTASection>
-        </Container>
+      <ErrorContainer>
+        <ErrorMessage>{error}</ErrorMessage>
+        <ErrorHint>카메라 접근 권한을 확인해주세요.</ErrorHint>
+      </ErrorContainer>
     );
+  }
+
+  return (
+    <Container>
+      <Title>
+        {step === 'SIDE' ? '측면 촬영 (1/2)' : '후면 촬영 (2/2)'}
+      </Title>
+
+      <VideoWrapper>
+        <VideoElement ref={videoRef} playsInline muted />
+
+        {flowState === "RECORDING" && (
+          <RecordingBadge>
+            <RecordingDot />
+            REC {recordingTimeLeft}s
+          </RecordingBadge>
+        )}
+      </VideoWrapper>
+
+      <GuideBox>
+        {step === 'SIDE' ? (
+          <>
+            <GuideText>• 반려견이 걷는 <b>측면 모습</b>을 촬영해주세요. 🐕</GuideText>
+            <GuideText>• 다리와 관절의 움직임을 분석합니다.</GuideText>
+          </>
+        ) : (
+          <>
+            <GuideText>• 반려견이 걷는 <b>후면 모습</b>을 촬영해주세요.</GuideText>
+            <GuideText>• 슬개골 탈구 위험을 더 정확하게 분석할 수 있습니다.</GuideText>
+          </>
+        )}
+        {flowState === "IDLE" && <GuideText>• 버튼을 누르면 촬영이 시작됩니다. (10초)</GuideText>}
+      </GuideBox>
+
+      <CTASection>
+        {flowState === "IDLE" && (
+          <>
+            <PrimaryButton onClick={startRecording}>
+              {step === 'SIDE' ? '측면 촬영 시작' : '후면 촬영 시작'}
+            </PrimaryButton>
+
+            {step === 'BACK' && (
+              <SecondaryButton onClick={handleSkip}>
+                건너뛰기 (측면 영상만 분석)
+              </SecondaryButton>
+            )}
+          </>
+        )}
+        {flowState === "RECORDING" && <InfoBox>촬영 중입니다...</InfoBox>}
+        {flowState === "UPLOADING" && <InfoBox>영상 처리 중...</InfoBox>}
+      </CTASection>
+    </Container>
+  );
 };
 
 const Container = styled.div`
@@ -134,6 +184,14 @@ const PrimaryButton = styled(BaseButton)`
   }
 `;
 
+const SecondaryButton = styled(BaseButton)`
+  background: ${colors.gray[100]};
+  color: ${colors.gray[700]};
+  &:active {
+    background: ${colors.gray[200]};
+  }
+`;
+
 const InfoBox = styled.div`
   width: 100%;
   padding: 16px;
@@ -159,3 +217,28 @@ const ErrorHint = styled.p`
   color: ${colors.gray[500]};
   font-size: 14px;
 `;
+
+const Title = styled.h2`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${colors.gray[900]};
+  text-align: center;
+  margin: 0;
+`;
+
+const GuideBox = styled.div`
+  padding: ${spacing[3]}px;
+  background: ${colors.gray[50]};
+  border-radius: ${radius.md};
+  display: flex;
+  flex-direction: column;
+  gap: ${spacing[1]}px;
+`;
+
+const GuideText = styled.p`
+  margin: 0;
+  font-size: 13px;
+  color: ${colors.gray[700]};
+  line-height: 1.5;
+`;
+
