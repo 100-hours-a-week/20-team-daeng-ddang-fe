@@ -65,6 +65,7 @@ export const PersonalRankingView = () => {
                     onScopeChange={setScope}
                     onRegionClick={() => setIsRegionModalOpen(true)}
                 />
+                <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
                 <TopPodium topRanks={topRanks} />
             </FixedHeader>
 
@@ -214,4 +215,12 @@ const DistanceUnit = styled.span`
     font-weight: 500;
     color: ${colors.gray[500]};
     margin-left: 2px;
+`;
+
+const UpdateNotice = styled.div`
+    font-size: 11px;
+    color: ${colors.gray[500]};
+    text-align: center;
+    padding-bottom: ${spacing[2]}px;
+    margin-top: ${spacing[2]}px;
 `;
