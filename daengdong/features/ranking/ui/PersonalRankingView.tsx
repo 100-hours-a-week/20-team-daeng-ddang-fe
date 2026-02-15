@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
@@ -12,6 +12,7 @@ import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
 import { DogProfileImage } from "@/shared/components/DogProfileImage";
 import { useModalStore } from "@/shared/stores/useModalStore";
+import { ScrollToTopButton } from "./ScrollToTopButton";
 
 export const PersonalRankingView = () => {
     const router = useRouter();
@@ -38,6 +39,18 @@ export const PersonalRankingView = () => {
     } = usePersonalRanking();
 
     const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContentRef = useRef<HTMLDivElement>(null);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+
+    const handleScroll = () => {
+        if (!scrollContentRef.current) return;
+        const { scrollTop } = scrollContentRef.current;
+        setShowScrollTop(scrollTop > 200);
+    };
+
+    const scrollToTop = () => {
+        scrollContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     useEffect(() => {
         if (!isUserLoading && !isDogLoading && isDogRegistered === false) {
@@ -66,10 +79,10 @@ export const PersonalRankingView = () => {
                     onRegionClick={() => setIsRegionModalOpen(true)}
                 />
                 <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
-                <TopPodium topRanks={topRanks} />
             </FixedHeader>
 
-            <ScrollContent>
+            <ScrollContent ref={scrollContentRef} onScroll={handleScroll}>
+                <TopPodium topRanks={topRanks} />
                 <RankingList
                     ranks={rankingList}
                     myRankInfo={myRankInfo}
@@ -77,6 +90,11 @@ export const PersonalRankingView = () => {
                     hasMore={!!hasNextPage}
                 />
             </ScrollContent>
+
+            <ScrollToTopButton
+                isVisible={showScrollTop}
+                onClick={scrollToTop}
+            />
 
             {myRankInfo && (
                 <FixedFooter>
