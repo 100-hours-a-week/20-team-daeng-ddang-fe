@@ -1,8 +1,8 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/widgets/Header";
 import { MissionHeader } from "@/features/mission/ui/MissionHeader";
 import { MissionCamera } from "@/features/mission/ui/MissionCamera";
@@ -11,59 +11,66 @@ import { useWalkStore } from "@/entities/walk/model/walkStore";
 import { spacing } from "@/shared/styles/tokens";
 import { useUploadMissionVideo } from "@/features/mission/model/useMissionMutations";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
+import { useToastStore } from "@/shared/stores/useToastStore";
 
-export const MissionPage = () => {
-    return (
-        <Suspense fallback={null}>
-            <WalkMissionContent />
-        </Suspense>
-    );
-};
 
-const WalkMissionContent = () => {
+const MissionPage = () => {
     const router = useRouter();
-    const { currentMission, clearCurrentMission, addCompletedMissionId, setCurrentMission } = useMissionStore();
+    const { currentMission, clearCurrentMission, addCompletedMissionId } = useMissionStore();
     const { walkId } = useWalkStore();
-    const searchParams = useSearchParams();
+    const { showToast } = useToastStore();
+
     const [isIdle, setIsIdle] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
 
     const { mutateAsync: uploadMission } = useUploadMissionVideo();
 
-    // 페이지 이탈 방지
     useConfirmPageLeave(
-        true,
+        !isIdle || isUploading,
         "페이지를 새로고침하면 촬영이 취소됩니다."
     );
 
     useEffect(() => {
-
-
         if (!currentMission) {
             router.replace("/walk");
         }
-    }, [currentMission, router, searchParams, setCurrentMission]);
+    }, [currentMission, router]);
 
-    if (!currentMission) {
-        return null;
-    }
+    if (!currentMission) return null;
 
     const handleCancel = () => {
+        if (isUploading) return;
+
         clearCurrentMission();
         router.replace("/walk");
     };
 
     const handleMissionComplete = async (videoBlob: Blob) => {
+        if (isUploading) return;
+
         if (!walkId) {
-            throw new Error("산책 정보 없음");
+            showToast({ message: "산책 정보 없음", type: "error" });
+            router.replace("/walk");
+            return;
         }
 
-        await uploadMission({
-            walkId,
-            missionId: currentMission.missionId,
-            file: videoBlob,
-        });
+        try {
+            setIsUploading(true);
 
-        addCompletedMissionId(currentMission.missionId);
+            await uploadMission({
+                walkId,
+                missionId: currentMission.missionId,
+                file: videoBlob,
+            });
+
+            addCompletedMissionId(currentMission.missionId);
+            router.replace("/walk");
+
+        } catch {
+            showToast({ message: "업로드 실패", type: "error" });
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
@@ -94,7 +101,6 @@ const WalkMissionContent = () => {
                     </GuideText>
                 </GuideTextWrapper>
             </ContentWrapper>
-
         </PageContainer>
     );
 };
