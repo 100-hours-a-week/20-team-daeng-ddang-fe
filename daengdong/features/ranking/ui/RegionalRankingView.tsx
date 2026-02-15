@@ -7,6 +7,7 @@ import { LoadingView } from "@/widgets/GlobalLoading";
 import { useRegionalRanking } from "../model/useRegionalRanking";
 import { MyRankFloatingButton } from "./MyRankFloatingButton";
 import { useModalStore } from "@/shared/stores/useModalStore";
+import { colors, spacing } from "@/shared/styles/tokens";
 
 export const RegionalRankingView = () => {
     const {
@@ -55,6 +56,7 @@ export const RegionalRankingView = () => {
                     showScopeSelector={false}
                     className="regional-ranking"
                 />
+                <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
             </FixedHeader>
 
             <ScrollContent>
@@ -103,4 +105,12 @@ const ScrollContent = styled.div`
     }
     -ms-overflow-style: none;
     scrollbar-width: none;
+`;
+
+const UpdateNotice = styled.div`
+    font-size: 11px;
+    color: ${colors.gray[500]};
+    text-align: center;
+    padding-bottom: ${spacing[3]}px;
+    margin-top: -${spacing[2]}px;
 `;
