@@ -1,91 +1,26 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { Suspense, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/widgets/Header";
 import { spacing, colors, radius } from "@/shared/styles/tokens";
 import { ExpressionCamera } from "@/features/expression/ui/ExpressionCamera";
-import { useExpressionStore } from "@/entities/expression/model/expressionStore";
-import { useToastStore } from "@/shared/stores/useToastStore";
-import { useWalkStore } from "@/entities/walk/model/walkStore";
-import fileApi from "@/shared/api/file";
-import { expressionApi } from "@/entities/expression/api/expression";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
-import { useLoadingStore } from "@/shared/stores/useLoadingStore";
+import { useExpressionAnalysis } from "@/features/expression/model/useExpressionAnalysis";
 
-export const ExpressionPage = () => {
-    return (
-        <Suspense fallback={null}>
-            <ExpressionContent />
-        </Suspense>
-    );
-};
+const ExpressionPage = () => {
+    const {
+        isIdle,
+        setIsIdle,
+        isAnalyzing,
+        setIsAnalyzing,
+        handleAnalyze,
+        handleCancel
+    } = useExpressionAnalysis();
 
-const ExpressionContent = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const walkIdFromStore = useWalkStore((state) => state.walkId);
-    const { setAnalysis } = useExpressionStore();
-    const { showToast } = useToastStore();
-    const { showLoading, hideLoading } = useLoadingStore();
-
-    const [isIdle, setIsIdle] = useState(true);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-    // 페이지 이탈 방지 
-    // 촬영 전/중/후 모두 새로고침 방지
     useConfirmPageLeave(
         true,
         "페이지를 새로고침하면 진행 중인 작업이 취소됩니다."
     );
-
-    const walkId = useMemo(() => {
-        const param = searchParams?.get("walkId");
-        if (param && !Number.isNaN(Number(param))) return Number(param);
-        return walkIdFromStore ?? undefined;
-    }, [searchParams, walkIdFromStore]);
-
-    const handleCancel = () => {
-        if (walkId) {
-            router.replace(`/walk/complete/${walkId}`);
-            return;
-        }
-        router.replace("/walk");
-    };
-
-    const handleAnalyze = async (videoBlob: Blob) => {
-        setIsAnalyzing(true);
-        showLoading("표정 분석 중입니다...");
-        try {
-
-
-            if (!walkId) {
-                throw new Error("산책 정보가 없습니다.");
-            }
-
-            const mimeType = videoBlob.type || "video/mp4";
-
-            const presignedData = await fileApi.getPresignedUrl(
-                "VIDEO",
-                mimeType,
-                "EXPRESSION"
-            );
-            await fileApi.uploadFile(presignedData.presignedUrl, videoBlob, mimeType);
-            const videoUrl = presignedData.presignedUrl.split("?")[0];
-
-            const analysis = await expressionApi.analyzeExpression(walkId, { videoUrl });
-            setAnalysis(analysis);
-            router.replace("/walk/expression/result");
-        } catch (e) {
-            console.error(e);
-            showToast({ message: "분석 실패. 강아지 얼굴을 찾을 수 없습니다.", type: "error" });
-            handleCancel();
-        } finally {
-            setIsAnalyzing(false);
-            hideLoading();
-        }
-    };
 
     return (
         <PageContainer>
