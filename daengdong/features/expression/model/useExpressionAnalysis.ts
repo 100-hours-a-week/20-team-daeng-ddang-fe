@@ -16,6 +16,7 @@ export const useExpressionAnalysis = () => {
     const { showLoading, hideLoading } = useLoadingStore();
 
     const [isIdle, setIsIdle] = useState(true);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const param = searchParams?.get("walkId");
     const walkId =
@@ -33,6 +34,7 @@ export const useExpressionAnalysis = () => {
             return;
         }
 
+        setIsAnalyzing(true);
         showLoading("표정 분석 중입니다...");
 
         try {
@@ -59,6 +61,7 @@ export const useExpressionAnalysis = () => {
             console.error(e);
             showToast({ message: "표정 분석에 실패했습니다.", type: "error" });
         } finally {
+            setIsAnalyzing(false);
             hideLoading();
         }
     };
@@ -66,6 +69,8 @@ export const useExpressionAnalysis = () => {
     return {
         isIdle,
         setIsIdle,
+        isAnalyzing,
+        setIsAnalyzing,
         handleAnalyze,
         handleCancel,
         walkId,
