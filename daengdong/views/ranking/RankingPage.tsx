@@ -31,7 +31,7 @@ export default RankingPage;
 const ScreenContainer = styled.div`
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100svh;
     background-color: white;
     padding-bottom: 70px;
 `;
