@@ -11,9 +11,11 @@ interface ExpressionJobOverlayProps {
     walkId: number;
     taskId: string;
     onDone: () => void;
+    label?: string;
+    successMessage?: string;
 }
 
-export const ExpressionJobOverlay = ({ walkId, taskId, onDone }: ExpressionJobOverlayProps) => {
+export const ExpressionJobOverlay = ({ walkId, taskId, onDone, label = "표정 분석", successMessage }: ExpressionJobOverlayProps) => {
     const { showToast } = useToastStore();
     const [status, setStatus] = useState<string>("PENDING");
     const abortRef = useRef<AbortController | null>(null);
@@ -28,7 +30,7 @@ export const ExpressionJobOverlay = ({ walkId, taskId, onDone }: ExpressionJobOv
         })
             .then(() => {
                 showToast({
-                    message: "🐶 표정 분석 완료! 결과는 산책일지에서 확인해주세요.",
+                    message: successMessage ?? `🐶 ${label} 완료! 결과는 산책일지에서 확인해주세요.`,
                     type: "success",
                 });
                 onDone();
@@ -36,7 +38,7 @@ export const ExpressionJobOverlay = ({ walkId, taskId, onDone }: ExpressionJobOv
             .catch((err: Error) => {
                 if (err.name === "AbortError") return;
                 showToast({
-                    message: err.message || "표정 분석에 실패했습니다.",
+                    message: err.message || `${label}에 실패했습니다.`,
                     type: "error",
                 });
                 onDone();
@@ -45,15 +47,15 @@ export const ExpressionJobOverlay = ({ walkId, taskId, onDone }: ExpressionJobOv
         return () => {
             controller.abort();
         };
-    }, [walkId, taskId, showToast, onDone]);
+    }, [walkId, taskId, showToast, onDone, label, successMessage]);
 
-    const label = status === "PENDING" ? "대기 중" : "분석 중";
+    const statusLabel = status === "PENDING" ? "대기 중" : "분석 중";
 
     return (
         <Banner>
             <Left>
                 <Spinner />
-                <Text>🐶 표정 분석 {label}</Text>
+                <Text>🐶 {label} {statusLabel}</Text>
             </Left>
             <HintText>완료 시 알림</HintText>
         </Banner>

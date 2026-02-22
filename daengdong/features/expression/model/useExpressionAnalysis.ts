@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { useWalkStore } from '@/entities/walk/model/walkStore';
@@ -15,6 +15,7 @@ export const useExpressionAnalysis = () => {
 
     const [isIdle, setIsIdle] = useState(true);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const isSubmittingRef = useRef(false);
 
     const param = searchParams?.get("walkId");
     const walkId =
@@ -32,6 +33,9 @@ export const useExpressionAnalysis = () => {
             return;
         }
 
+        if (isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
+
         setIsAnalyzing(true);
         showLoading("영상을 업로드하는 중입니다...");
 
@@ -45,14 +49,12 @@ export const useExpressionAnalysis = () => {
                 "EXPRESSION"
             );
             await fileApi.uploadFile(presignedUrl, videoBlob, mimeType);
-            const videoUrl = presignedUrl.split("?")[0];
+            const videoUrl = new URL(presignedUrl).origin + new URL(presignedUrl).pathname;
 
-            // 표정 분석 Task 생성
             showLoading("표정 분석 요청 중입니다...");
-            const task = await expressionApi.createExpressionTask(walkId, { videoUrl });
+            const job = await expressionApi.createExpressionJob(walkId, { videoUrl });
 
-            // 산책 결과 페이지로 이동 (taskId를 query param으로 전달)
-            router.replace(`/walk/complete/${walkId}?taskId=${task.taskId}`);
+            router.replace(`/walk/complete/${walkId}?taskId=${job.taskId}`);
 
         } catch (e: unknown) {
             const err = e as { response?: { data?: { errorCode?: string } } };
@@ -79,8 +81,8 @@ export const useExpressionAnalysis = () => {
                 default:
                     showToast({ message: "분석 요청에 실패했습니다.", type: "error" });
             }
-            throw e;
         } finally {
+            isSubmittingRef.current = false;
             setIsAnalyzing(false);
             hideLoading();
         }

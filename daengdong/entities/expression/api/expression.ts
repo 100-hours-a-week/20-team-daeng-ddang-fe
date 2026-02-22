@@ -1,13 +1,13 @@
 import { http } from "@/shared/api/http";
 import { ApiResponse } from "@/shared/api/types";
 
-// ─── 표정 분석 Task 생성 ─────────────────────────────────────
-export interface CreateExpressionTaskResponse {
+// 표정분석 작업 생성 
+export interface CreateExpressionJobResponse {
   taskId: string;
   status: "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
 }
 
-// ─── 작업 상태 조회 (미션/표정 공통) ────────────────────────────
+// 작업 상태 조회 (미션/표정 공통)
 export type TaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
 
 export interface AnalysisTaskStatusResponse {
@@ -23,19 +23,17 @@ export interface AnalysisTaskStatusResponse {
 }
 
 export const expressionApi = {
-  /** 표정 분석 Task 생성*/
-  createExpressionTask: async (
+  createExpressionJob: async (
     walkId: number,
     payload: { videoUrl: string }
-  ): Promise<CreateExpressionTaskResponse> => {
-    const response = await http.post<ApiResponse<CreateExpressionTaskResponse>>(
+  ): Promise<CreateExpressionJobResponse> => {
+    const response = await http.post<ApiResponse<CreateExpressionJobResponse>>(
       `/walks/${walkId}/expressions/analysis/tasks`,
       payload
     );
     return response.data.data;
   },
 
-  /** 작업 상태 조회 (미션/표정 공통)*/
   getAnalysisTaskStatus: async (
     walkId: number,
     taskId: string

@@ -18,7 +18,7 @@ export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
   const searchParams = useSearchParams();
   const taskId = searchParams?.get("taskId") ?? null;
 
-  const [showOverlay, setShowOverlay] = useState(!!taskId);
+  const [showExpressionOverlay, setShowExpressionOverlay] = useState(!!taskId);
 
   return (
     <PageContainer>
@@ -33,11 +33,12 @@ export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
         <WalkLogForm hasAnalysis={!!taskId} />
       </ContentWrapper>
 
-      {showOverlay && taskId && (
+      {showExpressionOverlay && taskId && (
         <ExpressionJobOverlay
           walkId={parseInt(walkId)}
           taskId={taskId}
-          onDone={() => setShowOverlay(false)}
+          label="표정 분석"
+          onDone={() => setShowExpressionOverlay(false)}
         />
       )}
     </PageContainer>
