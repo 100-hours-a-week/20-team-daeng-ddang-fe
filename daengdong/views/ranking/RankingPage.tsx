@@ -33,7 +33,7 @@ const ScreenContainer = styled.div`
     flex-direction: column;
     height: 100svh;
     background-color: white;
-    padding-bottom: 70px;
+    padding-bottom: 60px;
 `;
 
 const Content = styled.div`
