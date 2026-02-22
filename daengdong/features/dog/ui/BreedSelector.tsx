@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useBreedsQuery } from '@/features/dog/api/useBreedsQuery';
 import { Input } from '@/shared/components/Input/Input';
 import styled from '@emotion/styled';
@@ -14,13 +14,21 @@ interface BreedSelectorProps {
 export function BreedSelector({ initialBreedName, currentBreedId, onSelect, disabled }: BreedSelectorProps) {
     const [searchKeyword, setSearchKeyword] = useState(initialBreedName || '');
     const [isListOpen, setIsListOpen] = useState(false);
-    const { data: breedList } = useBreedsQuery(searchKeyword);
+
+    const { data: allBreeds } = useBreedsQuery();
+
+    const breedList = useMemo(() => {
+        if (!allBreeds) return [];
+        const keyword = searchKeyword.trim().toLowerCase();
+        if (!keyword) return allBreeds;
+        return allBreeds.filter(b => b.name.toLowerCase().includes(keyword));
+    }, [allBreeds, searchKeyword]);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const [prevInitialBreedName, setPrevInitialBreedName] = useState(initialBreedName);
 
-    // 초기 입력값 변경 시 검색어 동기화
     if (initialBreedName !== prevInitialBreedName) {
         setPrevInitialBreedName(initialBreedName);
         setSearchKeyword(initialBreedName || '');
@@ -37,7 +45,6 @@ export function BreedSelector({ initialBreedName, currentBreedId, onSelect, disa
         }
     }, [breedList, initialBreedName, currentBreedId, onSelect]);
 
-    // 외부 클릭 시 드롭다운 닫힘
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
