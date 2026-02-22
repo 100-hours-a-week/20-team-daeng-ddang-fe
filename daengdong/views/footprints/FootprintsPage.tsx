@@ -98,7 +98,7 @@ export const FootprintsPage = () => {
 const ScreenContainer = styled.div`
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100svh;
     height: 100dvh; 
     background-color: ${colors.gray[50]};
     overflow: hidden; 

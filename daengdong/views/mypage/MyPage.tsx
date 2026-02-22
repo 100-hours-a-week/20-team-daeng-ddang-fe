@@ -226,7 +226,7 @@ const PawWrapper = styled(motion.div)`
 `;
 
 const PageContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100svh;
   background-color: white;
   padding-bottom: 80px;
 `;

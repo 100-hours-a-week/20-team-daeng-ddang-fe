@@ -53,7 +53,7 @@ const ExpressionPage = () => {
 };
 
 const PageContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100svh;
   background: white;
   display: flex;
   flex-direction: column;

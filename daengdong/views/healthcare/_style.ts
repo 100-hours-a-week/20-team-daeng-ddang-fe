@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { spacing, colors, radius } from "@/shared/styles/tokens";
 
 export const PageContainer = styled.div<{ isFullScreen?: boolean }>`
-  min-height: 100vh;
+  min-height: 100svh;
   background: white;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@ export const PageContainer = styled.div<{ isFullScreen?: boolean }>`
     transform: translateX(-50%);
     width: 100%;
     max-width: 430px;
-    height: 100vh;
+    height: 100svh;
     z-index: 3000;
   `}
 `;

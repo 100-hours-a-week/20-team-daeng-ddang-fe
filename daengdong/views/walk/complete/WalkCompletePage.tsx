@@ -46,7 +46,7 @@ export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
 };
 
 const PageContainer = styled.div`
-  min-height: 100vh;
+  min-height: 100svh;
   background-color: white;
   padding-bottom: 80px;
 `;
