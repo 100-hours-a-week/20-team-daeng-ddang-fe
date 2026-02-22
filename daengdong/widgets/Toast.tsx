@@ -26,7 +26,7 @@ export function Toast() {
 
 const ToastContainer = styled(motion.div)`
   position: fixed;
-  top: 60px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2000;

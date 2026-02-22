@@ -1,40 +1,48 @@
 import { http } from "@/shared/api/http";
 import { ApiResponse } from "@/shared/api/types";
-import { EmotionScores, ExpressionAnalysis } from "../model/types";
 
-interface AnalyzeExpressionRequest {
-  videoUrl: string;
+// ─── 표정 분석 Task 생성 ─────────────────────────────────────
+export interface CreateExpressionTaskResponse {
+  taskId: string;
+  status: "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
 }
 
-interface AnalyzeExpressionResponse {
-  analysis_id: string;
-  predicted_emotion: string;
-  emotion_probabilities: EmotionScores;
-  summary: string;
-  video_url?: string;
-  imageUrl?: string;
-  createdAt?: string;
-  dogId?: number;
-  walkId?: number;
+// ─── 작업 상태 조회 (미션/표정 공통) ────────────────────────────
+export type TaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
+
+export interface AnalysisTaskStatusResponse {
+  taskId: string;
+  walkId: number;
+  type: "MISSION" | "EXPRESSION";
+  status: TaskStatus;
+  requestedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  errorCode?: string | null;
+  errorMessage?: string | null;
 }
 
 export const expressionApi = {
-  analyzeExpression: async (walkId: number, payload: AnalyzeExpressionRequest) => {
-    const response = await http.post<ApiResponse<AnalyzeExpressionResponse>>(
-      `/walks/${walkId}/expressions/analysis`,
+  /** 표정 분석 Task 생성*/
+  createExpressionTask: async (
+    walkId: number,
+    payload: { videoUrl: string }
+  ): Promise<CreateExpressionTaskResponse> => {
+    const response = await http.post<ApiResponse<CreateExpressionTaskResponse>>(
+      `/walks/${walkId}/expressions/analysis/tasks`,
       payload
     );
-    const data = response.data.data;
-    return {
-      expressionId: data.analysis_id,
-      predictEmotion: data.predicted_emotion?.toUpperCase(),
-      emotionScores: data.emotion_probabilities,
-      summary: data.summary,
-      videoUrl: data.video_url,
-      imageUrl: data.imageUrl,
-      createdAt: data.createdAt,
-      dogId: data.dogId,
-      walkId: data.walkId ?? walkId,
-    } as ExpressionAnalysis;
+    return response.data.data;
+  },
+
+  /** 작업 상태 조회 (미션/표정 공통)*/
+  getAnalysisTaskStatus: async (
+    walkId: number,
+    taskId: string
+  ): Promise<AnalysisTaskStatusResponse> => {
+    const response = await http.get<ApiResponse<AnalysisTaskStatusResponse>>(
+      `/walks/${walkId}/analysis/tasks/${taskId}`
+    );
+    return response.data.data;
   },
 };

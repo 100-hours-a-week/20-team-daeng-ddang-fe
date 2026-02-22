@@ -2,7 +2,11 @@ import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { useWalkLogForm } from '@/features/walk/model/useWalkLogForm';
 
-export const WalkLogForm = () => {
+interface WalkLogFormProps {
+  hasAnalysis?: boolean;
+}
+
+export const WalkLogForm = ({ hasAnalysis = false }: WalkLogFormProps) => {
   const { log, setLog, isUploading, handleSubmit, MAX_LENGTH } = useWalkLogForm();
 
   return (
@@ -23,6 +27,11 @@ export const WalkLogForm = () => {
           {log.length}/{MAX_LENGTH}
         </CharCounter>
       </TextAreaWrapper>
+      {hasAnalysis && (
+        <AnalysisHint>
+          🐶 표정 분석 결과도 함께 저장됩니다
+        </AnalysisHint>
+      )}
       <SubmitButton onClick={handleSubmit} disabled={isUploading}>
         {isUploading ? '업로드 중...' : '기록 완료'}
       </SubmitButton>
@@ -99,3 +108,18 @@ const SubmitButton = styled.button`
     background-color: ${colors.primary[700]};
   }
 `;
+
+const AnalysisHint = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${colors.primary[600]};
+  background: ${colors.primary[50]};
+  border: 1px solid ${colors.primary[100]};
+  border-radius: ${radius.md};
+  padding: 10px ${spacing[3]}px;
+`;
+
