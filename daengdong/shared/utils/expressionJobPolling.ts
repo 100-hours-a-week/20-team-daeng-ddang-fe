@@ -98,7 +98,16 @@ export const pollAnalysisTask = (
                 timer = setTimeout(tick, interval);
 
             } catch (err) {
-                safeReject(err);
+                // axios는 AbortSignal로 요청 취소 시 ERR_CANCELED 던짐
+                // → 실제 실패와 구분해 AbortError로 처리
+                const isAxiosCanceled =
+                    (err as { code?: string }).code === "ERR_CANCELED" ||
+                    signal?.aborted;
+                if (isAxiosCanceled) {
+                    safeReject(new DOMException("작업이 중단되었습니다.", "AbortError"));
+                } else {
+                    safeReject(err);
+                }
             }
         };
 

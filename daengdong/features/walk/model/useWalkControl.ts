@@ -11,11 +11,11 @@ import fileApi from "@/shared/api/file";
 import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
-
-
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
+import { missionApi } from "@/entities/mission/api/mission";
+import { useMissionStore } from "@/entities/mission/model/missionStore";
 
 export const useWalkControl = () => {
     const {
@@ -461,16 +461,28 @@ export const useWalkControl = () => {
                         isValidated: isAbnormal,
                     },
                     {
-                        onSuccess: (response) => {
+                        onSuccess: async (response) => {
                             wsClientRef.current?.disconnect();
                             setWalkResult({
                                 time: elapsedTime,
                                 distance: finalDistance,
                                 imageUrl: storedImageUrl,
-                                // 서버에서 반환하는 이번 산책의 점유 블록 수 사용
                                 blockCount: isAbnormal ? 0 : response.occupiedBlockCount,
                             });
                             hideLoading();
+
+                            // 미션이 있는 경우 분석 Task 생성
+                            const { completedMissionIds } = useMissionStore.getState();
+                            let missionTaskId: string | null = null;
+                            if (completedMissionIds.length > 0) {
+                                try {
+                                    const task = await missionApi.createMissionTask(walkId);
+                                    missionTaskId = task.taskId;
+                                } catch (e) {
+                                    console.error("[미션 Task] 생성 실패:", e);
+                                }
+                            }
+
                             openModal({
                                 title: "반려견 표정 분석",
                                 message: "산책 종료 시 반려견 표정 분석을 진행할까요?",
@@ -478,11 +490,13 @@ export const useWalkControl = () => {
                                 confirmText: "분석하기",
                                 cancelText: "건너뛰기",
                                 onConfirm: () => {
-                                    router.push(`/walk/expression?walkId=${walkId}`);
+                                    router.push(`/walk/expression?walkId=${walkId}${missionTaskId ? `&missionTaskId=${missionTaskId}` : ''}`);
                                     endWalk();
                                 },
                                 onCancel: () => {
-                                    router.push(`/walk/complete/${walkId}`);
+                                    const params = new URLSearchParams();
+                                    if (missionTaskId) params.set('missionTaskId', missionTaskId);
+                                    router.push(`/walk/complete/${walkId}${params.size > 0 ? `?${params}` : ''}`);
                                     endWalk();
                                 },
                             });
