@@ -12,7 +12,7 @@ import { useOnboarding } from "@/shared/hooks/useOnboarding";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcareMutations";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
-import { HealthcareChatbotSection } from "@/features/healthcare/ui/HealthcareChatbotSection";
+import { ChatbotSection } from "@/features/chatbot/ui/ChatbotSection";
 import {
     PageContainer,
     ContentWrapper,
@@ -200,7 +200,7 @@ export const HealthcarePage = () => {
         return (
             <PageContainer isFullScreen>
                 <Header title="AI 챗봇 상담" showBackButton onBack={() => setMode('main')} />
-                <HealthcareChatbotSection />
+                <ChatbotSection />
             </PageContainer>
         );
     }

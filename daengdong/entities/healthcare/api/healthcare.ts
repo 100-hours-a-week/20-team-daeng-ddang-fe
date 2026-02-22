@@ -1,13 +1,11 @@
 import { http } from "@/shared/api/http";
 import { ApiResponse } from "@/shared/api/types";
 
-// ─── Task 생성 ───────────────────────────────────────────────────
 export interface CreateHealthcareTaskResponse {
     taskId: string;
     status: "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
 }
 
-// ─── Task 상태 조회 ──────────────────────────────────────────────
 export type HealthcareTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAIL";
 
 export interface HealthcareTaskStatusResponse {
@@ -21,10 +19,9 @@ export interface HealthcareTaskStatusResponse {
     errorCode?: string | null;
     errorMessage?: string | null;
     resultType?: string | null;
-    resultId?: string | null; // healthcareId
+    resultId?: string | null;
 }
 
-// ─── 헬스케어 분석 결과 ──────────────────────────────────────────
 export interface HealthcareMetric {
     score: number;
     level: string;
