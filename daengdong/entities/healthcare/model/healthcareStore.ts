@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { HealthcareStep } from './types';
-import { HealthcareAnalysisResponse } from '@/shared/api/healthcare';
+import { HealthcareAnalysisResponse } from '@/entities/healthcare/api/healthcare';
 
 interface HealthcareState {
     step: HealthcareStep;

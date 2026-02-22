@@ -137,7 +137,7 @@ export const PersonalRankingView = () => {
 
 const Container = styled.div`
     background-color: white;
-    height: 100vh;
+    height: 100svh;
     display: flex;
     flex-direction: column;
 `;

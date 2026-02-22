@@ -1,143 +1,31 @@
-import { useState, useRef, useEffect } from "react";
+import { memo, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import ChatbotImage from "@/shared/assets/images/chatbot.png";
-// import fileApi from "@/shared/api/file"; 
+import { useChatbot, Message } from "@/features/chatbot/model/useChatbot";
 
-interface Message {
-    id: string;
-    text: string;
-    sender: 'user' | 'bot';
-    imageUrl?: string;
-    timestamp: Date;
-}
-
-const generateId = () => Date.now().toString();
-
-export const HealthcareChatbotSection = () => {
-    const [messages, setMessages] = useState<Message[]>(() => [
-        {
-            id: 'welcome',
-            text: '안녕하세요! 반려견 건강에 대해 궁금한 점이 있으신가요? 무엇이든 물어보세요! 🐾',
-            sender: 'bot',
-            timestamp: new Date()
-        }
-    ]);
-    const [inputText, setInputText] = useState("");
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    // const [selectedFile, setSelectedFile] = useState<File | null>(null); 
-    const [isInputFocused, setIsInputFocused] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const scrollToBottom = () => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, isLoading, selectedImage]);
-
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 100)}px`;
-        }
-    }, [inputText]);
-
-    // TODO: S3 업로드 API 연동
-    /*
-    const uploadImage = async (file: File) => {
-        try {
-            const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", file.type, "CHATBOT");
-            await fileApi.uploadFile(presignedUrl, file, file.type);
-            return objectKey;
-        } catch (error) {
-            console.error("Failed to upload image:", error);
-            return null;
-        }
-    };
-    */
-
-    const handleSendMessage = async () => {
-        if ((!inputText.trim() && !selectedImage) || isLoading) return;
-
-        // NOTE: API 연동 시 사용할 로직
-        /*
-        let uploadedImageKey = null;
-        if (selectedFile) {
-            uploadedImageKey = await uploadImage(selectedFile);
-            if (!uploadedImageKey) {
-                // 업로드 실패 시 토스트 표시 
-                return;
-            }
-        }
-        
-        // TODO: inputText와 uploadedImageKey로 실제 챗봇 API 호출
-        // const response = await chatbotApi.sendMessage({ text: inputText, imageKey: uploadedImageKey });
-        */
-
-        const newUserMessage: Message = {
-            id: generateId(),
-            text: inputText,
-            sender: 'user',
-            timestamp: new Date(),
-            imageUrl: selectedImage || undefined
-        };
-
-        setMessages(prev => [...prev, newUserMessage]);
-        setInputText("");
-        setSelectedImage(null);
-        // setSelectedFile(null); 
-        setIsLoading(true);
-
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-        }
-
-        // TODO: API 연동 시 제거
-        setTimeout(() => {
-            const botResponse: Message = {
-                id: generateId(),
-                text: getMockResponse(newUserMessage.text),
-                sender: 'bot',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, botResponse]);
-            setIsLoading(false);
-        }, 1500);
-    };
-
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // setSelectedFile(file); 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const getMockResponse = (query: string) => {
-        if (query.length > 50) {
-            return "질문해주신 내용에 대해 자세히 답변해드릴게요. 반려견의 건강은 매우 중요합니다. \n\n" +
-                "1. 식습관: 규칙적인 식사가 중요해요.\n" +
-                "2. 운동: 매일 산책을 시켜주세요.\n" +
-                "3. 정기 검진: 1년에 한 번은 꼭 병원에 가세요.\n\n" +
-                "이 외에도 평소 행동을 잘 관찰하는 것이 중요합니다. 혹시 더 궁금한 점이 있으신가요? " +
-                "추가적인 질문이 있다면 언제든지 말씀해주세요. 최대한 상세하게 답변해 드리겠습니다. " +
-                "반려견과 함께하는 행복한 시간을 위해 제가 도울 수 있는 부분은 최선을 다해 돕겠습니다. " +
-                "건강한 반려견 생활을 응원합니다!";
-        }
-        return "네, 알겠습니다. 해당 증상은 병원 방문을 권장드립니다.";
-    };
+export const ChatbotSection = () => {
+    const {
+        sessionId,
+        sessionError,
+        messages,
+        inputText,
+        setInputText,
+        selectedImage,
+        isInputFocused,
+        setIsInputFocused,
+        isLoading,
+        hasNewMessage,
+        scrollRef,
+        textareaRef,
+        fileInputRef,
+        scrollToBottom,
+        handleSendMessage,
+        handleFollowupClick,
+        handleImageSelect,
+        clearImage,
+    } = useChatbot();
 
     return (
         <Container>
@@ -146,7 +34,7 @@ export const HealthcareChatbotSection = () => {
             </NoticeBar>
             <ChatList ref={scrollRef}>
                 {messages.map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} />
+                    <MessageBubble key={msg.id} message={msg} onFollowupClick={handleFollowupClick} />
                 ))}
                 {isLoading && (
                     <BotMessageWrapper>
@@ -162,46 +50,40 @@ export const HealthcareChatbotSection = () => {
                 )}
             </ChatList>
 
+            {/* 위로 스크롤 중일 때 새 메시지 도착 알림 버튼 */}
+            {hasNewMessage && (
+                <NewMessageButton onClick={scrollToBottom}>
+                    새 메시지 ↓
+                </NewMessageButton>
+            )}
+
             <InputArea>
                 {selectedImage && (
                     <ThumbnailPreview>
                         <Image src={selectedImage} alt="preview" width={60} height={60} style={{ objectFit: 'cover', borderRadius: 8 }} />
-                        <RemoveImageButton onClick={() => {
-                            setSelectedImage(null);
-                            // setSelectedFile(null); 
-                        }}>✕</RemoveImageButton>
+                        <RemoveImageButton onClick={clearImage}>✕</RemoveImageButton>
                     </ThumbnailPreview>
                 )}
 
                 <InputWrapper isFocused={isInputFocused || inputText.length > 0}>
-                    <AddImageButton onClick={() => fileInputRef.current?.click()}>
-                        +
-                    </AddImageButton>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        style={{ display: 'none' }}
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                    />
+                    <AddImageButton onClick={() => fileInputRef.current?.click()}>+</AddImageButton>
+                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageSelect} />
 
                     <StyledTextarea
                         ref={textareaRef}
                         value={inputText}
-                        onChange={(e) => {
-                            if (e.target.value.length <= 200) {
-                                setInputText(e.target.value);
-                            }
-                        }}
+                        onChange={(e) => { if (e.target.value.length <= 200) setInputText(e.target.value); }}
                         onFocus={() => setIsInputFocused(true)}
                         onBlur={() => setIsInputFocused(false)}
-                        placeholder="메시지를 입력하세요"
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                        placeholder={sessionError ? "세션 오류로 사용 불가" : sessionId ? "메시지를 입력하세요" : "세션 연결 중..."}
                         rows={1}
+                        disabled={!sessionId || sessionError}
                     />
 
                     <SendButton
-                        disabled={(!inputText.trim() && !selectedImage) || isLoading}
-                        isActive={!!inputText.trim() || !!selectedImage}
+                        disabled={(!inputText.trim() && !selectedImage) || isLoading || !sessionId || sessionError}
+                        isActive={!!(inputText.trim() || selectedImage) && !!sessionId && !sessionError}
                         onClick={handleSendMessage}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -209,15 +91,19 @@ export const HealthcareChatbotSection = () => {
                         </svg>
                     </SendButton>
                 </InputWrapper>
-                <CharacterCount>
-                    {inputText.length} / 200
-                </CharacterCount>
+                <CharacterCount>{inputText.length} / 200</CharacterCount>
             </InputArea>
         </Container>
     );
 };
 
-const MessageBubble = ({ message }: { message: Message }) => {
+const MessageBubble = memo(function MessageBubble({
+    message,
+    onFollowupClick
+}: {
+    message: Message;
+    onFollowupClick: (q: string) => void;
+}) {
     const isBot = message.sender === 'bot';
     const [isExpanded, setIsExpanded] = useState(false);
     const shouldTruncate = isBot && message.text?.length > 200;
@@ -237,11 +123,19 @@ const MessageBubble = ({ message }: { message: Message }) => {
                     {shouldTruncate && (
                         <ExpandButton onClick={() => setIsExpanded(!isExpanded)}>
                             {isExpanded ? (
-                                <>접기 <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 5L5 1L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                                <>접기 <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
                             ) : (
-                                <>답변 전체보기 <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                                <>답변 전체보기 <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
                             )}
                         </ExpandButton>
+                    )}
+                    {message.disclaimer && <Disclaimer>{message.disclaimer}</Disclaimer>}
+                    {message.followups && message.followups.length > 0 && (
+                        <FollowupList>
+                            {message.followups.map((q, i) => (
+                                <FollowupChip key={i} onClick={() => onFollowupClick(q)}>{q}</FollowupChip>
+                            ))}
+                        </FollowupList>
                     )}
                 </BubbleContent>
             </BotMessageWrapper>
@@ -260,14 +154,41 @@ const MessageBubble = ({ message }: { message: Message }) => {
             </UserBubble>
         </UserMessageWrapper>
     );
-};
+});
 
-// Styles
+const NewMessageButton = styled.button`
+    position: absolute;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: ${colors.primary[500]};
+    color: white;
+    border: none;
+    border-radius: 99px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    animation: slideUp 0.2s ease-out;
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    &:hover {
+        background-color: ${colors.primary[600]};
+    }
+`;
+
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 0; /* Important for nested flex scrolling */
+    min-height: 0;
     overflow: hidden;
     background-color: ${colors.gray[50]};
     position: relative;
@@ -289,12 +210,9 @@ const ChatList = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${spacing[4]}px;
-    padding-bottom: 20px; 
+    padding-bottom: 20px;
 
-    /* Hide scrollbar */
-    &::-webkit-scrollbar {
-        display: none;
-    }
+    &::-webkit-scrollbar { display: none; }
     -ms-overflow-style: none;
     scrollbar-width: none;
 `;
@@ -320,13 +238,7 @@ const Avatar = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    object-fit: contain;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
+    img { width: 100%; height: 100%; object-fit: contain; }
 `;
 
 const BubbleContent = styled.div`
@@ -355,15 +267,41 @@ const UserBubble = styled.div`
     gap: 8px;
 `;
 
-const ImageMessage = styled.div`
-    margin-bottom: 4px;
-`;
+const ImageMessage = styled.div`margin-bottom: 4px;`;
 
 const Text = styled.p<{ isUser?: boolean }>`
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
     color: ${({ isUser }) => isUser ? 'white' : colors.gray[800]};
+`;
+
+const Disclaimer = styled.p`
+    margin: ${spacing[2]}px 0 0;
+    font-size: 11px;
+    color: ${colors.gray[400]};
+    font-style: italic;
+`;
+
+const FollowupList = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: ${spacing[2]}px;
+`;
+
+const FollowupChip = styled.button`
+    background: ${colors.primary[50]};
+    border: 1px solid ${colors.primary[200]};
+    color: ${colors.primary[700]};
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: left;
+
+    &:hover { background: ${colors.primary[100]}; }
 `;
 
 const ExpandButton = styled.button`
@@ -383,10 +321,7 @@ const ExpandButton = styled.button`
     align-items: center;
     justify-content: center;
     gap: 4px;
-
-    &:hover {
-        background-color: ${colors.gray[200]};
-    }
+    &:hover { background-color: ${colors.gray[200]}; }
 `;
 
 const LoadingBubble = styled.div`
@@ -406,10 +341,8 @@ const Dot = styled.div`
     background-color: ${colors.gray[400]};
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out both;
-
     &:nth-of-type(1) { animation-delay: -0.32s; }
     &:nth-of-type(2) { animation-delay: -0.16s; }
-    
     @keyframes bounce {
         0%, 80%, 100% { transform: scale(0); }
         40% { transform: scale(1); }
@@ -449,10 +382,8 @@ const StyledTextarea = styled.textarea`
     max-height: 100px;
     line-height: 1.5;
     font-family: inherit;
-
-    &::placeholder {
-        color: ${colors.gray[400]};
-    }
+    &::placeholder { color: ${colors.gray[400]}; }
+    &:disabled { color: ${colors.gray[400]}; }
 `;
 
 const AddImageButton = styled.button`
@@ -469,10 +400,7 @@ const AddImageButton = styled.button`
     cursor: pointer;
     flex-shrink: 0;
     transition: background-color 0.2s;
-    
-    &:hover {
-        background: ${colors.gray[200]};
-    }
+    &:hover { background: ${colors.gray[200]}; }
 `;
 
 const SendButton = styled.button<{ isActive: boolean }>`

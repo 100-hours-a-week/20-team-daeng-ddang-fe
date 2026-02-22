@@ -22,13 +22,9 @@ export const useUploadMissionVideo = () => {
             await fileApi.uploadFile(presignedData.presignedUrl, file, mimeType);
             const videoUrl = presignedData.presignedUrl.split("?")[0];
 
-            const response = await missionApi.uploadMissionVideo({
-                walkId,
-                missionId,
-                videoUrl: videoUrl,
-            });
+            const result = await missionApi.uploadMissionVideo(walkId, { missionId, videoUrl });
 
-            return response;
+            return result;
         },
     });
 };
