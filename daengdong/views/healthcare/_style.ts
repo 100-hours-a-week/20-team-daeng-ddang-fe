@@ -25,9 +25,9 @@ export const ContentWrapper = styled.div<{ isFullScreen?: boolean }>`
   align-items: center;
   gap: ${spacing[4]}px;
   padding: ${props => props.isFullScreen
-        ? `${spacing[4]}px`
-        : `${spacing[4]}px ${spacing[4]}px 100px`
-    };
+    ? `${spacing[4]}px`
+    : `${spacing[4]}px ${spacing[4]}px 100px`
+  };
 `;
 
 export const GuideBox = styled.div`
@@ -68,35 +68,35 @@ export const PreviewVideo = styled.video`
   object-fit: cover;
 `;
 
-export const RiskLevelBadge = styled.div<{ level: 'LOW' | 'MEDIUM' | 'HIGH' }>`
+export const RiskLevelBadge = styled.div<{ level: string }>`
   width: 100%;
   max-width: 320px;
   padding: ${spacing[3]}px ${spacing[4]}px;
   background: ${props => {
-        switch (props.level) {
-            case 'LOW': return '#E8F5E9';
-            case 'MEDIUM': return '#FFF9E6';
-            case 'HIGH': return '#FFEBEE';
-        }
-    }};
+    const l = props.level?.toLowerCase();
+    if (l === 'low') return '#E8F5E9';
+    if (l === 'medium') return '#FFF9E6';
+    return '#FFEBEE';
+  }
+  };
   border: 2px solid ${props => {
-        switch (props.level) {
-            case 'LOW': return colors.green[500];
-            case 'MEDIUM': return colors.semantic.warning;
-            case 'HIGH': return colors.semantic.error;
-        }
-    }};
+    const l = props.level?.toLowerCase();
+    if (l === 'low') return colors.green[500];
+    if (l === 'medium') return colors.semantic.warning;
+    return colors.semantic.error;
+  }
+  };
   border-radius: ${radius.md};
   font-size: 15px;
   font-weight: 700;
   text-align: center;
   color: ${props => {
-        switch (props.level) {
-            case 'LOW': return colors.green[600];
-            case 'MEDIUM': return '#F57C00';
-            case 'HIGH': return colors.semantic.error;
-        }
-    }};
+    const l = props.level?.toLowerCase();
+    if (l === 'low') return colors.green[600];
+    if (l === 'medium') return '#F57C00';
+    return colors.semantic.error;
+  }
+  };
 `;
 
 export const ResultBubble = styled.div`
@@ -157,37 +157,30 @@ export const DetailCategory = styled.div`
   color: ${colors.gray[900]};
 `;
 
-export const RiskBadge = styled.span<{ level: 'SAFE' | 'WARNING' | 'DANGER' }>`
+export const RiskBadge = styled.span<{ level: string }>`
   padding: 4px 12px;
   border-radius: ${radius.full};
   font-size: 13px;
   font-weight: 600;
   background: ${props => {
-        switch (props.level) {
-            case 'SAFE': return colors.green[500];
-            case 'WARNING': return colors.semantic.warning;
-            case 'DANGER': return colors.semantic.error;
-        }
-    }};
+    const l = props.level?.toLowerCase();
+    if (l === 'safe' || l === 'low') return colors.green[500];
+    if (l === 'warning' || l === 'medium') return colors.semantic.warning;
+    return colors.semantic.error;
+  }
+  };
   color: white;
 `;
 
-export const DetailScore = styled.div<{ score: number; level?: 'SAFE' | 'WARNING' | 'DANGER' }>`
+export const DetailScore = styled.div<{ score: number; level?: string }>`
   font-size: 18px;
   font-weight: 700;
   color: ${props => {
-        if (props.level) {
-            switch (props.level) {
-                case 'SAFE': return colors.green[500];
-                case 'WARNING': return colors.semantic.warning;
-                case 'DANGER': return colors.semantic.error;
-            }
-        }
-        // Default color based on score
-        if (props.score >= 80) return colors.green[500];
-        if (props.score >= 60) return colors.semantic.warning;
-        return colors.semantic.error;
-    }};
+    if (props.score >= 80) return colors.green[500];
+    if (props.score >= 60) return colors.semantic.warning;
+    return colors.semantic.error;
+  }
+  };
   margin-bottom: ${spacing[2]}px;
 `;
 
@@ -206,22 +199,15 @@ export const ProgressBarContainer = styled.div`
   overflow: hidden;
 `;
 
-export const ProgressBar = styled.div<{ width: number; level?: 'SAFE' | 'WARNING' | 'DANGER' }>`
+export const ProgressBar = styled.div<{ width: number; level?: string }>`
   height: 100%;
   width: ${props => props.width}%;
   background: ${props => {
-        if (props.level) {
-            switch (props.level) {
-                case 'SAFE': return colors.green[500];
-                case 'WARNING': return colors.semantic.warning;
-                case 'DANGER': return colors.semantic.error;
-            }
-        }
-        // Default color based on score
-        if (props.width >= 80) return colors.green[500];
-        if (props.width >= 60) return colors.semantic.warning;
-        return colors.semantic.error;
-    }};
+    if (props.width >= 80) return colors.green[500];
+    if (props.width >= 60) return colors.semantic.warning;
+    return colors.semantic.error;
+  }
+  };
   border-radius: 4px;
   transition: width 0.6s ease-out;
 `;

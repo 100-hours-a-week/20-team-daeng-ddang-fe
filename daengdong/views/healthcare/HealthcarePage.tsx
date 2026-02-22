@@ -91,9 +91,9 @@ export const HealthcarePage = () => {
 
                 <ContentWrapper>
                     <VideoPreviewCard>
-                        {displayResult.resultImages.overlayVideoUrl ? (
+                        {displayResult.artifacts?.keypointOverlayVideoUrl ? (
                             <PreviewVideo
-                                src={displayResult.resultImages.overlayVideoUrl}
+                                src={displayResult.artifacts.keypointOverlayVideoUrl}
                                 controls
                                 playsInline
                             />
@@ -103,9 +103,9 @@ export const HealthcarePage = () => {
                     </VideoPreviewCard>
 
                     <RiskLevelBadge level={displayResult.overallRiskLevel}>
-                        {displayResult.overallRiskLevel === 'LOW' && '🟢 위험도: 낮음'}
-                        {displayResult.overallRiskLevel === 'MEDIUM' && '🟡 위험도: 보통'}
-                        {displayResult.overallRiskLevel === 'HIGH' && '🔴 위험도: 높음'}
+                        {displayResult.overallRiskLevel === 'low' && '🟢 위험도: 낮음'}
+                        {displayResult.overallRiskLevel === 'medium' && '🟡 위험도: 보통'}
+                        {displayResult.overallRiskLevel === 'high' && '🔴 위험도: 높음'}
                     </RiskLevelBadge>
 
                     {/* AI Summary */}
@@ -121,16 +121,14 @@ export const HealthcarePage = () => {
                         <DetailCard>
                             <DetailCardHeader>
                                 <DetailCategory>슬개골 위험도</DetailCategory>
-                                <RiskBadge level={displayResult.metrics.patellaRisk.level}>
-                                    {displayResult.metrics.patellaRisk.level === 'SAFE' && '안전'}
-                                    {displayResult.metrics.patellaRisk.level === 'WARNING' && '주의'}
-                                    {displayResult.metrics.patellaRisk.level === 'DANGER' && '위험'}
+                                <RiskBadge level={displayResult.metrics.patellaRiskSignal.level}>
+                                    {displayResult.metrics.patellaRiskSignal.level}
                                 </RiskBadge>
                             </DetailCardHeader>
-                            <DetailScore score={displayResult.metrics.patellaRisk.score} level={displayResult.metrics.patellaRisk.level}>{displayResult.metrics.patellaRisk.score}점</DetailScore>
-                            <DetailDescription>{displayResult.metrics.patellaRisk.description}</DetailDescription>
+                            <DetailScore score={displayResult.metrics.patellaRiskSignal.score} level={displayResult.metrics.patellaRiskSignal.level}>{displayResult.metrics.patellaRiskSignal.score}점</DetailScore>
+                            <DetailDescription>{displayResult.metrics.patellaRiskSignal.description}</DetailDescription>
                             <ProgressBarContainer>
-                                <ProgressBar width={displayResult.metrics.patellaRisk.score} level={displayResult.metrics.patellaRisk.level} />
+                                <ProgressBar width={displayResult.metrics.patellaRiskSignal.score} level={displayResult.metrics.patellaRiskSignal.level} />
                             </ProgressBarContainer>
                         </DetailCard>
 
