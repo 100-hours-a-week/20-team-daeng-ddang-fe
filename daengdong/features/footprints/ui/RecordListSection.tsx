@@ -7,6 +7,7 @@ import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useDailyRecordsQuery } from "@/features/footprints/api/useFootprintsQuery";
 import { DailyRecordItem } from "@/entities/footprints/model/types";
 import Image from "next/image";
+import MedicalCrossIcon from "@/shared/assets/icons/medical-cross.svg";
 
 interface RecordListSectionProps {
     selectedDate: string;
@@ -47,7 +48,10 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
                     return (
                         <RecordItem key={`${record.type}-${record.id}`} onClick={() => onRecordClick(record)}>
                             <IconWrapper type={record.type}>
-                                {record.type === 'WALK' ? '🐾' : '🩺'}
+                                {record.type === 'WALK'
+                                    ? <span style={{ fontSize: 20 }}>🐾</span>
+                                    : <Image src={MedicalCrossIcon.src} alt="헬스케어" width={20} height={20} style={{ filter: 'invert(1)' }} />
+                                }
                             </IconWrapper>
                             <Info>
                                 <Title>
