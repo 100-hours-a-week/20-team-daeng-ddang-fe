@@ -10,9 +10,9 @@ import { usePersonalRanking } from "../model/usePersonalRanking";
 import { colors, spacing } from "@/shared/styles/tokens";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
-import { DogProfileImage } from "@/shared/components/DogProfileImage";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { ScrollToTopButton } from "./ScrollToTopButton";
+import { RankItem } from "./RankItem";
 
 export const PersonalRankingView = () => {
     const router = useRouter();
@@ -99,29 +99,25 @@ export const PersonalRankingView = () => {
             {myRankInfo && (
                 <FixedFooter>
                     <MyRankRow>
-                        <RankNum>{myRankInfo.rank}</RankNum>
-                        <Avatar>
-                            <DogProfileImage
+                        <RankItem isHighlighted>
+                            <RankItem.Number isHighlighted>{myRankInfo.rank}</RankItem.Number>
+                            <RankItem.Avatar
                                 src={myRankInfo.profileImageUrl}
                                 alt={myRankInfo.dogName}
-                                size={40}
                             />
-                        </Avatar>
-                        <Info>
-                            <Name>{myRankInfo.dogName}</Name>
-                            <SubInfo>
-                                {[
-                                    myRankInfo.breed,
-                                    myRankInfo.birthDate ? `${calculateAge(myRankInfo.birthDate)}살` : myRankInfo.age ? `${myRankInfo.age}살` : null
-                                ].filter(Boolean).join(' • ')}
-                            </SubInfo>
-                        </Info>
-                        <DistanceContainer>
-                            <DistanceValue>
-                                {formatDistance(myRankInfo.totalDistance)}
-                                <DistanceUnit>km</DistanceUnit>
-                            </DistanceValue>
-                        </DistanceContainer>
+                            <RankItem.Info>
+                                <RankItem.Name>{myRankInfo.dogName}</RankItem.Name>
+                                <RankItem.SubInfo>
+                                    {[
+                                        myRankInfo.breed,
+                                        myRankInfo.birthDate ? `${calculateAge(myRankInfo.birthDate)}살` : myRankInfo.age ? `${myRankInfo.age}살` : null
+                                    ].filter(Boolean).join(' • ')}
+                                </RankItem.SubInfo>
+                            </RankItem.Info>
+                            <RankItem.Distance>
+                                {formatDistance(myRankInfo.totalDistance)}<DistanceUnit>km</DistanceUnit>
+                            </RankItem.Distance>
+                        </RankItem>
                     </MyRankRow>
                 </FixedFooter>
             )}
@@ -172,67 +168,17 @@ const FixedFooter = styled.div`
 `;
 
 const MyRankRow = styled.div`
-    display: flex;
-    align-items: center;
-    padding: ${spacing[3]}px ${spacing[4]}px;
+    padding: 0px ${spacing[4]}px;
     background-color: ${colors.primary[50]};
-`;
-
-const RankNum = styled.div`
-    width: 30px;
-    font-size: 16px;
-    font-weight: 700;
-    color: ${colors.primary[600]};
-    text-align: center;
-    margin-right: ${spacing[3]}px;
-`;
-
-const Avatar = styled.div`
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin-right: ${spacing[3]}px;
-    background-color: ${colors.gray[200]};
-`;
-
-const Info = styled.div`
-    flex: 1;
-`;
-
-const Name = styled.div`
-    font-size: 15px;
-    font-weight: 600;
-    color: ${colors.gray[900]};
-`;
-
-const SubInfo = styled.div`
-    font-size: 12px;
-    color: ${colors.gray[500]};
-    margin-top: 2px;
-`;
-
-const DistanceContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
-    min-width: 60px;
-`;
-
-const DistanceValue = styled.div`
-    font-size: 15px;
-    font-weight: 700;
-    color: ${colors.gray[600]};
-    letter-spacing: -0.5px;
-    font-variant-numeric: tabular-nums;
-`;
-
-const DistanceUnit = styled.span`
-    font-size: 11px;
-    font-weight: 500;
-    color: ${colors.gray[500]};
-    margin-left: 2px;
+   
+    & > div {
+        border-bottom: none;
+        margin: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    border: 2px solid ${colors.primary[300]};
+    border-radius: 5px;
 `;
 
 const UpdateNotice = styled.div`
@@ -241,4 +187,11 @@ const UpdateNotice = styled.div`
     text-align: center;
     padding-bottom: ${spacing[2]}px;
     margin-top: ${spacing[2]}px;
+`;
+
+const DistanceUnit = styled.span`
+    font-size: 11px;
+    font-weight: 500;
+    color: ${colors.gray[500]};
+    margin-left: 2px;
 `;

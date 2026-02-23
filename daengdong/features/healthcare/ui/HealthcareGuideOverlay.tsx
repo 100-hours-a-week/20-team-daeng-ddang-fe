@@ -1,167 +1,135 @@
+"use client";
+
+import Image from "next/image";
+import { Dialog } from "@/shared/components/Dialog";
 import styled from "@emotion/styled";
-import { colors, radius, spacing } from "@/shared/styles/tokens";
-import { keyframes } from "@emotion/react";
-import { motion } from "framer-motion";
+import { colors } from "@/shared/styles/tokens";
+import dogSideGuide from "@/shared/assets/images/dog-side-guide.png";
 
 interface HealthcareGuideOverlayProps {
+    isOpen: boolean;
     onClose: () => void;
 }
 
-export const HealthcareGuideOverlay = ({ onClose }: HealthcareGuideOverlayProps) => {
+export const HealthcareGuideOverlay = ({ isOpen, onClose }: HealthcareGuideOverlayProps) => {
     return (
-        <Overlay>
-            <Content
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-            >
-                <Title>헬스 케어 가이드</Title>
+        <Dialog isOpen={isOpen} onClose={onClose}>
+            <Dialog.Overlay />
+            <Dialog.Container>
+                <ImageWrapper>
+                    <Image
+                        src={dogSideGuide}
+                        alt="측면에서 걷는 강아지 예시"
+                        width={200}
+                        height={160}
+                        style={{ objectFit: "contain" }}
+                        priority
+                    />
+                </ImageWrapper>
+
+                <Dialog.Title>촬영 가이드</Dialog.Title>
 
                 <RuleList>
                     <RuleItem>
-                        <IconWrapper>🐕</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>영상 촬영 방법</RuleTitle>
-                            <RuleDesc>반려견이 <Highlight>걷는 모습</Highlight>을 <Highlight>측면</Highlight>에서 촬영해주세요.</RuleDesc>
-                        </TextWrapper>
+                        <RuleIcon>📹</RuleIcon>
+                        <RuleText>
+                            반려견이 걷는 모습 <Highlight>측면</Highlight>에서 촬영해요
+                        </RuleText>
                     </RuleItem>
 
-                    <RuleItem>
-                        <IconWrapper>⏱️</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>촬영 시간</RuleTitle>
-                            <RuleDesc><Highlight>10초 이내</Highlight>의 영상만 업로드 가능합니다.</RuleDesc>
-                        </TextWrapper>
-                    </RuleItem>
+                    <TimeBadge>
+                        <TimeIcon>⏱️</TimeIcon>
+                        <TimeText><strong>10초 이내</strong> 영상만 업로드 가능해요</TimeText>
+                    </TimeBadge>
 
                     <RuleItem>
-                        <IconWrapper>🤖</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>AI 분석</RuleTitle>
-                            <RuleDesc>걸음걸이를 분석하여 건강 상태를 확인할 수 있어요.</RuleDesc>
-                        </TextWrapper>
+                        <RuleIcon>🤖</RuleIcon>
+                        <RuleText>AI가 걸음걸이를 분석하여 건강 상태를 확인해요</RuleText>
                     </RuleItem>
 
-                    <RuleItem>
-                        <IconWrapper>⚠️</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>주의사항</RuleTitle>
-                            <RuleDesc>분석 결과는 <Highlight>진단이 아닙니다</Highlight>. 수의사와 상담하세요.</RuleDesc>
-                        </TextWrapper>
+                    <RuleItem warn>
+                        <RuleIcon>⚠️</RuleIcon>
+                        <RuleText warn>분석 결과는 <strong>진단이 아니에요</strong>. 정확한 진단은 병원을 방문해주세요</RuleText>
                     </RuleItem>
                 </RuleList>
 
-                <CloseButton onClick={onClose}>
-                    알겠어요!
-                </CloseButton>
-            </Content>
-        </Overlay>
+                <Dialog.ButtonGroup>
+                    <Dialog.Button variant="primary" onClick={onClose}>
+                        알겠어요!
+                    </Dialog.Button>
+                </Dialog.ButtonGroup>
+            </Dialog.Container>
+        </Dialog>
     );
 };
 
-const fadeIn = keyframes`
-    from { opacity: 0; }
-    to { opacity: 1; }
-`;
-
-const Overlay = styled.div`
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100svh;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: ${spacing[4]}px;
-    animation: ${fadeIn} 0.3s ease-out;
-`;
-
-const Content = styled(motion.div)`
-    background: white;
+const ImageWrapper = styled.div`
     width: 100%;
-    max-width: 320px;
-    border-radius: ${radius.lg};
-    padding: ${spacing[5]}px ${spacing[4]}px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-`;
-
-const Title = styled.h2`
-    font-size: 20px;
-    font-weight: 700;
-    color: ${colors.gray[900]};
-    margin-bottom: ${spacing[5]}px;
+    justify-content: center;
+    margin-bottom: 4px;
 `;
 
 const RuleList = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${spacing[4]}px;
+    gap: 10px;
     width: 100%;
-    margin-bottom: ${spacing[6]}px;
 `;
 
-const RuleItem = styled.div`
+const RuleItem = styled.div<{ warn?: boolean }>`
     display: flex;
     align-items: flex-start;
-    gap: ${spacing[3]}px;
+    gap: 10px;
+    padding: 10px 12px;
+    background-color: ${({ warn }) => warn ? "#FFF8F6" : colors.gray[50]};
+    border-radius: 10px;
+    border: 1px solid ${({ warn }) => warn ? "#FFD4CC" : colors.gray[200]};
 `;
 
-const IconWrapper = styled.div`
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: ${colors.gray[100]};
+const TimeBadge = styled.div`
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 20px;
+    gap: 10px;
+    padding: 10px;
+    background-color: ${colors.primary[50]};
+    border-radius: 10px;
+    border: 1.5px solid ${colors.primary[300]};
+`;
+
+const RuleIcon = styled.span`
+    font-size: 18px;
+    line-height: 1;
     flex-shrink: 0;
 `;
 
-const TextWrapper = styled.div`
-    flex: 1;
+const TimeIcon = styled.span`
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
 `;
 
-const RuleTitle = styled.h3`
-    font-size: 16px;
-    font-weight: 700;
-    color: ${colors.gray[900]};
-    margin-bottom: 4px;
-`;
-
-const RuleDesc = styled.p`
-    font-size: 14px;
-    color: ${colors.gray[700]};
-    line-height: 1.4;
+const RuleText = styled.p<{ warn?: boolean }>`
+    margin: 0;
+    font-size: 13px;
+    color: ${({ warn }) => warn ? colors.gray[600] : colors.gray[700]};
+    line-height: 1.5;
     word-break: keep-all;
 `;
 
-const Highlight = styled.span`
-    color: ${colors.primary[500]};
-    font-weight: 700;
+const TimeText = styled.p`
+    margin: 0;
+    font-size: 13px;
+    color: ${colors.primary[700]};
+    line-height: 1.4;
+
+    strong {
+        font-size: 14px;
+        font-weight: 800;
+    }
 `;
 
-const CloseButton = styled.button`
-    width: 100%;
-    padding: 14px;
-    background-color: ${colors.primary[500]};
-    color: white;
-    border-radius: ${radius.md};
+const Highlight = styled.span`
+    color: ${colors.primary[600]};
     font-weight: 700;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s;
-
-    &:active {
-        opacity: 0.9;
-    }
 `;
