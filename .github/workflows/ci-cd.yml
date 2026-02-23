@@ -233,6 +233,10 @@ jobs:
     # push일 때만 배포
     if: github.event_name == 'push'
 
+    permissions:
+      id-token: write
+      contents: read
+
     environment:
       name: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
     env:
