@@ -44,12 +44,12 @@ export const VideoUploadSection = ({ onComplete, onCancel, requireBackVideo = fa
       <Description>
         {step === 'SIDE' ? (
           <>
-            반려견이 걷는 <b>측면 모습</b>을 업로드해주세요.<br />
+            10초 이내의 반려견이 걷는 <b>측면 모습</b> 영상을 업로드해주세요.<br />
             다리와 관절의 움직임을 분석합니다.
           </>
         ) : (
           <>
-            반려견이 걷는 <b>후면 모습</b>을 업로드해주세요.<br />
+            10초 이내의 반려견이 걷는 <b>후면 모습</b> 영상을 업로드해주세요.<br />
             슬개골 움직임을 더 자세히 분석할 수 있습니다.
           </>
         )}

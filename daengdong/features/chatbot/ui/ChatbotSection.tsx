@@ -66,8 +66,13 @@ export const ChatbotSection = () => {
                 )}
 
                 <InputWrapper isFocused={isInputFocused || inputText.length > 0}>
-                    <AddImageButton onClick={() => fileInputRef.current?.click()}>+</AddImageButton>
-                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageSelect} />
+                    {/* 1단계 배포 버전에선 이미지 업로드 기능 비활성화 */}
+                    {false && (
+                        <>
+                            <AddImageButton onClick={() => fileInputRef.current?.click()}>+</AddImageButton>
+                            <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageSelect} />
+                        </>
+                    )}
 
                     <StyledTextarea
                         ref={textareaRef}

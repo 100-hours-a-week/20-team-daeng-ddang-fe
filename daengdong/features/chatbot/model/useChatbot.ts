@@ -81,6 +81,7 @@ export const useChatbot = () => {
         }
     }, [inputText]);
 
+    /*
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
             const presignedData = await fileApi.getPresignedUrl("IMAGE", file.type, "CHATBOT");
@@ -90,6 +91,7 @@ export const useChatbot = () => {
             return null;
         }
     };
+    */
 
     const handleSendMessage = async () => {
         if ((!inputText.trim() && !selectedImage) || isLoading || !sessionId) return;
@@ -97,8 +99,8 @@ export const useChatbot = () => {
         setIsLoading(true);
 
         const textToSend = inputText;
-        const fileToUpload = selectedFile;
-        const previewImage = selectedImage;
+        // const fileToUpload = selectedFile;
+        // const previewImage = selectedImage;
         setInputText("");
         setSelectedImage(null);
         setSelectedFile(null);
@@ -108,6 +110,9 @@ export const useChatbot = () => {
 
         try {
             let uploadedImageUrl: string | undefined;
+
+            // 1단계: 챗봇 이미지 업로드 기능 비활성화
+            /*
             if (fileToUpload) {
                 const url = await uploadImage(fileToUpload);
                 if (!url) {
@@ -119,6 +124,7 @@ export const useChatbot = () => {
                 }
                 uploadedImageUrl = url;
             }
+            */
 
             const userMessage: Message = {
                 id: generateId(),
