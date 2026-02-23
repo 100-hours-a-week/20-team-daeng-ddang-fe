@@ -96,6 +96,7 @@ export const HealthcarePage = () => {
                                 src={displayResult.artifacts.keypointOverlayVideoUrl}
                                 controls
                                 playsInline
+                                preload="metadata"
                             />
                         ) : (
                             <PreviewImage src={mascotImage.src} alt="분석 결과" />

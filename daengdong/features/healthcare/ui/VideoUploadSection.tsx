@@ -5,24 +5,27 @@ import { useVideoUpload } from "../model/useVideoUpload";
 interface VideoUploadSectionProps {
   onComplete: (videoBlob: Blob, backVideoBlob?: Blob) => Promise<void>;
   onCancel: () => void;
+  requireBackVideo?: boolean;
 }
 
 import Image from "next/image";
 import dogSideGuide from "@/shared/assets/images/dog-side-guide.png";
 
-export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionProps) => {
+export const VideoUploadSection = ({ onComplete, onCancel, requireBackVideo = false }: VideoUploadSectionProps) => {
   const {
     fileInputRef,
     step,
     handleFileChange,
     handleSkip,
     handleUploadClick
-  } = useVideoUpload({ onComplete });
+  } = useVideoUpload({ onComplete, requireBackVideo });
 
   return (
     <Container>
       <Title>
-        {step === 'SIDE' ? '측면 영상 업로드 (1/2)' : '후면 영상 업로드 (2/2)'}
+        {requireBackVideo
+          ? (step === 'SIDE' ? '측면 영상 업로드 (1/2)' : '후면 영상 업로드 (2/2)')
+          : '측면 영상 업로드'}
       </Title>
 
       {step === 'SIDE' && (
@@ -41,22 +44,24 @@ export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionP
       <Description>
         {step === 'SIDE' ? (
           <>
-            반려견이 걷는 <b>측면 모습</b>을 업로드해주세요.<br />
+            10초 이내의 반려견이 걷는 <b>측면 모습</b> 영상을 업로드해주세요.<br />
             다리와 관절의 움직임을 분석합니다.
           </>
         ) : (
           <>
-            반려견이 걷는 <b>후면 모습</b>을 업로드해주세요.<br />
+            10초 이내의 반려견이 걷는 <b>후면 모습</b> 영상을 업로드해주세요.<br />
             슬개골 움직임을 더 자세히 분석할 수 있습니다.
           </>
         )}
       </Description>
 
-      <StepIndicator>
-        <StepDot active={step === 'SIDE'} completed={step === 'BACK'} />
-        <Line />
-        <StepDot active={step === 'BACK'} />
-      </StepIndicator>
+      {requireBackVideo && (
+        <StepIndicator>
+          <StepDot active={step === 'SIDE'} completed={step === 'BACK'} />
+          <Line />
+          <StepDot active={step === 'BACK'} />
+        </StepIndicator>
+      )}
 
       <HiddenInput
         ref={fileInputRef}
@@ -70,7 +75,7 @@ export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionP
           영상 선택하기
         </UploadButton>
 
-        {step === 'BACK' && (
+        {requireBackVideo && step === 'BACK' && (
           <SkipButton onClick={handleSkip}>
             건너뛰기 (측면 영상만 분석)
           </SkipButton>

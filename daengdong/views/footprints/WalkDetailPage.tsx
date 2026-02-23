@@ -98,7 +98,12 @@ export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
                     <Section>
                         <SectionTitle>표정 분석 결과</SectionTitle>
                         {expression.videoUrl && (
-                            <Video src={expression.videoUrl} controls />
+                            <Video
+                                src={expression.videoUrl}
+                                controls
+                                playsInline
+                                preload="metadata"
+                            />
                         )}
                         <ExpressionCard>
                             <SectionTitle>감정 상세 분석</SectionTitle>

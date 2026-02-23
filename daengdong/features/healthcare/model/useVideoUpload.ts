@@ -5,9 +5,10 @@ type VideoUploadStep = 'SIDE' | 'BACK';
 
 interface UseVideoUploadProps {
     onComplete: (videoBlob: Blob, backVideoBlob?: Blob) => void;
+    requireBackVideo?: boolean;
 }
 
-export const useVideoUpload = ({ onComplete }: UseVideoUploadProps) => {
+export const useVideoUpload = ({ onComplete, requireBackVideo = false }: UseVideoUploadProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { showToast } = useToastStore();
 
@@ -66,9 +67,13 @@ export const useVideoUpload = ({ onComplete }: UseVideoUploadProps) => {
         if (!isValid) return;
 
         if (step === 'SIDE') {
-            setSideVideo(file);
-            setStep('BACK');
-            showToast({ message: "측면 영상이 저장되었습니다!", type: "success" });
+            if (requireBackVideo) {
+                setSideVideo(file);
+                setStep('BACK');
+                showToast({ message: "측면 영상이 저장되었습니다!", type: "success" });
+            } else {
+                onComplete(file);
+            }
         } else {
             if (sideVideo) {
                 onComplete(sideVideo, file);
