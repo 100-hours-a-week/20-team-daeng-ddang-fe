@@ -263,7 +263,7 @@ jobs:
         id: s3
         run: |
           aws s3 cp docker-compose.yml \
-            "s3://${{ secrets.DEPLOY_BUCKET }}/${{ env.ENV_NAME }}/docker-compose.yml"
+            "s3://${{ secrets.DEPLOY_BUCKET }}/fe/${{ env.ENV_NAME }}/docker-compose.yml"
           echo "✅ docker-compose.yml S3 업로드 완료"
 
       - name: Update SSM Parameter (Docker image tag)
@@ -345,7 +345,6 @@ jobs:
               --output text 2>/dev/null || echo "0")
 
             echo "📊 상태: ${STATUS} (${PROGRESS}%)"
-
             case "${STATUS}" in
               Successful)
                 echo "✅ Instance Refresh 성공!"
