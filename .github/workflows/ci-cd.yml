@@ -289,6 +289,7 @@ jobs:
             --launch-template-id "${LT_ID}" \
             --source-version '$Latest' \
             --version-description "deploy-${{ env.RELEASE_ID }}" \
+            --launch-template-data '{}' \
             --query 'LaunchTemplateVersion.VersionNumber' \
             --output text)
 
