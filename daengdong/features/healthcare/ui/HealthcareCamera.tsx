@@ -7,19 +7,25 @@ interface HealthcareCameraProps {
   onComplete: (videoBlob: Blob, backVideoBlob?: Blob) => Promise<void>;
   onIdleChange: (isIdle: boolean) => void;
   guideContent?: ReactNode;
+  requireBackVideo?: boolean;
 }
 export const HealthcareCamera = ({
   onComplete,
   onIdleChange,
+  requireBackVideo = false,
 }: HealthcareCameraProps) => {
   const [step, setStep] = useState<'SIDE' | 'BACK'>('SIDE');
   const [sideBlob, setSideBlob] = useState<Blob | null>(null);
 
   const handleStepComplete = async (blob: Blob) => {
     if (step === 'SIDE') {
-      setSideBlob(blob);
-      setStep('BACK');
-      reset();
+      if (requireBackVideo) {
+        setSideBlob(blob);
+        setStep('BACK');
+        reset();
+      } else {
+        await onComplete(blob);
+      }
     } else {
       if (sideBlob) {
         await onComplete(sideBlob, blob);
@@ -57,7 +63,9 @@ export const HealthcareCamera = ({
   return (
     <Container>
       <Title>
-        {step === 'SIDE' ? '측면 촬영 (1/2)' : '후면 촬영 (2/2)'}
+        {requireBackVideo
+          ? (step === 'SIDE' ? '측면 촬영 (1/2)' : '후면 촬영 (2/2)')
+          : '측면 촬영'}
       </Title>
 
       <VideoWrapper>
@@ -90,10 +98,12 @@ export const HealthcareCamera = ({
         {flowState === "IDLE" && (
           <>
             <PrimaryButton onClick={startRecording}>
-              {step === 'SIDE' ? '측면 촬영 시작' : '후면 촬영 시작'}
+              {requireBackVideo
+                ? (step === 'SIDE' ? '측면 촬영 시작' : '후면 촬영 시작')
+                : '촬영 시작'}
             </PrimaryButton>
 
-            {step === 'BACK' && (
+            {requireBackVideo && step === 'BACK' && (
               <SecondaryButton onClick={handleSkip}>
                 건너뛰기 (측면 영상만 분석)
               </SecondaryButton>
