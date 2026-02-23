@@ -21,7 +21,7 @@ concurrency:
 
 env:
   RELEASE_ID: ${{ github.sha }}
-  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/daeng-frontend
+  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/daeng-map-frontend
   MESSAGE: >-
     ${{
       github.event.pull_request.title ||
