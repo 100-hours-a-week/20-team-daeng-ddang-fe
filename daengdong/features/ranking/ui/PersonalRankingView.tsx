@@ -168,16 +168,17 @@ const FixedFooter = styled.div`
 `;
 
 const MyRankRow = styled.div`
-    padding: ${spacing[3]}px ${spacing[4]}px;
+    padding: 0px ${spacing[4]}px;
     background-color: ${colors.primary[50]};
-
-    /* RankItem의 border-bottom 제거 */
+   
     & > div {
         border-bottom: none;
         margin: 0;
         padding-left: 0;
         padding-right: 0;
     }
+    border: 2px solid ${colors.primary[300]};
+    border-radius: 5px;
 `;
 
 const UpdateNotice = styled.div`
