@@ -296,11 +296,6 @@ jobs:
           echo "version=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
           echo "📋 새 Launch Template 버전: ${NEW_VERSION}"
 
-          # ASG가 항상 최신 버전을 사용하도록 설정
-          aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name "${{ secrets.FE_ASG_NAME }}" \
-            --launch-template "LaunchTemplateId=${LT_ID},Version=\$Latest"
-
       - name: Start ASG Instance Refresh
         id: deploy
         run: |
