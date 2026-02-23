@@ -23,9 +23,8 @@ const WELCOME_MESSAGE: Message = {
 };
 
 export const useChatbot = () => {
-    const { showToast } = useToastStore();
 
-    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [conversationId, setConversationId] = useState<string | null>(null);
     const [sessionError, setSessionError] = useState(false);
     const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
     const [inputText, setInputText] = useState("");
@@ -44,7 +43,7 @@ export const useChatbot = () => {
     // 채팅 세션 생성
     useEffect(() => {
         chatbotApi.createChatSession()
-            .then(session => setSessionId(session.sessionId))
+            .then(session => setConversationId(session.conversationId))
             .catch(() => {
                 setSessionError(true);
                 setMessages(prev => [...prev, {
@@ -94,7 +93,7 @@ export const useChatbot = () => {
     */
 
     const handleSendMessage = async () => {
-        if ((!inputText.trim() && !selectedImage) || isLoading || !sessionId) return;
+        if ((!inputText.trim() && !selectedImage) || isLoading || !conversationId) return;
 
         setIsLoading(true);
 
@@ -137,9 +136,9 @@ export const useChatbot = () => {
             setMessages(prev => [...prev, userMessage]);
 
             const response: ChatMessageResponse = await chatbotApi.sendChatMessage({
-                sessionId,
+                conversationId,
                 message: userMessage.text,
-                imageUrl: uploadedImageUrl,
+                imageUrl: uploadedImageUrl || null,
             });
 
             setMessages(prev => {
@@ -201,7 +200,7 @@ export const useChatbot = () => {
     };
 
     return {
-        sessionId,
+        conversationId,
         sessionError,
         messages,
         inputText,
