@@ -1,0 +1,41 @@
+#services:
+#  frontend-blue:
+#    image: ${DOCKER_IMAGE}
+#    container_name: daeng-frontend-3000
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - PORT=3000
+#      - NAVER_MAP_CLIENT_SECRET=${NAVER_MAP_CLIENT_SECRET}
+#    restart: unless-stopped
+#
+#  frontend-green:
+#    image: ${DOCKER_IMAGE}
+#    container_name: daeng-frontend-3001
+#    ports:
+#      - "3001:3000"
+#    environment:
+#      - PORT=3000
+#      - NAVER_MAP_CLIENT_SECRET=${NAVER_MAP_CLIENT_SECRET}
+#    restart: unless-stopped
+
+services:
+  frontend-blue:
+    image: daeng-frontend:test
+    container_name: daeng-frontend-3000
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NAVER_MAP_CLIENT_SECRET= pPhhYAEpsPil7obn98HnYxxF4mDUoUqKYfHDQi4r
+    restart: unless-stopped
+
+  frontend-green:
+    image: daeng-frontend:test
+    container_name: daeng-frontend-3001
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - NAVER_MAP_CLIENT_SECRET= pPhhYAEpsPil7obn98HnYxxF4mDUoUqKYfHDQi4r
+    restart: unless-stopped
