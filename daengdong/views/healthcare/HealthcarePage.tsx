@@ -243,7 +243,7 @@ export const HealthcarePage = () => {
                 )}
             </ContentWrapper>
 
-            {showOnboarding && <HealthcareGuideOverlay onClose={closeOnboarding} />}
+            <HealthcareGuideOverlay isOpen={showOnboarding} onClose={closeOnboarding} />
         </PageContainer>
     );
 };

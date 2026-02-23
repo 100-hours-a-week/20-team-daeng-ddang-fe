@@ -7,6 +7,9 @@ interface VideoUploadSectionProps {
   onCancel: () => void;
 }
 
+import Image from "next/image";
+import dogSideGuide from "@/shared/assets/images/dog-side-guide.png";
+
 export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionProps) => {
   const {
     fileInputRef,
@@ -21,6 +24,19 @@ export const VideoUploadSection = ({ onComplete, onCancel }: VideoUploadSectionP
       <Title>
         {step === 'SIDE' ? '측면 영상 업로드 (1/2)' : '후면 영상 업로드 (2/2)'}
       </Title>
+
+      {step === 'SIDE' && (
+        <ImageWrapper>
+          <Image
+            src={dogSideGuide}
+            alt="측면에서 걷는 강아지 가이드"
+            width={200}
+            height={160}
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </ImageWrapper>
+      )}
 
       <Description>
         {step === 'SIDE' ? (
@@ -162,5 +178,15 @@ const SkipButton = styled(BaseButton)`
   &:active {
     background: ${colors.gray[200]};
   }
+`;
+
+const ImageWrapper = styled.div`
+  width: 100%;
+  padding: ${spacing[2]}px 0;
+  background-color: ${colors.gray[50]};
+  border-radius: ${radius.md};
+  display: flex;
+  justify-content: center;
+  margin-bottom: ${spacing[2]}px;
 `;
 
