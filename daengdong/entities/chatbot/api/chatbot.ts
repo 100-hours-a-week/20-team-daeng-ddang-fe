@@ -2,22 +2,23 @@ import { http } from "@/shared/api/http";
 import { ApiResponse } from "@/shared/api/types";
 
 export interface ChatSessionResponse {
-    sessionId: string;
+    conversationId: string;
     createdAt: string;
     expiresAt: string;
 }
 
 export interface ChatMessageRequest {
-    sessionId: string;
+    conversationId: string;
     message: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
 }
 
 export interface ChatMessageResponse {
+    conversationId: string;
     answer: string;
-    disclaimer: string;
-    followups: string[];
     answeredAt: string;
+    disclaimer?: string;
+    followups?: string[];
 }
 
 export const chatbotApi = {

@@ -7,7 +7,7 @@ import { useChatbot, Message } from "@/features/chatbot/model/useChatbot";
 
 export const ChatbotSection = () => {
     const {
-        sessionId,
+        conversationId,
         sessionError,
         messages,
         inputText,
@@ -81,14 +81,14 @@ export const ChatbotSection = () => {
                         onFocus={() => setIsInputFocused(true)}
                         onBlur={() => setIsInputFocused(false)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        placeholder={sessionError ? "세션 오류로 사용 불가" : sessionId ? "메시지를 입력하세요" : "세션 연결 중..."}
+                        placeholder={sessionError ? "세션 오류로 사용 불가" : conversationId ? "메시지를 입력하세요" : "세션 연결 중..."}
                         rows={1}
-                        disabled={!sessionId || sessionError}
+                        disabled={!conversationId || sessionError}
                     />
 
                     <SendButton
-                        disabled={(!inputText.trim() && !selectedImage) || isLoading || !sessionId || sessionError}
-                        isActive={!!(inputText.trim() || selectedImage) && !!sessionId && !sessionError}
+                        disabled={(!inputText.trim() && !selectedImage) || isLoading || !conversationId || sessionError}
+                        isActive={!!(inputText.trim() || selectedImage) && !!conversationId && !sessionError}
                         onClick={handleSendMessage}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
