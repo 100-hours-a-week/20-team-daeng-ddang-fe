@@ -27,9 +27,9 @@ export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailS
                 <RiskBanner level={healthcare.overallRiskLevel}>
                     <RiskLabel>전체 위험도</RiskLabel>
                     <RiskValue>
-                        {healthcare.overallRiskLevel === 'LOW' && '안전 (LOW)'}
-                        {healthcare.overallRiskLevel === 'MEDIUM' && '주의 (MEDIUM)'}
-                        {healthcare.overallRiskLevel === 'HIGH' && '위험 (HIGH)'}
+                        {healthcare.overallRiskLevel === 'low' && '안전 (LOW)'}
+                        {healthcare.overallRiskLevel === 'medium' && '주의 (MEDIUM)'}
+                        {healthcare.overallRiskLevel === 'high' && '위험 (HIGH)'}
                     </RiskValue>
                 </RiskBanner>
 
@@ -44,23 +44,35 @@ export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailS
                     <MetricsList>
                         <MetricItem>
                             <MetricName>슬개골 위험도</MetricName>
-                            <MetricScore level={healthcare.metrics.patellaRisk.level}>
-                                {healthcare.metrics.patellaRisk.score}점
+                            <MetricScore level={healthcare.metrics.patellaRiskSignal.level}>
+                                {healthcare.metrics.patellaRiskSignal.score}점
                             </MetricScore>
                         </MetricItem>
-                        <MetricDesc>{healthcare.metrics.patellaRisk.description}</MetricDesc>
+                        <MetricDesc>{healthcare.metrics.patellaRiskSignal.description}</MetricDesc>
 
                         <MetricItem>
                             <MetricName>좌우 보행 균형</MetricName>
-                            <MetricScore>{healthcare.metrics.gaitBalance.score}점</MetricScore>
+                            <MetricScore level={healthcare.metrics.gaitBalance.level}>{healthcare.metrics.gaitBalance.score}점</MetricScore>
                         </MetricItem>
                         <MetricDesc>{healthcare.metrics.gaitBalance.description}</MetricDesc>
 
                         <MetricItem>
                             <MetricName>무릎 관절 가동성</MetricName>
-                            <MetricScore>{healthcare.metrics.kneeMobility.score}점</MetricScore>
+                            <MetricScore level={healthcare.metrics.kneeMobility.level}>{healthcare.metrics.kneeMobility.score}점</MetricScore>
                         </MetricItem>
                         <MetricDesc>{healthcare.metrics.kneeMobility.description}</MetricDesc>
+
+                        <MetricItem>
+                            <MetricName>보행 밸런스</MetricName>
+                            <MetricScore level={healthcare.metrics.gaitStability.level}>{healthcare.metrics.gaitStability.score}점</MetricScore>
+                        </MetricItem>
+                        <MetricDesc>{healthcare.metrics.gaitStability.description}</MetricDesc>
+
+                        <MetricItem>
+                            <MetricName>보행 리듬</MetricName>
+                            <MetricScore level={healthcare.metrics.gaitRhythm.level}>{healthcare.metrics.gaitRhythm.score}점</MetricScore>
+                        </MetricItem>
+                        <MetricDesc>{healthcare.metrics.gaitRhythm.description}</MetricDesc>
                     </MetricsList>
                 </Section>
 
@@ -91,12 +103,12 @@ const Content = styled.div`
     gap: ${spacing[4]}px;
 `;
 
-const RiskBanner = styled.div<{ level: 'LOW' | 'MEDIUM' | 'HIGH' }>`
+const RiskBanner = styled.div<{ level: 'low' | 'medium' | 'high' }>`
     background-color: ${({ level }) => {
         switch (level) {
-            case 'LOW': return colors.semantic.success + '20';
-            case 'MEDIUM': return '#FFC107' + '30';
-            case 'HIGH': return colors.semantic.error + '20';
+            case 'low': return colors.semantic.success + '20';
+            case 'medium': return '#FFC107' + '30';
+            case 'high': return colors.semantic.error + '20';
         }
     }};
     padding: ${spacing[3]}px;
@@ -107,9 +119,9 @@ const RiskBanner = styled.div<{ level: 'LOW' | 'MEDIUM' | 'HIGH' }>`
     gap: 4px;
     border: 1px solid ${({ level }) => {
         switch (level) {
-            case 'LOW': return colors.semantic.success;
-            case 'MEDIUM': return '#FFC107';
-            case 'HIGH': return colors.semantic.error;
+            case 'low': return colors.semantic.success;
+            case 'medium': return '#FFC107';
+            case 'high': return colors.semantic.error;
         }
     }};
 `;
@@ -170,15 +182,32 @@ const MetricName = styled.span`
     font-weight: 600;
 `;
 
-const MetricScore = styled.span<{ level?: 'SAFE' | 'WARNING' | 'DANGER' }>`
+const MetricScore = styled.span<{ level?: string }>`
     font-size: 14px;
     font-weight: 700;
     color: ${({ level }) => {
         switch (level) {
-            case 'SAFE': return colors.semantic.success;
-            case 'WARNING': return '#FFC107'; // amber
-            case 'DANGER': return colors.semantic.error;
-            default: return colors.primary[600];
+            case 'low':
+            case 'normal':
+            case 'stable':
+            case 'regular':
+            case 'good':
+            case 'flexible':
+            case 'safe':
+                return colors.semantic.success;
+            case 'medium':
+            case 'fair':
+            case 'warning':
+                return '#FFC107';
+            case 'high':
+            case 'poor':
+            case 'irregular':
+            case 'unstable':
+            case 'stiff':
+            case 'danger':
+                return colors.semantic.error;
+            default:
+                return colors.primary[600];
         }
     }};
 `;

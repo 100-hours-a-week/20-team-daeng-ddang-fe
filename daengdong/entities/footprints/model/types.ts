@@ -39,20 +39,17 @@ export interface WalkExpressionAnalysis {
 
 export interface HealthcareDetail {
     healthcareId: number;
-    date: string;
-    overallRiskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+    analyzedAt: string;
+    overallRiskLevel: 'low' | 'medium' | 'high';
     summary: string;
     metrics: {
-        patellaRisk: { score: number; level: 'SAFE' | 'WARNING' | 'DANGER'; description: string };
-        gaitBalance: { score: number; description: string };
-        kneeMobility: { score: number; description: string };
-        gaitStability: { score: number; description: string };
-        gaitRhythm: { score: number; description: string };
+        patellaRiskSignal: { score: number; level: string; description: string };
+        gaitBalance: { score: number; level: string; description: string };
+        kneeMobility: { score: number; level: string; description: string };
+        gaitStability: { score: number; level: string; description: string };
+        gaitRhythm: { score: number; level: string; description: string };
     };
-    resultImages: {
-        originVideoUrl: string;
-        overlayVideoUrl: string;
-        thumbnailUrl: string;
-        heatmapUrl: string;
+    artifacts?: {
+        keypointOverlayVideoUrl?: string;
     };
 }
