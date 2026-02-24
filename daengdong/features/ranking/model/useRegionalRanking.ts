@@ -9,7 +9,7 @@ import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
 export const useRegionalRanking = () => {
     const { data: userInfo, isLoading: isUserLoading } = useUserInfoQuery();
     const [period, setPeriod] = useState<PeriodType>('WEEK');
-    const isRegionRegistered = !!userInfo?.regionId;
+    const isRegionRegistered = userInfo === undefined ? undefined : !!userInfo?.regionId;
 
     const periodValue = useMemo(() => {
         const now = new Date();
@@ -32,12 +32,44 @@ export const useRegionalRanking = () => {
         isLoading: isRegionListLoading
     } = useInfiniteQuery({
         queryKey: ['ranking', 'region-list', period, periodValue],
-        queryFn: ({ pageParam }) => rankingApi.getRegionRankingList({
-            periodType: period,
-            periodValue,
-            cursor: pageParam as string | undefined,
-            limit: 20
-        }),
+        queryFn: async ({ pageParam }) => {
+            // === 성능 테스트용 MOCK DATA ===
+            const isMockMode = process.env.NEXT_PUBLIC_MOCK === 'true';
+            if (isMockMode) {
+                const page = parseInt(pageParam as string || '0', 10);
+                if (page < 100) { // 100페이지 (총 2000개)
+                    const ranks = Array.from({ length: 20 }).map((_, i) => {
+                        const rank = page * 20 + i + 1;
+                        return {
+                            rank,
+                            regionId: rank,
+                            regionName: `테스트 지역구 ${rank}`,
+                            totalDistance: Math.floor(100000 / rank),
+                        };
+                    });
+
+                    await new Promise(r => setTimeout(r, 300)); // 네트워크 지연
+
+                    return {
+                        message: "ok",
+                        errorCode: null,
+                        data: {
+                            ranks,
+                            hasNext: page < 99,
+                            nextCursor: String(page + 1)
+                        }
+                    } as ApiResponse<RegionRankingList>;
+                }
+            }
+            // ===================================
+
+            return rankingApi.getRegionRankingList({
+                periodType: period,
+                periodValue,
+                cursor: pageParam as string | undefined,
+                limit: 20
+            });
+        },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
     });
@@ -94,6 +126,7 @@ export const useRegionalRanking = () => {
 
         hasNextRegionPage,
         regionRanks,
-        periodValue
+        periodValue,
+        userRankInfo
     };
 };
