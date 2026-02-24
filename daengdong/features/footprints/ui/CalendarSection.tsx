@@ -214,7 +214,7 @@ const HealthDot = styled.div<{ isOnWalk: boolean }>`
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background-color: ${({ isOnWalk }) => isOnWalk ? 'white' : colors.primary[500]};
+    background-color: ${({ isOnWalk }) => isOnWalk ? 'white' : colors.semantic.success};
     position: absolute;
     top: 2px;
 `;
