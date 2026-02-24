@@ -25,6 +25,7 @@ export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailS
             <Content>
                 {/* 전체 위험도 */}
                 <RiskBanner level={healthcare.overallRiskLevel}>
+
                     <RiskLabel>전체 위험도</RiskLabel>
                     <RiskValue>
                         {healthcare.overallRiskLevel === 'low' && '안전 (LOW)'}
@@ -32,7 +33,14 @@ export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailS
                         {healthcare.overallRiskLevel === 'high' && '위험 (HIGH)'}
                     </RiskValue>
                 </RiskBanner>
-
+                {healthcare.artifacts?.keypointOverlayVideoUrl && (
+                    <video
+                        src={healthcare.artifacts.keypointOverlayVideoUrl}
+                        controls
+                        playsInline
+                        style={{ width: "100%", borderRadius: 12 }}
+                    />
+                )}
                 {/* 요약 */}
                 <SummaryBox>
                     <SummaryText>{healthcare.summary}</SummaryText>
