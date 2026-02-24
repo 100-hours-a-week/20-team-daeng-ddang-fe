@@ -67,6 +67,22 @@ http.interceptors.response.use(
         return response;
     },
     async (error: AxiosError) => {
+        // 403 Forbidden 에러 처리 (권한 없음)
+        if (error.response && error.response.status === 403) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/403';
+            }
+            return Promise.reject(error);
+        }
+
+        // 404 Not Found 에러 처리 (페이지 없음)
+        if (error.response && error.response.status === 404) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/404';
+            }
+            return Promise.reject(error);
+        }
+
         // 401 Unauthorized 에러 처리 (토큰 만료)
         if (error.response && error.response.status === 401) {
             const originalRequest = error.config as CustomAxiosRequestConfig;
