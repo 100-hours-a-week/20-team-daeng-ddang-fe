@@ -378,6 +378,7 @@ const InputWrapper = styled.div<{ isFocused: boolean }>`
 
 const StyledTextarea = styled.textarea`
     flex: 1;
+    color: ${colors.gray[900]};
     border: none;
     outline: none;
     font-size: 13px;
