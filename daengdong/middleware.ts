@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
     // 인증이 필요 없는 경로
     const publicPaths = [
         '/login',
+        '/healthcheck',
         '/oauth/kakao/callback',
         '/walk',
         '/_next',
