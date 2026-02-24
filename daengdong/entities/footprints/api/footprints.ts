@@ -97,7 +97,7 @@ export const footprintsApi = {
 
     // 헬스케어 상세 조회
     getHealthcareDetail: async (healthcareId: number): Promise<HealthcareDetail> => {
-        const response = await http.get<ApiResponse<HealthcareDetail>>(`/footprints/healthcares/${healthcareId}`);
+        const response = await http.get<ApiResponse<HealthcareDetail>>(`/healthcares/${healthcareId}`);
         return response.data.data;
     }
 };
