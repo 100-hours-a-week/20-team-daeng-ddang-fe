@@ -10,7 +10,10 @@ export function middleware(request: NextRequest) {
         "x-caddy-source": request.headers.get("x-caddy-source") // Caddyfile의 header_up 이름과 일치시켜주세요
     };
 
-    console.log(`[Request] ${request.method} ${pathname} | Headers: ${JSON.stringify(filteredHeaders)}`);
+    if (pathname !== '/healthcheck') {
+        console.log(`[Request] ${request.method} ${pathname} | Headers: ${JSON.stringify(filteredHeaders)}`);
+    }
+
     // 인증이 필요 없는 경로
     const publicPaths = [
         '/login',
