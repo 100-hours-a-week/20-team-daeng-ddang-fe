@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface RankingTabsProps {
     activeTab: 'PERSONAL' | 'REGIONAL';
@@ -49,7 +49,7 @@ const Tab = styled.button<{ isActive: boolean }>`
     outline: none;
 `;
 
-const ActiveIndicator = styled(motion.div)`
+const ActiveIndicator = styled(m.div)`
     position: absolute;
     bottom: 0;
     left: 0;

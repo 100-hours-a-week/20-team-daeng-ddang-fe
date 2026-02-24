@@ -9,7 +9,7 @@ import { RecordListSection } from "../../features/footprints/ui/RecordListSectio
 import { DailyRecordItem } from "@/entities/footprints/model/types";
 import { Header } from "@/widgets/Header";
 import { useRef, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { radius } from "@/shared/styles/tokens";
 import { useRouter } from "next/navigation";
 import { useModalStore } from '@/shared/stores/useModalStore';
@@ -138,7 +138,7 @@ const Content = styled.div`
     scrollbar-width: none; /* Firefox */
 `;
 
-const ScrollTopButton = styled(motion.button)`
+const ScrollTopButton = styled(m.button)`
     position: absolute;
     right: 20px;
     bottom: 90px; /* Above BottomNav */

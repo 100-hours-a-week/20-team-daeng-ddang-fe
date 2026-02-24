@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { colors, spacing } from '@/shared/styles/tokens';
 import dayjs from 'dayjs';
@@ -154,7 +154,7 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
     );
 }
 
-const Backdrop = styled(motion.div)`
+const Backdrop = styled(m.div)`
     position: fixed;
     top: 0;
     left: 0;
@@ -164,7 +164,7 @@ const Backdrop = styled(motion.div)`
     z-index: 100;
 `;
 
-const Sheet = styled(motion.div)`
+const Sheet = styled(m.div)`
     position: fixed;
     top: 50%;
     left: 50%;

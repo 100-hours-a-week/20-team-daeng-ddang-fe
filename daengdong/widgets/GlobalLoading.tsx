@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useEffect } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 
 export function LoadingView({ message }: { message?: string }) {
@@ -94,7 +94,7 @@ const PawContainer = styled.div`
   align-items: center;
 `;
 
-const PawWrapper = styled(motion.div)`
+const PawWrapper = styled(m.div)`
   width: 32px;
   height: 32px;
   /* Rotate slightly for more natural look */
