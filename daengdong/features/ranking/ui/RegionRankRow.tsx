@@ -15,9 +15,34 @@ interface RegionRankRowProps {
 }
 
 export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodValue, isMyRegion }: RegionRankRowProps) => {
+    const handleToggle = () => {
+        onToggle();
+        if (isExpanded) {
+            // 닫힐 때 너무 위에 있으면 딱 맞게 화면에 띄우도록 보정
+            setTimeout(() => {
+                const element = document.getElementById(`region-rank-item-${item.regionId}`);
+                // RegionalRankingView의 scroll container refs를 직접 찾음
+                const scrollContainer = element?.closest('[id="regional-scroll-content"]');
+
+                if (element && scrollContainer) {
+                    const elementRect = element.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+
+                    // 스크롤 상단에서 얼마나 벗어났는지 계산
+                    const offset = elementRect.top - containerRect.top;
+
+                    // 화면 위로 밀려 올라간 경우에만 스크롤 조정
+                    if (offset < 0 || offset > containerRect.height) {
+                        scrollContainer.scrollBy({ top: offset, behavior: 'smooth' });
+                    }
+                }
+            }, 50);
+        }
+    };
+
     return (
         <Container id={`region-rank-item-${item.regionId}`}>
-            <RowHeader onClick={onToggle} isExpanded={isExpanded} isMyRegion={isMyRegion}>
+            <RowHeader onClick={handleToggle} isExpanded={isExpanded} isMyRegion={isMyRegion}>
                 <RankNum isTop={item.rank <= 3}>{item.rank}</RankNum>
                 <Info>
                     <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
@@ -44,6 +69,7 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
                                 regionId={item.regionId}
                                 periodType={periodType}
                                 periodValue={periodValue}
+                                onClose={handleToggle}
                             />
                         </DropdownContent>
                     </motion.div>

@@ -141,6 +141,7 @@ const Container = styled.div`
     height: 100svh;
     display: flex;
     flex-direction: column;
+    position: relative;
 `;
 
 const FixedHeader = styled.div`

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { rankingApi } from "@/entities/ranking/api/rankingApi";
 import { ContributionRankingList, PeriodType } from "@/entities/ranking/model/types";
 import { ApiResponse } from "@/shared/api/types";
+import { InfiniteData } from "@tanstack/react-query";
 
 interface UseContributionRankingParams {
     regionId: number;
@@ -74,6 +75,24 @@ export const useContributionRanking = ({ regionId, periodType, periodValue }: Us
         staleTime: 5 * 60 * 1000,
         gcTime: 5 * 60 * 1000,
     });
+
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        return () => {
+            queryClient.setQueryData(
+                ['ranking', 'contribution-list', 'v2', regionId, periodType, periodValue],
+                (oldData: InfiniteData<ApiResponse<ContributionRankingList>> | undefined) => {
+                    if (!oldData || !oldData.pages || oldData.pages.length <= 1) return oldData;
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.slice(0, 1),
+                        pageParams: oldData.pageParams.slice(0, 1)
+                    };
+                }
+            );
+        };
+    }, [queryClient, regionId, periodType, periodValue]);
 
     const contributionRanks = listData?.pages.flatMap((page: ApiResponse<ContributionRankingList>) => page.data.ranks) || [];
 
