@@ -4,22 +4,20 @@ import styled from "@emotion/styled";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
-import ConstructionImage from "@/shared/assets/images/construction.png";
+import MascotImage from "@/shared/assets/images/mascot.png";
 
 export default function ForbiddenPage() {
     const router = useRouter();
 
     return (
         <Container>
-            <ImageWrapper>
-                <Image
-                    src={ConstructionImage}
-                    alt="공사중"
-                    width={200}
-                    height={200}
-                    style={{ objectFit: "contain" }}
-                />
-            </ImageWrapper>
+            <Image
+                src={MascotImage}
+                alt="공사중"
+                width={300}
+                height={300}
+                style={{ objectFit: "contain" }}
+            />
             <Message>
                 페이지를 찾을 수 없습니다.
             </Message>
@@ -50,11 +48,6 @@ const Container = styled.div`
     padding-bottom: 80px; /* BottomNav space */
 `;
 
-
-const ImageWrapper = styled.div`
-    margin-bottom: 32px;
-`;
-
 const Message = styled.h2`
     font-size: 24px;
     font-weight: 700;
@@ -81,7 +74,8 @@ const ButtonGroup = styled.div`
 `;
 
 const PrimaryButton = styled.button`
-    width: 100%;
+    width: 80%;
+    margin: 0 auto;
     padding: 14px;
     border-radius: ${radius.md};
     background-color: ${colors.primary[500]};
@@ -98,7 +92,8 @@ const PrimaryButton = styled.button`
 `;
 
 const SecondaryButton = styled.button`
-    width: 100%;
+    width: 80%;
+    margin: 0 auto;
     padding: 14px;
     border-radius: ${radius.md};
     background-color: white;

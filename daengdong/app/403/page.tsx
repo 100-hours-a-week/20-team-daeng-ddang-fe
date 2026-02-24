@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
-import ConstructionImage from "@/shared/assets/images/construction.png";
+import MascotImage from "@/shared/assets/images/mascot.png";
 
 export default function ForbiddenPage() {
     const router = useRouter();
@@ -13,7 +13,7 @@ export default function ForbiddenPage() {
         <Container>
             <ImageWrapper>
                 <Image
-                    src={ConstructionImage}
+                    src={MascotImage}
                     alt="공사중"
                     width={200}
                     height={200}
