@@ -11,6 +11,8 @@ import { useHealthcareStore } from "@/entities/healthcare/model/healthcareStore"
 import { useOnboarding } from "@/shared/hooks/useOnboarding";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcareMutations";
+import { useAuthStore } from "@/entities/session/model/store";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 import { ChatbotSection } from "@/features/chatbot/ui/ChatbotSection";
 import {
@@ -36,7 +38,8 @@ import {
     GuideTooltip,
     RetryButton,
     GuideBox,
-    GuideText
+    GuideText,
+    formatLevelToKorean
 } from "./_style";
 
 export const HealthcarePage = () => {
@@ -44,6 +47,7 @@ export const HealthcarePage = () => {
     const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
     const { uploadAndAnalyze } = useHealthcareMutations();
+    const { openModal } = useModalStore();
 
     const [mode, setMode] = useState<'main' | 'upload' | 'record' | 'chatbot'>('main');
     const [isCameraIdle, setIsCameraIdle] = useState(true);
@@ -59,16 +63,34 @@ export const HealthcarePage = () => {
         }
     };
 
+    const requireLogin = (onSuccess: () => void) => {
+        const isLoggedIn = useAuthStore.getState().isLoggedIn;
+        if (!isLoggedIn) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "해당 기능을 사용하려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "취소",
+                onConfirm: () => {
+                    router.push("/login");
+                },
+            });
+        } else {
+            onSuccess();
+        }
+    };
+
     const handleUpload = () => {
-        setMode('upload');
+        requireLogin(() => setMode('upload'));
     };
 
     const handleRecord = () => {
-        setMode('record');
+        requireLogin(() => setMode('record'));
     };
 
     const handleChat = () => {
-        setMode('chatbot');
+        requireLogin(() => setMode('chatbot'));
     };
 
     const handleComplete = async (videoBlob: Blob, backVideoBlob?: Blob) => {
@@ -96,7 +118,9 @@ export const HealthcarePage = () => {
                                 src={displayResult.artifacts.keypointOverlayVideoUrl}
                                 controls
                                 playsInline
-                                preload="metadata"
+                                autoPlay
+                                muted
+                                loop
                             />
                         ) : (
                             <PreviewImage src={mascotImage.src} alt="분석 결과" />
@@ -123,7 +147,7 @@ export const HealthcarePage = () => {
                             <DetailCardHeader>
                                 <DetailCategory>슬개골 위험도</DetailCategory>
                                 <RiskBadge level={displayResult.metrics.patellaRiskSignal.level}>
-                                    {displayResult.metrics.patellaRiskSignal.level}
+                                    {formatLevelToKorean(displayResult.metrics.patellaRiskSignal.level)}
                                 </RiskBadge>
                             </DetailCardHeader>
                             <DetailScore score={displayResult.metrics.patellaRiskSignal.score} level={displayResult.metrics.patellaRiskSignal.level}>{displayResult.metrics.patellaRiskSignal.score}점</DetailScore>
@@ -137,11 +161,14 @@ export const HealthcarePage = () => {
                         <DetailCard>
                             <DetailCardHeader>
                                 <DetailCategory>좌우 보행 균형</DetailCategory>
+                                <RiskBadge level={displayResult.metrics.gaitBalance.level}>
+                                    {formatLevelToKorean(displayResult.metrics.gaitBalance.level)}
+                                </RiskBadge>
                             </DetailCardHeader>
-                            <DetailScore score={displayResult.metrics.gaitBalance.score}>{displayResult.metrics.gaitBalance.score}점</DetailScore>
+                            <DetailScore score={displayResult.metrics.gaitBalance.score} level={displayResult.metrics.gaitBalance.level}>{displayResult.metrics.gaitBalance.score}점</DetailScore>
                             <DetailDescription>{displayResult.metrics.gaitBalance.description}</DetailDescription>
                             <ProgressBarContainer>
-                                <ProgressBar width={displayResult.metrics.gaitBalance.score} />
+                                <ProgressBar width={displayResult.metrics.gaitBalance.score} level={displayResult.metrics.gaitBalance.level} />
                             </ProgressBarContainer>
                         </DetailCard>
 
@@ -149,11 +176,14 @@ export const HealthcarePage = () => {
                         <DetailCard>
                             <DetailCardHeader>
                                 <DetailCategory>무릎 관절 가동성</DetailCategory>
+                                <RiskBadge level={displayResult.metrics.kneeMobility.level}>
+                                    {formatLevelToKorean(displayResult.metrics.kneeMobility.level)}
+                                </RiskBadge>
                             </DetailCardHeader>
-                            <DetailScore score={displayResult.metrics.kneeMobility.score}>{displayResult.metrics.kneeMobility.score}점</DetailScore>
+                            <DetailScore score={displayResult.metrics.kneeMobility.score} level={displayResult.metrics.kneeMobility.level}>{displayResult.metrics.kneeMobility.score}점</DetailScore>
                             <DetailDescription>{displayResult.metrics.kneeMobility.description}</DetailDescription>
                             <ProgressBarContainer>
-                                <ProgressBar width={displayResult.metrics.kneeMobility.score} />
+                                <ProgressBar width={displayResult.metrics.kneeMobility.score} level={displayResult.metrics.kneeMobility.level} />
                             </ProgressBarContainer>
                         </DetailCard>
 
@@ -161,11 +191,14 @@ export const HealthcarePage = () => {
                         <DetailCard>
                             <DetailCardHeader>
                                 <DetailCategory>보행 안정성</DetailCategory>
+                                <RiskBadge level={displayResult.metrics.gaitStability.level}>
+                                    {formatLevelToKorean(displayResult.metrics.gaitStability.level)}
+                                </RiskBadge>
                             </DetailCardHeader>
-                            <DetailScore score={displayResult.metrics.gaitStability.score}>{displayResult.metrics.gaitStability.score}점</DetailScore>
+                            <DetailScore score={displayResult.metrics.gaitStability.score} level={displayResult.metrics.gaitStability.level}>{displayResult.metrics.gaitStability.score}점</DetailScore>
                             <DetailDescription>{displayResult.metrics.gaitStability.description}</DetailDescription>
                             <ProgressBarContainer>
-                                <ProgressBar width={displayResult.metrics.gaitStability.score} />
+                                <ProgressBar width={displayResult.metrics.gaitStability.score} level={displayResult.metrics.gaitStability.level} />
                             </ProgressBarContainer>
                         </DetailCard>
 
@@ -173,11 +206,14 @@ export const HealthcarePage = () => {
                         <DetailCard>
                             <DetailCardHeader>
                                 <DetailCategory>보행 리듬</DetailCategory>
+                                <RiskBadge level={displayResult.metrics.gaitRhythm.level}>
+                                    {formatLevelToKorean(displayResult.metrics.gaitRhythm.level)}
+                                </RiskBadge>
                             </DetailCardHeader>
-                            <DetailScore score={displayResult.metrics.gaitRhythm.score}>{displayResult.metrics.gaitRhythm.score}점</DetailScore>
+                            <DetailScore score={displayResult.metrics.gaitRhythm.score} level={displayResult.metrics.gaitRhythm.level}>{displayResult.metrics.gaitRhythm.score}점</DetailScore>
                             <DetailDescription>{displayResult.metrics.gaitRhythm.description}</DetailDescription>
                             <ProgressBarContainer>
-                                <ProgressBar width={displayResult.metrics.gaitRhythm.score} />
+                                <ProgressBar width={displayResult.metrics.gaitRhythm.score} level={displayResult.metrics.gaitRhythm.level} />
                             </ProgressBarContainer>
                         </DetailCard>
                     </DetailSection>

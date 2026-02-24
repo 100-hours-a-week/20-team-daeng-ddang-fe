@@ -1,13 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
 import { RegionRankingList } from "./RegionRankingList";
+import { RegionRankRow } from "./RegionRankRow";
 import { LoadingView } from "@/widgets/GlobalLoading";
 import { useRegionalRanking } from "../model/useRegionalRanking";
-import { MyRankFloatingButton } from "./MyRankFloatingButton";
 import { useModalStore } from "@/shared/stores/useModalStore";
+import { ScrollToTopButton } from "./ScrollToTopButton";
 import { colors, spacing } from "@/shared/styles/tokens";
+import { useAuthStore } from "@/entities/session/model/store";
 
 export const RegionalRankingView = () => {
     const {
@@ -21,16 +23,32 @@ export const RegionalRankingView = () => {
         toggleRegion,
         periodValue,
         userRegionId,
-        handleJumpToMyRegion,
         isRegionRegistered,
-        isUserLoading
+        isUserLoading,
+        userRankInfo
     } = useRegionalRanking();
 
     const router = useRouter();
     const { openModal } = useModalStore();
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const scrollContentRef = useRef<HTMLDivElement>(null);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+
+    const handleScroll = () => {
+        if (!scrollContentRef.current) return;
+        const { scrollTop } = scrollContentRef.current;
+        setShowScrollTop(scrollTop > 200);
+    };
+
+    const scrollToTop = () => {
+        scrollContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     useEffect(() => {
-        if (!isUserLoading && isRegionRegistered === false) {
+        const hasCookie = document.cookie.includes('isLoggedIn=true');
+        if (hasCookie && !isUserLoading && isRegionRegistered === false) {
             openModal({
                 title: "지역 설정 필요!",
                 message: "지역 랭킹을 보려면 지역 정보가 필요합니다! \n등록하시겠어요?",
@@ -40,12 +58,12 @@ export const RegionalRankingView = () => {
                 onConfirm: () => router.push('/mypage/user'),
             });
         }
-    }, [isUserLoading, isRegionRegistered, openModal, router]);
+    }, [isUserLoading, isRegionRegistered, openModal, router, isLoggedIn]);
 
     if (isRegionListLoading && regionRanks.length === 0) return <LoadingView message="지역 랭킹 불러오는 중..." />;
 
     return (
-        <Container>
+        <Container ref={containerRef}>
             <FixedHeader>
                 <RankingFilters
                     period={period}
@@ -59,7 +77,7 @@ export const RegionalRankingView = () => {
                 <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
             </FixedHeader>
 
-            <ScrollContent>
+            <ScrollContent ref={scrollContentRef} id="regional-scroll-content" onScroll={handleScroll}>
                 <RegionRankingList
                     ranks={regionRanks}
                     expandedRegionId={expandedRegionId}
@@ -72,10 +90,25 @@ export const RegionalRankingView = () => {
                 />
             </ScrollContent>
 
-            <MyRankFloatingButton
-                isVisible={!!userRegionId}
-                onClick={handleJumpToMyRegion}
+            <ScrollToTopButton
+                isVisible={showScrollTop}
+                onClick={scrollToTop}
             />
+
+            {userRankInfo && (
+                <FixedFooter>
+                    <MyRankContainer>
+                        <RegionRankRow
+                            item={userRankInfo}
+                            isExpanded={expandedRegionId === userRankInfo.regionId}
+                            onToggle={() => toggleRegion(userRankInfo.regionId)}
+                            periodType={period}
+                            periodValue={periodValue}
+                            isMyRegion={true}
+                        />
+                    </MyRankContainer>
+                </FixedFooter>
+            )}
         </Container>
     );
 };
@@ -85,6 +118,7 @@ const Container = styled.div`
     height: 100svh;
     display: flex;
     flex-direction: column;
+    position: relative;
 `;
 
 const FixedHeader = styled.div`
@@ -113,4 +147,27 @@ const UpdateNotice = styled.div`
     text-align: center;
     padding-bottom: ${spacing[3]}px;
     margin-top: -${spacing[2]}px;
+`;
+
+const FixedFooter = styled.div`
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background-color: white;
+    border-top: 1px solid ${colors.gray[200]};
+    padding-bottom: env(safe-area-inset-bottom);
+`;
+
+const MyRankContainer = styled.div`
+    padding: 0px ${spacing[4]}px;
+    background-color: ${colors.primary[50]};
+   
+    & > div {
+        border-bottom: none;
+        margin: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+    border: 2px solid ${colors.primary[300]};
+    border-radius: 5px;
 `;

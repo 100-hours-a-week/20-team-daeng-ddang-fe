@@ -30,7 +30,7 @@ export const colors = {
         50: '#FAFAFA',
     },
     semantic: {
-        success: '#66BB6A',
+        success: '#78ce7cff',
         warning: '#ffd54cff',
         error: '#E57373',
         info: '#4FC3F7',

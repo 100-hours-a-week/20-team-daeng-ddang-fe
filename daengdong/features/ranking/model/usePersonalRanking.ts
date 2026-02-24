@@ -67,7 +67,7 @@ export const usePersonalRanking = () => {
     const myRankInfo = summaryData?.data?.myRank;
     const topRanks = summaryData?.data?.topRanks || listData?.pages[0]?.data?.ranks.slice(0, 3) || [];
 
-    const isDogRegistered = !!dogInfo;
+    const isDogRegistered = dogInfo === undefined ? undefined : !!dogInfo;
 
     return {
         period,

@@ -65,7 +65,8 @@ export const PreviewImage = styled.img`
 export const PreviewVideo = styled.video`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: black;
 `;
 
 export const RiskLevelBadge = styled.div<{ level: string }>`
@@ -164,11 +165,10 @@ export const RiskBadge = styled.span<{ level: string }>`
   font-weight: 600;
   background: ${props => {
     const l = props.level?.toLowerCase();
-    if (l === 'safe' || l === 'low') return colors.green[500];
-    if (l === 'warning' || l === 'medium') return colors.semantic.warning;
+    if (l === 'safe' || l === 'low' || l === 'normal' || l === 'stable' || l === 'regular' || l === 'good' || l === 'flexible' || l === 'consistent') return colors.green[500];
+    if (l === 'warning' || l === 'medium' || l === 'fair') return colors.semantic.warning;
     return colors.semantic.error;
-  }
-  };
+  }};
   color: white;
 `;
 
@@ -176,11 +176,11 @@ export const DetailScore = styled.div<{ score: number; level?: string }>`
   font-size: 18px;
   font-weight: 700;
   color: ${props => {
-    if (props.score >= 80) return colors.green[500];
-    if (props.score >= 60) return colors.semantic.warning;
+    const l = props.level?.toLowerCase();
+    if (l === 'safe' || l === 'low' || l === 'normal' || l === 'stable' || l === 'regular' || l === 'good' || l === 'flexible' || l === 'consistent') return colors.green[500];
+    if (l === 'warning' || l === 'medium' || l === 'fair') return colors.semantic.warning;
     return colors.semantic.error;
-  }
-  };
+  }};
   margin-bottom: ${spacing[2]}px;
 `;
 
@@ -203,11 +203,11 @@ export const ProgressBar = styled.div<{ width: number; level?: string }>`
   height: 100%;
   width: ${props => props.width}%;
   background: ${props => {
-    if (props.width >= 80) return colors.green[500];
-    if (props.width >= 60) return colors.semantic.warning;
+    const l = props.level?.toLowerCase();
+    if (l === 'safe' || l === 'low' || l === 'normal' || l === 'stable' || l === 'regular' || l === 'good' || l === 'flexible' || l === 'consistent') return colors.green[500];
+    if (l === 'warning' || l === 'medium' || l === 'fair') return colors.semantic.warning;
     return colors.semantic.error;
-  }
-  };
+  }};
   border-radius: 4px;
   transition: width 0.6s ease-out;
 `;
@@ -242,5 +242,37 @@ export const RetryButton = styled.button`
     background: ${colors.primary[600]};
   }
 `;
+
+export const formatLevelToKorean = (level: string) => {
+  if (!level) return '';
+  const l = level.toLowerCase();
+  const map: Record<string, string> = {
+    // RiskSignal (low/medium/high)
+    'low': '낮음',
+    'medium': '보통',
+    'high': '높음',
+    // GaitBalance (good/fair/poor)
+    'good': '양호',
+    'fair': '보통',
+    'poor': '나쁨',
+    // KneeMobility (normal/stiff/hyper)
+    'normal': '정상',
+    'stiff': '뻣뻣함',
+    'hyper': '과유연',
+    // GaitStability (stable/unstable)
+    'stable': '안정적',
+    'unstable': '불안정',
+    // GaitRhythm (consistent/irregular)
+    'consistent': '규칙적',
+    'irregular': '불규칙',
+    // common aliases
+    'safe': '안전',
+    'warning': '주의',
+    'danger': '위험',
+    'regular': '규칙적',
+    'flexible': '유연함'
+  };
+  return map[l] || level.toUpperCase();
+};
 
 export default function Style() { return null; }

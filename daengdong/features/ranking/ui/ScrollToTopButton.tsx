@@ -11,26 +11,40 @@ interface ScrollToTopButtonProps {
 
 export const ScrollToTopButton = ({ isVisible, onClick }: ScrollToTopButtonProps) => {
     return (
-        <AnimatePresence>
-            {isVisible && (
-                <StyledButton
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 20, opacity: 0 }}
-                    onClick={onClick}
-                    whileTap={{ scale: 0.9 }}
-                >
-                    <Icon>↑</Icon>
-                </StyledButton>
-            )}
-        </AnimatePresence>
+        <Wrapper>
+            <AnimatePresence>
+                {isVisible && (
+                    <StyledButton
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 20, opacity: 0 }}
+                        onClick={onClick}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <Icon>↑</Icon>
+                    </StyledButton>
+                )}
+            </AnimatePresence>
+        </Wrapper>
     );
 };
 
-const StyledButton = styled(motion.button)`
+const Wrapper = styled.div`
     position: fixed;
-    bottom: 100px;
-    right: 20px;
+    bottom: 135px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    pointer-events: none; 
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
+    z-index: 90;
+`;
+
+const StyledButton = styled(motion.button)`
+    pointer-events: auto; 
     width: 44px;
     height: 44px;
     background-color: white;
@@ -42,7 +56,6 @@ const StyledButton = styled(motion.button)`
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     cursor: pointer;
-    z-index: 90;
 `;
 
 const Icon = styled.span`

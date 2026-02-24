@@ -10,9 +10,10 @@ interface ContributionRankingViewProps {
     regionId: number;
     periodType: PeriodType;
     periodValue: string;
+    onClose?: () => void;
 }
 
-export const ContributionRankingView = ({ regionId, periodType, periodValue }: ContributionRankingViewProps) => {
+export const ContributionRankingView = ({ regionId, periodType, periodValue, onClose }: ContributionRankingViewProps) => {
     const {
         summaryData,
         isSummaryLoading,
@@ -53,8 +54,19 @@ export const ContributionRankingView = ({ regionId, periodType, periodValue }: C
                     ))}
             </FullList>
 
-            {hasNextPage && (
-                <LoadMoreBtn onClick={() => fetchNextPage()}>더 보기 ⌄</LoadMoreBtn>
+            {contributionRanks.length > 3 && (
+                <ButtonGroup>
+                    {hasNextPage && (
+                        <LoadMoreBtn onClick={() => fetchNextPage()}>
+                            더 보기 ⌄
+                        </LoadMoreBtn>
+                    )}
+                    {onClose && (
+                        <CloseBtn onClick={onClose} hasNextPage={hasNextPage}>
+                            목록 닫기 ⌃
+                        </CloseBtn>
+                    )}
+                </ButtonGroup>
             )}
         </Container>
     );
@@ -167,14 +179,38 @@ const Divider = styled.div`
     margin: ${spacing[1]}px 0;
 `;
 
-const LoadMoreBtn = styled.button`
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: ${spacing[2]}px;
+    margin-top: ${spacing[2]}px;
     width: 100%;
+`;
+
+const LoadMoreBtn = styled.button`
+    flex: 1;
     padding: 8px;
-    font-size: 12px;
-    color: ${colors.gray[500]};
-    background: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: ${colors.gray[600]};
+    background-color: ${colors.gray[100]};
+    border-radius: ${radius.md};
     border: none;
     cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:active {
+        background-color: ${colors.gray[200]};
+    }
+`;
+
+const CloseBtn = styled(LoadMoreBtn) <{ hasNextPage?: boolean }>`
+    background-color: ${({ hasNextPage }) => hasNextPage ? 'white' : colors.gray[100]};
+    border: ${({ hasNextPage }) => hasNextPage ? `1px solid ${colors.gray[200]}` : 'none'};
+    color: ${colors.gray[700]};
+
+    &:active {
+        background-color: ${({ hasNextPage }) => hasNextPage ? colors.gray[50] : colors.gray[200]};
+    }
 `;
 
 

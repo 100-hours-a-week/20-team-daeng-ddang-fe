@@ -8,6 +8,7 @@ import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useExpressionResult } from "@/features/expression/model/useExpressionResult";
+import { LoadingView } from "@/widgets/GlobalLoading";
 
 const EMOTION_LABELS: Record<PredictEmotion, string> = {
   HAPPY: "행복해요",
@@ -24,14 +25,27 @@ const EMOTION_CONFIG: Record<string, { label: string; icon: string; color: strin
 };
 
 function ExpressionResultPage() {
-  const { analysis, scores, handleComplete } = useExpressionResult();
+  const { analysis, scores, isLoading, isError, handleComplete } = useExpressionResult();
   const [isFlipped, setIsFlipped] = useState(false);
 
   const result = useMemo<ExpressionAnalysis | undefined>(() => {
     return analysis ?? undefined;
   }, [analysis]);
 
-  if (!result) return null;
+  if (isLoading) return <LoadingView message="결과를 불러오는 중입니다..." />;
+
+  if (isError || !result) {
+    return (
+      <PageContainer>
+        <Header title="표정 분석 결과" showBackButton={false} />
+        <ContentWrapper style={{ justifyContent: 'center' }}>
+          <HintText>결과를 불러오지 못했습니다.</HintText>
+          <CompleteButton onClick={handleComplete} style={{ marginTop: '20px' }}>산책으로 돌아가기</CompleteButton>
+        </ContentWrapper>
+      </PageContainer>
+    );
+  }
+
   return (
 
     <PageContainer>

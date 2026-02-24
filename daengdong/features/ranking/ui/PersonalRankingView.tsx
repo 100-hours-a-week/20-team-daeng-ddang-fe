@@ -11,6 +11,7 @@ import { colors, spacing } from "@/shared/styles/tokens";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { calculateAge } from "@/shared/utils/calculateAge";
 import { useModalStore } from "@/shared/stores/useModalStore";
+import { useAuthStore } from "@/entities/session/model/store";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 import { RankItem } from "./RankItem";
 
@@ -52,8 +53,12 @@ export const PersonalRankingView = () => {
         scrollContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
     useEffect(() => {
-        if (!isUserLoading && !isDogLoading && isDogRegistered === false) {
+        // 새로고침 시 Zustand 초기값(false) 때문에 모달이 뜨는 것을 방지하기 위해 쿠키 직접 확인
+        const hasCookie = document.cookie.includes('isLoggedIn=true');
+        if (hasCookie && !isUserLoading && !isDogLoading && isDogRegistered === false) {
             openModal({
                 title: "반려견 등록 필요",
                 message: "내 순위를 보려면 반려견 등록이 필요합니다! \n등록하시겠어요?",
@@ -63,7 +68,7 @@ export const PersonalRankingView = () => {
                 onConfirm: () => router.push('/mypage/dog'),
             });
         }
-    }, [isUserLoading, isDogLoading, isDogRegistered, openModal, router]);
+    }, [isUserLoading, isDogLoading, isDogRegistered, openModal, router, isLoggedIn]);
 
     if (isSummaryLoading && !summaryData && topRanks.length === 0) return <LoadingView message="랭킹 불러오는 중..." />;
 
@@ -136,6 +141,7 @@ const Container = styled.div`
     height: 100svh;
     display: flex;
     flex-direction: column;
+    position: relative;
 `;
 
 const FixedHeader = styled.div`

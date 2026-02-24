@@ -8,6 +8,8 @@ import { useDailyRecordsQuery } from "@/features/footprints/api/useFootprintsQue
 import { DailyRecordItem } from "@/entities/footprints/model/types";
 import Image from "next/image";
 import MedicalCrossIcon from "@/shared/assets/icons/medical-cross.svg";
+import WalkIcon from "@/shared/assets/icons/paw-print.svg";
+
 
 interface RecordListSectionProps {
     selectedDate: string;
@@ -47,9 +49,9 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
                 {records.map((record) => {
                     return (
                         <RecordItem key={`${record.type}-${record.id}`} onClick={() => onRecordClick(record)}>
-                            <IconWrapper type={record.type}>
+                            <IconWrapper $type={record.type}>
                                 {record.type === 'WALK'
-                                    ? <span style={{ fontSize: 20 }}>🐾</span>
+                                    ? <Image src={WalkIcon.src} alt="산책" width={20} height={20} />
                                     : <Image src={MedicalCrossIcon.src} alt="헬스케어" width={20} height={20} style={{ filter: 'invert(1)' }} />
                                 }
                             </IconWrapper>
@@ -57,7 +59,7 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
                                 <Title>
                                     {record.createdAt ? (
                                         <>
-                                            <TimeText>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
+                                            <TimeText $type={record.type}>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
                                             <span>{record.type === 'WALK' ? '산책일지' : '헬스케어'}</span>
                                         </>
                                     ) : (
@@ -112,11 +114,11 @@ const RecordItem = styled.div`
     }
 `;
 
-const IconWrapper = styled.div<{ type: 'WALK' | 'HEALTH' }>`
+const IconWrapper = styled.div<{ $type: 'WALK' | 'HEALTH' }>`
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-color: ${({ type }) => type === 'WALK' ? colors.primary[200] : colors.semantic.success + '20'};
+    background-color: ${({ $type }) => $type === 'WALK' ? colors.primary[300] : colors.semantic.success};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -167,9 +169,9 @@ const EmptyIcon = styled.div`
     opacity: 0.5;
 `;
 
-const TimeText = styled.span`
+const TimeText = styled.span<{ $type: 'WALK' | 'HEALTH' }>`
     font-size: 13px;
-    color: ${colors.primary[600]};
+    color: ${({ $type }) => $type === 'WALK' ? colors.primary[300] : colors.semantic.success};
     font-weight: 700;
     margin-right: 6px;
 `;

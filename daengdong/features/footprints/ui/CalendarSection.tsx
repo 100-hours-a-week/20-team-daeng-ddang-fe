@@ -195,9 +195,9 @@ const DayContent = styled.div<{ isSelected: boolean; isCurrentMonth: boolean; wa
 
     background-color: ${({ walkLevel }) => {
         switch (walkLevel) {
-            case 1: return colors.primary[100];
-            case 2: return colors.primary[200];
-            case 3: return colors.primary[300];
+            case 1: return colors.primary[200];
+            case 2: return colors.primary[300];
+            case 3: return colors.primary[400];
             default: return 'transparent';
         }
     }};
@@ -214,7 +214,7 @@ const HealthDot = styled.div<{ isOnWalk: boolean }>`
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background-color: ${({ isOnWalk }) => isOnWalk ? 'white' : colors.primary[500]};
+    background-color: ${({ isOnWalk }) => isOnWalk ? 'white' : colors.semantic.success};
     position: absolute;
     top: 2px;
 `;
