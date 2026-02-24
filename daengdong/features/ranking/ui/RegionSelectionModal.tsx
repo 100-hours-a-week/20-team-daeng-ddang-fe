@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useRegionsQuery } from "@/features/user/api/useRegionsQuery";
 import { Region } from "@/entities/user/model/types";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { SelectDropdown } from "@/shared/components/SelectDropdown";
 import { Button } from "@/shared/components/Button/Button";
 
@@ -123,7 +123,7 @@ export const RegionSelectionModal = ({ isOpen, onClose, onSelect }: RegionSelect
     );
 };
 
-const Overlay = styled(motion.div)`
+const Overlay = styled(m.div)`
     position: fixed;
     top: 0;
     left: 0;
@@ -136,7 +136,7 @@ const Overlay = styled(motion.div)`
     align-items: center;
 `;
 
-const ModalContainer = styled(motion.div)`
+const ModalContainer = styled(m.div)`
     background-color: white;
     width: 90%;
     max-width: 400px;

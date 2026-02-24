@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { RegionRankingItem, PeriodType } from "@/entities/ranking/model/types";
 import { colors, spacing } from "@/shared/styles/tokens";
 import { ContributionRankingView } from "./ContributionRankingView";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface RegionRankRowProps {
@@ -57,7 +57,7 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
 
             <AnimatePresence>
                 {isExpanded && (
-                    <motion.div
+                    <m.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -72,7 +72,7 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
                                 onClose={handleToggle}
                             />
                         </DropdownContent>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </Container>

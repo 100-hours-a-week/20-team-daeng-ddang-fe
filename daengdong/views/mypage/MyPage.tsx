@@ -9,7 +9,7 @@ import { useToastStore } from '@/shared/stores/useToastStore';
 import { useModalStore } from '@/shared/stores/useModalStore';
 import { useMyPageSummaryQuery } from '@/features/mypage/api/useMyPageSummaryQuery';
 import { spacing } from '@/shared/styles/tokens';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import Image from 'next/image';
 import PawPrintIcon from '@/shared/assets/icons/paw-print.svg';
 import { useAuthStore } from '@/entities/session/model/store';
@@ -230,7 +230,7 @@ const PawContainer = styled.div`
   align-items: center;
 `;
 
-const PawWrapper = styled(motion.div)`
+const PawWrapper = styled(m.div)`
   width: 32px;
   height: 32px;
   

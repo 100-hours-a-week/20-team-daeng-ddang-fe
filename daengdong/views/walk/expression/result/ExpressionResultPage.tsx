@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Header } from "@/widgets/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";
@@ -55,7 +55,7 @@ function ExpressionResultPage() {
         <HintText>이미지를 클릭해보세요</HintText>
 
         <CardWrapper onClick={() => setIsFlipped((prev) => !prev)}>
-          <motion.div
+          <m.div
             animate={{ rotateY: isFlipped ? 180 : 0 }}
             transition={{ duration: 0.6 }}
             style={{ width: "100%", height: "100%", transformStyle: "preserve-3d" }}
@@ -96,7 +96,7 @@ function ExpressionResultPage() {
                 })}
               </ScoreList>
             </CardBack>
-          </motion.div>
+          </m.div>
         </CardWrapper>
 
         <Bubble>
@@ -232,7 +232,7 @@ const ProgressBar = styled.div`
   overflow: hidden;
 `;
 
-const ProgressFill = styled(motion.div) <{ width: number; color: string }>`
+const ProgressFill = styled(m.div) <{ width: number; color: string }>`
   height: 100%;
   background-color: ${({ color }) => color};
   border-radius: 5px;

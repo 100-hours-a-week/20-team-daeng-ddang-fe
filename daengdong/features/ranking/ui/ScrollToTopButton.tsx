@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { colors } from "@/shared/styles/tokens";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface ScrollToTopButtonProps {
     isVisible: boolean;
@@ -43,7 +43,7 @@ const Wrapper = styled.div`
     z-index: 90;
 `;
 
-const StyledButton = styled(motion.button)`
+const StyledButton = styled(m.button)`
     pointer-events: auto; 
     width: 44px;
     height: 44px;

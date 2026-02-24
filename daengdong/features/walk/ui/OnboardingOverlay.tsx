@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { keyframes } from "@emotion/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface OnboardingOverlayProps {
     onClose: () => void;
@@ -81,7 +81,7 @@ const Overlay = styled.div`
     animation: ${fadeIn} 0.3s ease-out;
 `;
 
-const Content = styled(motion.div)`
+const Content = styled(m.div)`
     background: white;
     width: 100%;
     max-width: 320px;

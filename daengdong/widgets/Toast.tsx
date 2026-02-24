@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { useToastStore } from "@/shared/stores/useToastStore";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 
 export function Toast() {
     const { isOpen, options } = useToastStore();
@@ -24,7 +24,7 @@ export function Toast() {
     );
 }
 
-const ToastContainer = styled(motion.div)`
+const ToastContainer = styled(m.div)`
   position: fixed;
   top: 16px;
   left: 50%;
