@@ -8,6 +8,7 @@ import { useRegionalRanking } from "../model/useRegionalRanking";
 import { MyRankFloatingButton } from "./MyRankFloatingButton";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { colors, spacing } from "@/shared/styles/tokens";
+import { useAuthStore } from "@/entities/session/model/store";
 
 export const RegionalRankingView = () => {
     const {
@@ -28,9 +29,10 @@ export const RegionalRankingView = () => {
 
     const router = useRouter();
     const { openModal } = useModalStore();
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
     useEffect(() => {
-        if (!isUserLoading && isRegionRegistered === false) {
+        if (isLoggedIn && !isUserLoading && isRegionRegistered === false) {
             openModal({
                 title: "지역 설정 필요!",
                 message: "지역 랭킹을 보려면 지역 정보가 필요합니다! \n등록하시겠어요?",
@@ -40,7 +42,7 @@ export const RegionalRankingView = () => {
                 onConfirm: () => router.push('/mypage/user'),
             });
         }
-    }, [isUserLoading, isRegionRegistered, openModal, router]);
+    }, [isUserLoading, isRegionRegistered, openModal, router, isLoggedIn]);
 
     if (isRegionListLoading && regionRanks.length === 0) return <LoadingView message="지역 랭킹 불러오는 중..." />;
 

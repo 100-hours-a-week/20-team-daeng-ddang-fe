@@ -37,7 +37,7 @@ export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailS
                     <video
                         src={healthcare.artifacts.keypointOverlayVideoUrl}
                         controls
-                        playsInline
+
                         style={{ width: "100%", borderRadius: 12 }}
                     />
                 )}

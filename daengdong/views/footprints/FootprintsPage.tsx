@@ -12,6 +12,8 @@ import { useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { radius } from "@/shared/styles/tokens";
 import { useRouter } from "next/navigation";
+import { useModalStore } from '@/shared/stores/useModalStore';
+import { useAuthStore } from '@/entities/session/model/store';
 
 export const FootprintsPage = () => {
     const router = useRouter();
@@ -22,6 +24,23 @@ export const FootprintsPage = () => {
     });
     const [showScrollTop, setShowScrollTop] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
+    const { openModal } = useModalStore();
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    useEffect(() => {
+        const hasCookie = document.cookie.includes('isLoggedIn=true');
+        if (!hasCookie) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "발자국 기록을 보려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "메인으로",
+                onConfirm: () => router.push('/login'),
+                onCancel: () => router.push('/'),
+            });
+        }
+    }, [openModal, router, isLoggedIn]);
 
     useEffect(() => {
         const contentEl = contentRef.current;

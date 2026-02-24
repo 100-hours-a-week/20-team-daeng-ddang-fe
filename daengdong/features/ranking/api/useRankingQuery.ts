@@ -64,7 +64,8 @@ export const useRankingListInfiniteQuery = (params: Omit<RankingQueryParams, 'cu
         staleTime: getRankingStaleTime(),
         gcTime: getRankingStaleTime(),
         retry: (failureCount, error) => {
-            if ((error as AxiosError).response?.status === 404) return false;
+            const status = (error as AxiosError).response?.status;
+            if (status === 404 || status === 401) return false;
             return failureCount < 3;
         },
     });

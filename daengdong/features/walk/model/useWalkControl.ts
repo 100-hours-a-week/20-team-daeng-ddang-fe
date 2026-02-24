@@ -16,6 +16,7 @@ import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 import { missionApi } from "@/entities/mission/api/mission";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
+import { useAuthStore } from "@/entities/session/model/store";
 
 export const useWalkControl = () => {
     const {
@@ -213,7 +214,21 @@ export const useWalkControl = () => {
     }, [handleWebSocketMessage]);
 
     const handleStart = async () => {
-        // 데이터 로딩 중에는 아무 작업도 하지 않음
+        const isLoggedIn = useAuthStore.getState().isLoggedIn;
+        if (!isLoggedIn) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "산책 기록을 위해서는 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "취소",
+                onConfirm: () => {
+                    router.push("/login");
+                },
+            });
+            return;
+        }
+
         if (isDogLoading) {
             console.log('[산책 시작] 반려견 정보 로딩 중...');
             return;

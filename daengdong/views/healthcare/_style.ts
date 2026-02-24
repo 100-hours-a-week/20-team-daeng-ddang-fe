@@ -65,7 +65,8 @@ export const PreviewImage = styled.img`
 export const PreviewVideo = styled.video`
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: black;
 `;
 
 export const RiskLevelBadge = styled.div<{ level: string }>`

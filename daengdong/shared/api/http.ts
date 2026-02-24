@@ -75,9 +75,12 @@ http.interceptors.response.use(
                 return Promise.reject(error);
             }
 
+            // 랭킹 페이지 등 퍼블릭 열람이 필요한 API는 401 리다이렉트 제외
+            const isPublicApiFallback = originalRequest.url?.includes('/rankings');
+
             // _retry 속성이 있는지 확인 (이미 재시도한 요청인지)
             if (originalRequest._retry || originalRequest.url === '/auth/token') {
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && !isPublicApiFallback) {
                     localStorage.removeItem('accessToken');
                     document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';
@@ -124,7 +127,7 @@ http.interceptors.response.use(
             } catch (refreshError) {
                 // 갱신 실패 시 로그아웃 처리
                 processQueue(refreshError, null);
-                if (typeof window !== 'undefined') {
+                if (typeof window !== 'undefined' && !isPublicApiFallback) {
                     localStorage.removeItem('accessToken');
                     document.cookie = 'isLoggedIn=; path=/; max-age=0';
                     window.location.href = '/login';

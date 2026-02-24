@@ -16,6 +16,7 @@ import { useAuthStore } from '@/entities/session/model/store';
 import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useEndWalk } from '@/features/walk/model/useWalkMutations';
 import { isAbnormalSpeed } from '@/entities/walk/lib/validator';
+import { useEffect } from 'react';
 
 export const MyPage = () => {
     const router = useRouter();
@@ -23,6 +24,22 @@ export const MyPage = () => {
     const { openModal } = useModalStore();
     const { data: summaryData, isLoading } = useMyPageSummaryQuery();
     const { mutateAsync: endWalkMutateAsync } = useEndWalk();
+    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+
+    useEffect(() => {
+        const hasCookie = document.cookie.includes('isLoggedIn=true');
+        if (!hasCookie) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "마이페이지를 보려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "메인으로",
+                onConfirm: () => router.push('/login'),
+                onCancel: () => router.push('/'),
+            });
+        }
+    }, [openModal, router, isLoggedIn]);
 
     const handleLogout = async () => {
         const { walkMode, walkId, currentPos, elapsedTime, distance } = useWalkStore.getState();

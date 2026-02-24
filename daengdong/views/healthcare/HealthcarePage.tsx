@@ -11,6 +11,8 @@ import { useHealthcareStore } from "@/entities/healthcare/model/healthcareStore"
 import { useOnboarding } from "@/shared/hooks/useOnboarding";
 import mascotImage from "@/shared/assets/images/mascot.png";
 import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcareMutations";
+import { useAuthStore } from "@/entities/session/model/store";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
 import { ChatbotSection } from "@/features/chatbot/ui/ChatbotSection";
 import {
@@ -44,6 +46,7 @@ export const HealthcarePage = () => {
     const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
     const { uploadAndAnalyze } = useHealthcareMutations();
+    const { openModal } = useModalStore();
 
     const [mode, setMode] = useState<'main' | 'upload' | 'record' | 'chatbot'>('main');
     const [isCameraIdle, setIsCameraIdle] = useState(true);
@@ -59,16 +62,34 @@ export const HealthcarePage = () => {
         }
     };
 
+    const requireLogin = (onSuccess: () => void) => {
+        const isLoggedIn = useAuthStore.getState().isLoggedIn;
+        if (!isLoggedIn) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "해당 기능을 사용하려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "취소",
+                onConfirm: () => {
+                    router.push("/login");
+                },
+            });
+        } else {
+            onSuccess();
+        }
+    };
+
     const handleUpload = () => {
-        setMode('upload');
+        requireLogin(() => setMode('upload'));
     };
 
     const handleRecord = () => {
-        setMode('record');
+        requireLogin(() => setMode('record'));
     };
 
     const handleChat = () => {
-        setMode('chatbot');
+        requireLogin(() => setMode('chatbot'));
     };
 
     const handleComplete = async (videoBlob: Blob, backVideoBlob?: Blob) => {
@@ -96,7 +117,9 @@ export const HealthcarePage = () => {
                                 src={displayResult.artifacts.keypointOverlayVideoUrl}
                                 controls
                                 playsInline
-                                preload="metadata"
+                                autoPlay
+                                muted
+                                loop
                             />
                         ) : (
                             <PreviewImage src={mascotImage.src} alt="분석 결과" />

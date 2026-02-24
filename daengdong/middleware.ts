@@ -6,17 +6,24 @@ export function middleware(request: NextRequest) {
 
     // 인증이 필요 없는 경로
     const publicPaths = [
+        '/',
         '/login',
         '/oauth/kakao/callback',
-        '/walk',
         '/_next',
         '/favicon.ico',
         '/images',
         '/test/websocket',
         '/map-proxy/static-map',
+        '/walk',
+        '/ranking',
+        '/healthcare',
+        '/mypage',
+        '/footprints'
     ];
 
-    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+    const isPublicPath = publicPaths.some(path =>
+        path === '/' ? pathname === '/' : pathname.startsWith(path)
+    );
 
     const hasAuthCookie = request.cookies.has('isLoggedIn');
 
