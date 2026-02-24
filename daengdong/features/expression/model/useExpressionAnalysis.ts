@@ -42,7 +42,6 @@ export const useExpressionAnalysis = () => {
         try {
             const mimeType = videoBlob.type || "video/mp4";
 
-            // S3 업로드
             const { presignedUrl } = await fileApi.getPresignedUrl(
                 "VIDEO",
                 mimeType,
@@ -54,7 +53,18 @@ export const useExpressionAnalysis = () => {
             showLoading("표정 분석 요청 중입니다...");
             const job = await expressionApi.createExpressionJob(walkId, { videoUrl });
 
-            router.replace(`/walk/complete/${walkId}?taskId=${job.taskId}`);
+            let taskStatus = job.status;
+            while (taskStatus === "PENDING" || taskStatus === "RUNNING") {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                const currentStatus = await expressionApi.getAnalysisTaskStatus(walkId, job.taskId);
+                taskStatus = currentStatus.status;
+
+                if (taskStatus === "FAIL") {
+                    throw new Error("ANALYSIS_FAILED");
+                }
+            }
+
+            router.replace(`/walk/expression/result?walkId=${walkId}&taskId=${job.taskId}`);
 
         } catch (e: unknown) {
             const err = e as { response?: { data?: { errorCode?: string } } };

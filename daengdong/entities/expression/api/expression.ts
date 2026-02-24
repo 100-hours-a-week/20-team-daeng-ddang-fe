@@ -22,6 +22,19 @@ export interface AnalysisTaskStatusResponse {
   errorMessage?: string | null;
 }
 
+export interface ExpressionResultResponse {
+  analysis_id: string;
+  emotion_probabilities: {
+    angry: number;
+    happy: number;
+    relaxed: number;
+    sad: number;
+  };
+  predicted_emotion: string;
+  summary: string;
+  video_url: string;
+}
+
 export const expressionApi = {
   createExpressionJob: async (
     walkId: number,
@@ -40,6 +53,15 @@ export const expressionApi = {
   ): Promise<AnalysisTaskStatusResponse> => {
     const response = await http.get<ApiResponse<AnalysisTaskStatusResponse>>(
       `/walks/${walkId}/analysis/tasks/${taskId}`
+    );
+    return response.data.data;
+  },
+
+  getExpressionResult: async (
+    walkId: number
+  ): Promise<ExpressionResultResponse> => {
+    const response = await http.get<ApiResponse<ExpressionResultResponse>>(
+      `/walks/${walkId}/expressions/analysis`
     );
     return response.data.data;
   },

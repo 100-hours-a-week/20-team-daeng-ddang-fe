@@ -77,7 +77,12 @@ http.interceptors.response.use(
 
         // 404 Not Found 에러 처리 (페이지 없음)
         if (error.response && error.response.status === 404) {
-            if (typeof window !== 'undefined') {
+            const originalRequest = error.config as CustomAxiosRequestConfig;
+
+            // 미션/표정 분석 조회 API는 404리다이렉트 예외 처리
+            const isAnalysisApi = originalRequest?.url?.includes('/missions/analysis') || originalRequest?.url?.includes('/expressions/analysis');
+
+            if (typeof window !== 'undefined' && !isAnalysisApi) {
                 window.location.href = '/404';
             }
             return Promise.reject(error);

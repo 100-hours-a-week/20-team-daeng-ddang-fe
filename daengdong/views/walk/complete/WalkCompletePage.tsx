@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import styled from '@emotion/styled';
 import { spacing, colors } from "@/shared/styles/tokens";
@@ -8,7 +7,6 @@ import { PathMapImage } from '@/features/walk/ui/PathMapImage';
 import { WalkSummarySection } from '@/features/walk/ui/WalkSummarySection';
 import { MissionResultSection } from '@/features/mission/ui/MissionResultSection';
 import { WalkLogForm } from '@/features/walk/ui/WalkLogForm';
-import { ExpressionJobOverlay } from '@/shared/components/ExpressionJobOverlay';
 
 interface WalkCompletePageProps {
   walkId: string;
@@ -17,8 +15,6 @@ interface WalkCompletePageProps {
 export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
   const searchParams = useSearchParams();
   const taskId = searchParams?.get("taskId") ?? null;
-
-  const [showExpressionOverlay, setShowExpressionOverlay] = useState(!!taskId);
 
   return (
     <PageContainer>
@@ -32,15 +28,6 @@ export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
         <MissionResultSection walkId={parseInt(walkId)} />
         <WalkLogForm hasAnalysis={!!taskId} />
       </ContentWrapper>
-
-      {showExpressionOverlay && taskId && (
-        <ExpressionJobOverlay
-          walkId={parseInt(walkId)}
-          taskId={taskId}
-          label="표정 분석"
-          onDone={() => setShowExpressionOverlay(false)}
-        />
-      )}
     </PageContainer>
   );
 };
