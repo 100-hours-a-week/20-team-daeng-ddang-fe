@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { m } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 import { useEffect, useState } from "react";
 import { Mission } from "@/entities/mission/api/mission";
 import { radius, spacing } from "@/shared/styles/tokens";
@@ -77,21 +78,23 @@ export const SuddenMissionAlert = ({ mission }: SuddenMissionAlertProps) => {
     const alertWidth = Math.max(35, progress);
 
     return (
-        <AlertWrapper>
-            <AlertContainer
-                onClick={handleClick}
-                animate={{ width: `${alertWidth}%` }}
-                transition={{ duration: 0.9, ease: "easeInOut" }}
-            >
-                <Content>
-                    <Icon>🚨</Icon>
-                    <TextWrapper>
-                        <Title>돌발 미션 발생!</Title>
-                        <SubTitle>{timeLeft}초 안에 터치하여 시작하세요</SubTitle>
-                    </TextWrapper>
-                </Content>
-            </AlertContainer>
-        </AlertWrapper>
+        <MotionProvider>
+            <AlertWrapper>
+                <AlertContainer
+                    onClick={handleClick}
+                    animate={{ width: `${alertWidth}%` }}
+                    transition={{ duration: 0.9, ease: "easeInOut" }}
+                >
+                    <Content>
+                        <Icon>🚨</Icon>
+                        <TextWrapper>
+                            <Title>돌발 미션 발생!</Title>
+                            <SubTitle>{timeLeft}초 안에 터치하여 시작하세요</SubTitle>
+                        </TextWrapper>
+                    </Content>
+                </AlertContainer>
+            </AlertWrapper>
+        </MotionProvider>
     );
 };
 

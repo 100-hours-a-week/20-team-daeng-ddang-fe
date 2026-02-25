@@ -8,7 +8,6 @@ import { Toast } from '@/widgets/Toast';
 import { BottomNav } from '@/widgets/BottomNav';
 import { GlobalLoading } from '@/widgets/GlobalLoading';
 import { WalkManager } from '@/features/walk/ui/WalkManager';
-import MotionProvider from '@/shared/components/MotionProvider';
 
 export function LayoutClient({ children }: { children: ReactNode }) {
     const pathname = usePathname();
@@ -22,20 +21,18 @@ export function LayoutClient({ children }: { children: ReactNode }) {
         <MobileRoot>
             <MobileContainer>
                 <Content>
-                    <MotionProvider>
-                        <WalkManager />
-                        {children}
+                    <WalkManager />
+                    {children}
 
-                        <Modal />
-                        <Toast />
-                        <GlobalLoading />
-                        {!shouldHideBottomNav && (
-                            <BottomNav
-                                currentPath={pathname || ''}
-                                onNavigate={(path) => router.push(path)}
-                            />
-                        )}
-                    </MotionProvider>
+                    <Modal />
+                    <Toast />
+                    <GlobalLoading />
+                    {!shouldHideBottomNav && (
+                        <BottomNav
+                            currentPath={pathname || ''}
+                            onNavigate={(path) => router.push(path)}
+                        />
+                    )}
                 </Content>
             </MobileContainer>
         </MobileRoot>

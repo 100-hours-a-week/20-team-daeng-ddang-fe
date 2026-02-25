@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { colors } from "@/shared/styles/tokens";
 import { m, AnimatePresence } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 
 interface ScrollToTopButtonProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
@@ -36,19 +37,21 @@ export const ScrollToTopButton = ({ scrollContainerRef }: ScrollToTopButtonProps
     };
     return (
         <Wrapper>
-            <AnimatePresence>
-                {isVisible && (
-                    <StyledButton
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 20, opacity: 0 }}
-                        onClick={scrollToTop}
-                        whileTap={{ scale: 0.9 }}
-                    >
-                        <Icon>↑</Icon>
-                    </StyledButton>
-                )}
-            </AnimatePresence>
+            <MotionProvider>
+                <AnimatePresence>
+                    {isVisible && (
+                        <StyledButton
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 20, opacity: 0 }}
+                            onClick={scrollToTop}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <Icon>↑</Icon>
+                        </StyledButton>
+                    )}
+                </AnimatePresence>
+            </MotionProvider>
         </Wrapper>
     );
 };

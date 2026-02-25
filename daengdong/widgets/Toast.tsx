@@ -2,29 +2,23 @@
 
 import styled from "@emotion/styled";
 import { useToastStore } from "@/shared/stores/useToastStore";
-import { AnimatePresence, m } from "framer-motion";
 
 export function Toast() {
     const { isOpen, options } = useToastStore();
     return (
-        <AnimatePresence>
+        <>
             {isOpen && options && (
-                <ToastContainer
-                    initial={{ opacity: 0, y: -20, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: -20, x: "-50%" }}
-                    transition={{ duration: 0.3 }}
-                >
+                <ToastContainer>
                     <ToastContent type={options.type || "info"}>
                         {options.message}
                     </ToastContent>
                 </ToastContainer>
             )}
-        </AnimatePresence>
+        </>
     );
 }
 
-const ToastContainer = styled(m.div)`
+const ToastContainer = styled.div`
   position: fixed;
   top: 16px;
   left: 50%;
@@ -32,6 +26,18 @@ const ToastContainer = styled(m.div)`
   z-index: 2000;
   width: max-content;
   max-width: calc(100% - 40px);
+  animation: slideDownFade 0.3s ease-out forwards;
+
+  @keyframes slideDownFade {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
 `;
 
 const ToastContent = styled.div<{ type: "success" | "error" | "info" }>`
