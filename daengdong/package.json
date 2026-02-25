@@ -30,6 +30,7 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
     "@playwright/test": "^1.58.2",
     "@types/html2canvas": "^0.5.35",
     "@types/node": "^20",
