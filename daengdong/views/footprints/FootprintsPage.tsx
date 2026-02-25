@@ -10,6 +10,7 @@ import { DailyRecordItem } from "@/entities/footprints/model/types";
 import { Header } from "@/widgets/Header";
 import { useRef, useEffect } from "react";
 import { AnimatePresence, m } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 import { radius } from "@/shared/styles/tokens";
 import { useRouter } from "next/navigation";
 import { useModalStore } from '@/shared/stores/useModalStore';
@@ -78,39 +79,41 @@ export const FootprintsPage = () => {
     };
 
     return (
-        <ScreenContainer>
-            <Content ref={contentRef}>
-                <Header title="발자국" showBackButton={false} isSticky={false} />
-                <CalendarSection
-                    year={viewDate.year}
-                    month={viewDate.month}
-                    selectedDate={selectedDate}
-                    onDateSelect={handleDateSelect}
-                    onMonthChange={handleMonthChange}
-                />
+        <MotionProvider>
+            <ScreenContainer>
+                <Content ref={contentRef}>
+                    <Header title="발자국" showBackButton={false} isSticky={false} />
+                    <CalendarSection
+                        year={viewDate.year}
+                        month={viewDate.month}
+                        selectedDate={selectedDate}
+                        onDateSelect={handleDateSelect}
+                        onMonthChange={handleMonthChange}
+                    />
 
-                <RecordListSection
-                    selectedDate={selectedDate}
-                    onRecordClick={handleRecordClick}
-                />
-            </Content>
+                    <RecordListSection
+                        selectedDate={selectedDate}
+                        onRecordClick={handleRecordClick}
+                    />
+                </Content>
 
-            <AnimatePresence>
-                {showScrollTop && (
-                    <ScrollTopButton
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        onClick={scrollToTop}
-                        aria-label="Scroll to top"
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 15l-6-6-6 6" />
-                        </svg>
-                    </ScrollTopButton>
-                )}
-            </AnimatePresence>
-        </ScreenContainer>
+                <AnimatePresence>
+                    {showScrollTop && (
+                        <ScrollTopButton
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            onClick={scrollToTop}
+                            aria-label="Scroll to top"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 15l-6-6-6 6" />
+                            </svg>
+                        </ScrollTopButton>
+                    )}
+                </AnimatePresence>
+            </ScreenContainer>
+        </MotionProvider>
     );
 }
 

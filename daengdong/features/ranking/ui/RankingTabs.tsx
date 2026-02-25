@@ -3,6 +3,7 @@
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import { m } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 
 interface RankingTabsProps {
     activeTab: 'PERSONAL' | 'REGIONAL';
@@ -11,22 +12,24 @@ interface RankingTabsProps {
 
 export const RankingTabs = ({ activeTab, onTabChange }: RankingTabsProps) => {
     return (
-        <Container>
-            <Tab
-                isActive={activeTab === 'PERSONAL'}
-                onClick={() => onTabChange('PERSONAL')}
-            >
-                개인 랭킹
-                {activeTab === 'PERSONAL' && <ActiveIndicator layoutId="activeTab" />}
-            </Tab>
-            <Tab
-                isActive={activeTab === 'REGIONAL'}
-                onClick={() => onTabChange('REGIONAL')}
-            >
-                지역 랭킹
-                {activeTab === 'REGIONAL' && <ActiveIndicator layoutId="activeTab" />}
-            </Tab>
-        </Container>
+        <MotionProvider>
+            <Container>
+                <Tab
+                    isActive={activeTab === 'PERSONAL'}
+                    onClick={() => onTabChange('PERSONAL')}
+                >
+                    개인 랭킹
+                    {activeTab === 'PERSONAL' && <ActiveIndicator layoutId="activeTab" />}
+                </Tab>
+                <Tab
+                    isActive={activeTab === 'REGIONAL'}
+                    onClick={() => onTabChange('REGIONAL')}
+                >
+                    지역 랭킹
+                    {activeTab === 'REGIONAL' && <ActiveIndicator layoutId="activeTab" />}
+                </Tab>
+            </Container>
+        </MotionProvider>
     );
 };
 

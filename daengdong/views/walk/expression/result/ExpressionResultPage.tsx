@@ -3,6 +3,7 @@
 import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
 import { m } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 import { Header } from "@/widgets/Header";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { ExpressionAnalysis, PredictEmotion } from "@/entities/expression/model/types";
@@ -47,66 +48,67 @@ function ExpressionResultPage() {
   }
 
   return (
+    <MotionProvider>
+      <PageContainer>
+        <Header title="표정 분석 결과" showBackButton={false} />
 
-    <PageContainer>
-      <Header title="표정 분석 결과" showBackButton={false} />
+        <ContentWrapper>
+          <HintText>이미지를 클릭해보세요</HintText>
 
-      <ContentWrapper>
-        <HintText>이미지를 클릭해보세요</HintText>
+          <CardWrapper onClick={() => setIsFlipped((prev) => !prev)}>
+            <m.div
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.6 }}
+              style={{ width: "100%", height: "100%", transformStyle: "preserve-3d" }}
+            >
+              <CardFront>
+                {result.videoUrl ? (
+                  <DogVideo src={result.videoUrl} autoPlay loop muted playsInline />
+                ) : (
+                  <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
+                )}
+              </CardFront>
+              <CardBack>
+                <BackTitle>감정 상세 분석</BackTitle>
+                <ScoreList>
+                  {Object.entries(scores).map(([key, value]) => {
+                    const config = EMOTION_CONFIG[key] || { label: key, icon: "❓", color: colors.gray[500] };
+                    const percent = Math.round(value * 100);
 
-        <CardWrapper onClick={() => setIsFlipped((prev) => !prev)}>
-          <m.div
-            animate={{ rotateY: isFlipped ? 180 : 0 }}
-            transition={{ duration: 0.6 }}
-            style={{ width: "100%", height: "100%", transformStyle: "preserve-3d" }}
-          >
-            <CardFront>
-              {result.videoUrl ? (
-                <DogVideo src={result.videoUrl} autoPlay loop muted playsInline />
-              ) : (
-                <DogImage src={result.imageUrl || mascotImage.src} alt="반려견 사진" />
-              )}
-            </CardFront>
-            <CardBack>
-              <BackTitle>감정 상세 분석</BackTitle>
-              <ScoreList>
-                {Object.entries(scores).map(([key, value]) => {
-                  const config = EMOTION_CONFIG[key] || { label: key, icon: "❓", color: colors.gray[500] };
-                  const percent = Math.round(value * 100);
+                    return (
+                      <ScoreItem key={key}>
+                        <ScoreHeader>
+                          <ScoreLabel>
+                            <Icon>{config.icon}</Icon> {config.label}
+                          </ScoreLabel>
+                          <ScoreValue color={config.color}>{percent}%</ScoreValue>
+                        </ScoreHeader>
+                        <ProgressBar>
+                          <ProgressFill
+                            width={percent}
+                            color={config.color}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percent}%` }}
+                            transition={{ duration: 1, delay: 0.2 }}
+                          />
+                        </ProgressBar>
+                      </ScoreItem>
+                    );
+                  })}
+                </ScoreList>
+              </CardBack>
+            </m.div>
+          </CardWrapper>
 
-                  return (
-                    <ScoreItem key={key}>
-                      <ScoreHeader>
-                        <ScoreLabel>
-                          <Icon>{config.icon}</Icon> {config.label}
-                        </ScoreLabel>
-                        <ScoreValue color={config.color}>{percent}%</ScoreValue>
-                      </ScoreHeader>
-                      <ProgressBar>
-                        <ProgressFill
-                          width={percent}
-                          color={config.color}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${percent}%` }}
-                          transition={{ duration: 1, delay: 0.2 }}
-                        />
-                      </ProgressBar>
-                    </ScoreItem>
-                  );
-                })}
-              </ScoreList>
-            </CardBack>
-          </m.div>
-        </CardWrapper>
-
-        <Bubble>
-          <BubbleTitle>{EMOTION_LABELS[result.predictEmotion as PredictEmotion] || result.predictEmotion}</BubbleTitle>
-          <BubbleText>{result.summary}</BubbleText>
-        </Bubble>
-        <DisclaimerText>분석 결과는 100% 정확하지 않을 수 있습니다.</DisclaimerText>
-        <CompleteButton onClick={handleComplete}>완료</CompleteButton>
-      </ContentWrapper>
-    </PageContainer>
+          <Bubble>
+            <BubbleTitle>{EMOTION_LABELS[result.predictEmotion as PredictEmotion] || result.predictEmotion}</BubbleTitle>
+            <BubbleText>{result.summary}</BubbleText>
+          </Bubble>
+          <DisclaimerText>분석 결과는 100% 정확하지 않을 수 있습니다.</DisclaimerText>
+          <CompleteButton onClick={handleComplete}>완료</CompleteButton>
+        </ContentWrapper>
+      </PageContainer>
+    </MotionProvider>
   );
 }
 

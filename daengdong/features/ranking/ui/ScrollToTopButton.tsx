@@ -1,30 +1,57 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { colors } from "@/shared/styles/tokens";
 import { m, AnimatePresence } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 
 interface ScrollToTopButtonProps {
-    isVisible: boolean;
-    onClick: () => void;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const ScrollToTopButton = ({ isVisible, onClick }: ScrollToTopButtonProps) => {
+export const ScrollToTopButton = ({ scrollContainerRef }: ScrollToTopButtonProps) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setIsVisible(container.scrollTop > 200);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [scrollContainerRef]);
+
+    const scrollToTop = () => {
+        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     return (
         <Wrapper>
-            <AnimatePresence>
-                {isVisible && (
-                    <StyledButton
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 20, opacity: 0 }}
-                        onClick={onClick}
-                        whileTap={{ scale: 0.9 }}
-                    >
-                        <Icon>↑</Icon>
-                    </StyledButton>
-                )}
-            </AnimatePresence>
+            <MotionProvider>
+                <AnimatePresence>
+                    {isVisible && (
+                        <StyledButton
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 20, opacity: 0 }}
+                            onClick={scrollToTop}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <Icon>↑</Icon>
+                        </StyledButton>
+                    )}
+                </AnimatePresence>
+            </MotionProvider>
         </Wrapper>
     );
 };

@@ -4,7 +4,6 @@ import styled from "@emotion/styled";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useEffect } from "react";
 import Image from "next/image";
-import { m } from "framer-motion";
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 
 export function LoadingView({ message }: { message?: string }) {
@@ -18,14 +17,7 @@ export function LoadingView({ message }: { message?: string }) {
           {paws.map((_, index) => (
             <PawWrapper
               key={index}
-              initial={{ opacity: 0.3, scale: 0.8 }}
-              animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                delay: index * 0.2,
-                ease: "easeInOut",
-              }}
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
               <Image
                 src={PawPrintIcon}
@@ -94,15 +86,30 @@ const PawContainer = styled.div`
   align-items: center;
 `;
 
-const PawWrapper = styled(m.div)`
+const PawWrapper = styled.div`
   width: 32px;
   height: 32px;
+  opacity: 0.3;
+  transform: scale(0.8);
+  animation: pulse 1.5s infinite ease-in-out;
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(0.8) var(--rotation, 0deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2) var(--rotation, 0deg);
+    }
+  }
+
   /* Rotate slightly for more natural look */
   &:nth-of-type(odd) {
-    transform: rotate(-10deg);
+    --rotation: rotate(-10deg);
   }
   &:nth-of-type(even) {
-    transform: rotate(10deg);
+    --rotation: rotate(10deg);
   }
 `;
 

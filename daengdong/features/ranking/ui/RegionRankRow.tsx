@@ -3,6 +3,7 @@ import { RegionRankingItem, PeriodType } from "@/entities/ranking/model/types";
 import { colors, spacing } from "@/shared/styles/tokens";
 import { ContributionRankingView } from "./ContributionRankingView";
 import { m, AnimatePresence } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface RegionRankRowProps {
@@ -41,41 +42,43 @@ export const RegionRankRow = ({ item, isExpanded, onToggle, periodType, periodVa
     };
 
     return (
-        <Container id={`region-rank-item-${item.regionId}`}>
-            <RowHeader onClick={handleToggle} isExpanded={isExpanded} isMyRegion={isMyRegion}>
-                <RankNum isTop={item.rank <= 3}>{item.rank}</RankNum>
-                <Info>
-                    <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
-                    <RegionDistance>{formatDistance(item.totalDistance)}km</RegionDistance>
-                </Info>
-                <ArrowIcon isExpanded={isExpanded}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M2 4L6 8L10 4" />
-                    </svg>
-                </ArrowIcon>
-            </RowHeader>
+        <MotionProvider>
+            <Container id={`region-rank-item-${item.regionId}`}>
+                <RowHeader onClick={handleToggle} isExpanded={isExpanded} isMyRegion={isMyRegion}>
+                    <RankNum isTop={item.rank <= 3}>{item.rank}</RankNum>
+                    <Info>
+                        <RegionName isMyRegion={isMyRegion}>{item.regionName} {isMyRegion && <MyRegionBadge>🏠 우리 동네</MyRegionBadge>}</RegionName>
+                        <RegionDistance>{formatDistance(item.totalDistance)}km</RegionDistance>
+                    </Info>
+                    <ArrowIcon isExpanded={isExpanded}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 4L6 8L10 4" />
+                        </svg>
+                    </ArrowIcon>
+                </RowHeader>
 
-            <AnimatePresence>
-                {isExpanded && (
-                    <m.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        style={{ overflow: "hidden" }}
-                    >
-                        <DropdownContent>
-                            <ContributionRankingView
-                                regionId={item.regionId}
-                                periodType={periodType}
-                                periodValue={periodValue}
-                                onClose={handleToggle}
-                            />
-                        </DropdownContent>
-                    </m.div>
-                )}
-            </AnimatePresence>
-        </Container>
+                <AnimatePresence>
+                    {isExpanded && (
+                        <m.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            style={{ overflow: "hidden" }}
+                        >
+                            <DropdownContent>
+                                <ContributionRankingView
+                                    regionId={item.regionId}
+                                    periodType={periodType}
+                                    periodValue={periodValue}
+                                    onClose={handleToggle}
+                                />
+                            </DropdownContent>
+                        </m.div>
+                    )}
+                </AnimatePresence>
+            </Container>
+        </MotionProvider>
     );
 };
 

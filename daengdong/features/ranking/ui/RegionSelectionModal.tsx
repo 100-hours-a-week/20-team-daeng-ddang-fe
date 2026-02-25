@@ -4,6 +4,7 @@ import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useRegionsQuery } from "@/features/user/api/useRegionsQuery";
 import { Region } from "@/entities/user/model/types";
 import { m, AnimatePresence } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 import { SelectDropdown } from "@/shared/components/SelectDropdown";
 import { Button } from "@/shared/components/Button/Button";
 
@@ -67,59 +68,61 @@ export const RegionSelectionModal = ({ isOpen, onClose, onSelect }: RegionSelect
     if (!isOpen) return null;
 
     return (
-        <AnimatePresence>
-            <Overlay
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-            >
-                <ModalContainer
-                    initial={{ y: 100, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 100, opacity: 0 }}
-                    onClick={(e) => e.stopPropagation()}
+        <MotionProvider>
+            <AnimatePresence>
+                <Overlay
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={onClose}
                 >
-                    <Header>
-                        <Title>지역 선택</Title>
-                        <CloseButton onClick={onClose}>✕</CloseButton>
-                    </Header>
+                    <ModalContainer
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 100, opacity: 0 }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Header>
+                            <Title>지역 선택</Title>
+                            <CloseButton onClick={onClose}>✕</CloseButton>
+                        </Header>
 
-                    <Content>
-                        <DropdownGroup>
-                            <Label>시/도</Label>
-                            <SelectDropdown
-                                options={provinceOptions}
-                                value={selectedProvinceName}
-                                onChange={handleProvinceChange}
-                                placeholder="시/도 선택"
-                            />
-                        </DropdownGroup>
+                        <Content>
+                            <DropdownGroup>
+                                <Label>시/도</Label>
+                                <SelectDropdown
+                                    options={provinceOptions}
+                                    value={selectedProvinceName}
+                                    onChange={handleProvinceChange}
+                                    placeholder="시/도 선택"
+                                />
+                            </DropdownGroup>
 
-                        <DropdownGroup>
-                            <Label>시/군/구</Label>
-                            <SelectDropdown
-                                options={districtOptions}
-                                value={selectedDistrictName}
-                                onChange={handleDistrictChange}
-                                placeholder="시/군/구 선택"
-                                disabled={!selectedProvinceId}
-                            />
-                        </DropdownGroup>
+                            <DropdownGroup>
+                                <Label>시/군/구</Label>
+                                <SelectDropdown
+                                    options={districtOptions}
+                                    value={selectedDistrictName}
+                                    onChange={handleDistrictChange}
+                                    placeholder="시/군/구 선택"
+                                    disabled={!selectedProvinceId}
+                                />
+                            </DropdownGroup>
 
-                        <ButtonWrapper>
-                            <Button
-                                onClick={handleConfirm}
-                                disabled={!selectedDistrictRegion}
-                                fullWidth
-                            >
-                                확인
-                            </Button>
-                        </ButtonWrapper>
-                    </Content>
-                </ModalContainer>
-            </Overlay>
-        </AnimatePresence>
+                            <ButtonWrapper>
+                                <Button
+                                    onClick={handleConfirm}
+                                    disabled={!selectedDistrictRegion}
+                                    fullWidth
+                                >
+                                    확인
+                                </Button>
+                            </ButtonWrapper>
+                        </Content>
+                    </ModalContainer>
+                </Overlay>
+            </AnimatePresence>
+        </MotionProvider>
     );
 };
 

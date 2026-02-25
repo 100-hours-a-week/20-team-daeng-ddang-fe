@@ -77,19 +77,23 @@ export const useExpressionAnalysis = () => {
                     break;
                 case "FORBIDDEN":
                     showToast({ message: "접근 권한이 없습니다.", type: "error" });
+                    handleCancel();
                     break;
                 case "WALK_RECORD_NOT_FOUND":
                     showToast({ message: "산책 정보를 찾을 수 없습니다.", type: "error" });
                     router.replace("/walk");
                     break;
                 case "DOG_FACE_NOT_RECOGNIZED":
-                    showToast({ message: "강아지 얼굴을 인식할 수 없습니다. 다시 촬영해주세요.", type: "error" });
+                    showToast({ message: "강아지 얼굴을 인식할 수 없습니다.", type: "error" });
+                    handleCancel();
                     break;
                 case "AI_SERVER_CONNECTION_FAILED":
-                    showToast({ message: "AI 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.", type: "error" });
+                    showToast({ message: "AI 서버에 연결할 수 없습니다.", type: "error" });
+                    handleCancel();
                     break;
                 default:
-                    showToast({ message: "분석 요청에 실패했습니다.", type: "error" });
+                    showToast({ message: "강아지 얼굴을 인식할 수 없습니다.", type: "error" });
+                    handleCancel();
             }
         } finally {
             isSubmittingRef.current = false;
