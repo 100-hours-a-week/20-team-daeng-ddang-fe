@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
@@ -34,17 +34,6 @@ export const RegionalRankingView = () => {
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContentRef = useRef<HTMLDivElement>(null);
-    const [showScrollTop, setShowScrollTop] = useState(false);
-
-    const handleScroll = () => {
-        if (!scrollContentRef.current) return;
-        const { scrollTop } = scrollContentRef.current;
-        setShowScrollTop(scrollTop > 200);
-    };
-
-    const scrollToTop = () => {
-        scrollContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-    };
 
     useEffect(() => {
         const hasCookie = document.cookie.includes('isLoggedIn=true');
@@ -77,7 +66,7 @@ export const RegionalRankingView = () => {
                 <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
             </FixedHeader>
 
-            <ScrollContent ref={scrollContentRef} id="regional-scroll-content" onScroll={handleScroll}>
+            <ScrollContent ref={scrollContentRef} id="regional-scroll-content">
                 <RegionRankingList
                     ranks={regionRanks}
                     expandedRegionId={expandedRegionId}
@@ -90,10 +79,7 @@ export const RegionalRankingView = () => {
                 />
             </ScrollContent>
 
-            <ScrollToTopButton
-                isVisible={showScrollTop}
-                onClick={scrollToTop}
-            />
+            <ScrollToTopButton scrollContainerRef={scrollContentRef} />
 
             {userRankInfo && (
                 <FixedFooter>
