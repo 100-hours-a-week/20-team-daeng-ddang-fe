@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface UserProfileSectionProps {
   dogName: string;
@@ -24,9 +25,13 @@ export const UserProfileSection = ({
       <ProfileArea>
         <ImageWrapper hasImage={hasImage}>
           {hasImage ? (
-            <ProfileImage
-              src={profileImageUrl}
+            <Image
+              src={profileImageUrl!}
               alt={`${dogName} 프로필`}
+              width={80}
+              height={80}
+              style={{ objectFit: 'cover' }}
+              priority
               onError={() => setImageError(true)}
             />
           ) : (
@@ -84,12 +89,6 @@ const ImageWrapper = styled.div<{ hasImage: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const ProfileImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 `;
 
 const InfoWrapper = styled.div`

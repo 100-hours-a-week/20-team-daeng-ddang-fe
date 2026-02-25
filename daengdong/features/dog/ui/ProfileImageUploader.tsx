@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { useRef, ChangeEvent } from 'react';
 import { colors } from '@/shared/styles/tokens';
+import Image from 'next/image';
 
 interface ProfileImageUploaderProps {
     imagePreview: string | null;
@@ -34,7 +35,14 @@ export function ProfileImageUploader({
         <Container>
             <ImageWrapper onClick={handleClick} hasImage={!!imagePreview}>
                 {imagePreview ? (
-                    <StyledImage src={imagePreview} alt="Dog Profile" />
+                    <Image
+                        src={imagePreview}
+                        alt="Dog Profile"
+                        width={100}
+                        height={100}
+                        style={{ objectFit: 'cover' }}
+                        priority={imagePreview.startsWith('http')}
+                    />
                 ) : (
                     <PlaceholderIcon />
                 )}
@@ -98,12 +106,6 @@ const ImageWrapper = styled.div<{ hasImage: boolean }>`
   &:hover {
     background-color: ${colors.gray[200]};
   }
-`;
-
-const StyledImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 `;
 
 const RemoveButton = styled.button`

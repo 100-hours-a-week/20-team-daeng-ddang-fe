@@ -58,7 +58,9 @@ export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
                             src={walk.mapImageUrl}
                             alt="Path Map"
                             fill
+                            sizes="(max-width: 430px) 100vw, 430px"
                             style={{ objectFit: 'cover' }}
+                            priority
                         />
                     </MapImageWrapper>
                 )}
