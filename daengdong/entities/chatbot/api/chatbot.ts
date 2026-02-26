@@ -32,7 +32,8 @@ export const chatbotApi = {
     sendChatMessage: async (payload: ChatMessageRequest): Promise<ChatMessageResponse> => {
         const response = await http.post<ApiResponse<ChatMessageResponse>>(
             "/healthcares/chat",
-            payload
+            payload,
+            { timeout: 120000 }
         );
         return response.data.data;
     },
