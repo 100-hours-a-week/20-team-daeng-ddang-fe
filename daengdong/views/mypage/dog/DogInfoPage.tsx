@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useDogInfo } from '@/features/dog/model/useDogInfo';
 import { spacing } from '@/shared/styles/tokens';
 import { LoadingView } from '@/widgets/GlobalLoading';
+import MotionProvider from "@/shared/components/MotionProvider";
 
 export function DogInfoPage() {
     const router = useRouter();
@@ -22,17 +23,19 @@ export function DogInfoPage() {
     }
 
     return (
-        <Container>
-            <Header title="반려견 정보" showBackButton={true} onBack={() => router.back()} />
-            <Content>
-                <DogForm
-                    initialData={dogInfo ? transformDogInfoToForm(dogInfo) : undefined}
-                    initialImageUrl={dogInfo?.imageUrl ?? null}
-                    onSubmit={handleSave}
-                    isSubmitting={isSaving}
-                />
-            </Content>
-        </Container>
+        <MotionProvider>
+            <Container>
+                <Header title="반려견 정보" showBackButton={true} onBack={() => router.back()} />
+                <Content>
+                    <DogForm
+                        initialData={dogInfo ? transformDogInfoToForm(dogInfo) : undefined}
+                        initialImageUrl={dogInfo?.imageUrl ?? null}
+                        onSubmit={handleSave}
+                        isSubmitting={isSaving}
+                    />
+                </Content>
+            </Container>
+        </MotionProvider>
     );
 }
 
