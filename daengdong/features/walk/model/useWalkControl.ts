@@ -390,6 +390,7 @@ export const useWalkControl = () => {
                         message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
                         type: "error"
                     });
+                    useWalkStore.getState().setMyBlocks([]);
                 }
 
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
