@@ -255,6 +255,7 @@ const MemoText = styled.p`
     padding: ${spacing[2]}px;
     border-radius: ${radius.sm};
     border: 1px solid ${colors.gray[200]};
+    white-space: pre-wrap;
 `;
 
 const ExpressionCard = styled.div`
