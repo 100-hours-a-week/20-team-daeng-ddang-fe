@@ -6,9 +6,11 @@ export const useBlockSynchronization = (
     nearbyBlocks: BlockData[] | undefined,
     dogId: number | undefined
 ) => {
-    const { walkMode } = useWalkStore();
+    const { walkMode, isEnding } = useWalkStore();
 
     useEffect(() => {
+        if (isEnding) return;
+
         if (nearbyBlocks && dogId) {
             const myDogId = dogId;
             if (!myDogId) return;
@@ -44,5 +46,5 @@ export const useBlockSynchronization = (
                 setOthersBlocks(filteredOthersBlocks);
             }
         }
-    }, [nearbyBlocks, dogId, walkMode]);
+    }, [nearbyBlocks, dogId, walkMode, isEnding]);
 };

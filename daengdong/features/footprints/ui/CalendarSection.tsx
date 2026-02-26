@@ -88,7 +88,12 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
         <Container>
             <Header>
                 <NavButton onClick={handlePrevMonth}>&lt;</NavButton>
-                <Title onClick={() => setIsDatePickerOpen(true)}>{format(monthStartDate, "yyyy년 M월", { locale: ko })}</Title>
+                <Title onClick={() => setIsDatePickerOpen(true)}>
+                    {format(monthStartDate, "yyyy년 M월", { locale: ko })}
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </Title>
                 <NavButton onClick={handleNextMonth}>&gt;</NavButton>
             </Header>
             <WeekDaysRow>
@@ -133,10 +138,16 @@ const Title = styled.h2`
     display: flex;
     align-items: center;
     gap: 4px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
 
-    /* Add a subtle visual cue that it's clickable */
+    &:hover {
+        background-color: ${colors.gray[50]};
+    }
+
     &:active {
-        opacity: 0.7;
+        background-color: ${colors.gray[100]};
     }
 `;
 

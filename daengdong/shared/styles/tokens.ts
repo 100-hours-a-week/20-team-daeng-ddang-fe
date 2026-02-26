@@ -45,3 +45,12 @@ export const radius = {
 } as const;
 
 export const spacing = [2, 4, 8, 12, 16, 20, 24, 32, 40] as const;
+
+export const zIndex = {
+    header: 50,
+    bottomNav: 1000,
+    overlay: 1400,
+    modal: 1500,
+    toast: 2000,
+    max: 99999,
+} as const;

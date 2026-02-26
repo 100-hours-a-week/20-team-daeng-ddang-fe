@@ -64,7 +64,7 @@ const TextArea = styled.textarea`
   border-radius: ${radius.md};
   border: 1px solid ${colors.gray[200]};
   background-color: ${colors.gray[50]};
-  font-size: 14px;
+  font-size: 16px; 
   color: ${colors.gray[900]};
   resize: none;
   outline: none;
