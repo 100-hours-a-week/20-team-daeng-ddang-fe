@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Header } from "@/widgets/Header";
 import { HealthcareMainSection } from "@/features/healthcare/ui/HealthcareMainSection";
 import { VideoUploadSection } from "@/features/healthcare/ui/VideoUploadSection";
@@ -39,7 +40,10 @@ import {
     RetryButton,
     GuideBox,
     GuideText,
-    formatLevelToKorean
+    formatLevelToKorean,
+    FabWrapper,
+    TooltipBubble,
+    ChatFab
 } from "./_style";
 
 export const HealthcarePage = () => {
@@ -116,11 +120,9 @@ export const HealthcarePage = () => {
                         {displayResult.artifacts?.keypointOverlayVideoUrl ? (
                             <PreviewVideo
                                 src={displayResult.artifacts.keypointOverlayVideoUrl}
+                                preload="auto"
                                 controls
                                 playsInline
-                                autoPlay
-                                muted
-                                loop
                             />
                         ) : (
                             <PreviewImage src={mascotImage.src} alt="분석 결과" />
@@ -229,6 +231,15 @@ export const HealthcarePage = () => {
                         다시 검사하기
                     </RetryButton>
                 </ContentWrapper>
+
+                <FabWrapper>
+                    <TooltipBubble>
+                        궁금한 점이 있나요? 🐾
+                    </TooltipBubble>
+                    <ChatFab onClick={handleChat}>
+                        <Image src={mascotImage} alt="AI 챗봇" width={40} height={40} style={{ objectFit: 'contain' }} />
+                    </ChatFab>
+                </FabWrapper>
             </PageContainer>
         );
     }
