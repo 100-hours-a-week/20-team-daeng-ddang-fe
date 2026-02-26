@@ -4,6 +4,8 @@ import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import ChatbotImage from "@/shared/assets/images/chatbot.png";
 import { useChatbot, Message } from "@/features/chatbot/model/useChatbot";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export const ChatbotSection = () => {
     const {
@@ -124,7 +126,11 @@ const MessageBubble = memo(function MessageBubble({
                     <Image src={ChatbotImage} alt="bot" width={48} height={48} style={{ objectFit: 'contain' }} />
                 </Avatar>
                 <BubbleContent>
-                    <Text>{displayText}</Text>
+                    <MarkdownContainer>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {displayText}
+                        </ReactMarkdown>
+                    </MarkdownContainer>
                     {shouldTruncate && (
                         <ExpandButton onClick={() => setIsExpanded(!isExpanded)}>
                             {isExpanded ? (
@@ -279,6 +285,36 @@ const Text = styled.p<{ isUser?: boolean }>`
     white-space: pre-wrap;
     word-break: break-word;
     color: ${({ isUser }) => isUser ? 'white' : colors.gray[800]};
+`;
+
+const MarkdownContainer = styled.div`
+    color: ${colors.gray[800]};
+    font-size: 13px;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    
+    p {
+        margin: 0 0 8px 0;
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+    
+    strong {
+        font-weight: 700;
+        color: ${colors.gray[900]};
+    }
+    
+    ul, ol {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+    
+    li {
+        margin-bottom: 4px;
+    }
 `;
 
 const Disclaimer = styled.p`
