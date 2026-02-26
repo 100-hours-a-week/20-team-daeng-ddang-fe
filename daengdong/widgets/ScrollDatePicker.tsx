@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { m, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import { colors, spacing } from '@/shared/styles/tokens';
+import { colors, spacing, zIndex } from '@/shared/styles/tokens';
 import dayjs from 'dayjs';
 
 interface ScrollDatePickerProps {
@@ -161,7 +161,7 @@ const Backdrop = styled(m.div)`
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 100;
+    z-index: ${zIndex.overlay};
 `;
 
 const Sheet = styled(m.div)`
@@ -171,7 +171,7 @@ const Sheet = styled(m.div)`
     transform: translate(-50%, -50%) !important; 
     background: white;
     border-radius: 16px;
-    z-index: 101;
+    z-index: ${zIndex.modal};
     width: 90%;
     max-width: 320px;
     overflow: hidden;
