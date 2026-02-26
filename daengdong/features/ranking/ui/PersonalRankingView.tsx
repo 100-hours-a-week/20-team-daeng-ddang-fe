@@ -85,7 +85,7 @@ export const PersonalRankingView = () => {
                 />
             </ScrollContent>
 
-            <ScrollToTopButton scrollContainerRef={scrollContentRef} />
+            <ScrollToTopButton scrollContainerRef={scrollContentRef} hasMyRank={!!myRankInfo} />
 
             {myRankInfo && (
                 <FixedFooter>

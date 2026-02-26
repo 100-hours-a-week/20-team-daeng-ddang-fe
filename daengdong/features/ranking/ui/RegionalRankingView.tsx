@@ -79,7 +79,7 @@ export const RegionalRankingView = () => {
                 />
             </ScrollContent>
 
-            <ScrollToTopButton scrollContainerRef={scrollContentRef} />
+            <ScrollToTopButton scrollContainerRef={scrollContentRef} hasMyRank={!!userRankInfo} />
 
             {userRankInfo && (
                 <FixedFooter>

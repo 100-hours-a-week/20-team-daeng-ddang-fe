@@ -8,9 +8,10 @@ import MotionProvider from "@/shared/components/MotionProvider";
 
 interface ScrollToTopButtonProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+    hasMyRank?: boolean;
 }
 
-export const ScrollToTopButton = ({ scrollContainerRef }: ScrollToTopButtonProps) => {
+export const ScrollToTopButton = ({ scrollContainerRef, hasMyRank = true }: ScrollToTopButtonProps) => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -36,7 +37,7 @@ export const ScrollToTopButton = ({ scrollContainerRef }: ScrollToTopButtonProps
         scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     };
     return (
-        <Wrapper>
+        <Wrapper hasMyRank={hasMyRank}>
             <MotionProvider>
                 <AnimatePresence>
                     {isVisible && (
@@ -56,9 +57,9 @@ export const ScrollToTopButton = ({ scrollContainerRef }: ScrollToTopButtonProps
     );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ hasMyRank: boolean }>`
     position: fixed;
-    bottom: 135px;
+    bottom: ${({ hasMyRank }) => hasMyRank ? '135px' : '85px'};
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
