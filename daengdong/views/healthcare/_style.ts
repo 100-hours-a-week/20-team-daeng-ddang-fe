@@ -71,7 +71,7 @@ export const PreviewVideo = styled.video`
 
 export const RiskLevelBadge = styled.div<{ level: string }>`
   width: 100%;
-  max-width: 320px;
+  max-width: 400px;
   padding: ${spacing[3]}px ${spacing[4]}px;
   background: ${props => {
     const l = props.level?.toLowerCase();
@@ -102,7 +102,7 @@ export const RiskLevelBadge = styled.div<{ level: string }>`
 
 export const ResultBubble = styled.div`
   width: 100%;
-  max-width: 320px;
+  max-width: 400px;
   background: white;
   border: 1px solid ${colors.gray[200]};
   border-radius: 20px;
@@ -125,7 +125,7 @@ export const BubbleText = styled.p`
 
 export const DetailSection = styled.div`
   width: 100%;
-  max-width: 320px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: ${spacing[3]}px;
@@ -274,5 +274,79 @@ export const formatLevelToKorean = (level: string) => {
   };
   return map[l] || level.toUpperCase();
 };
+
+export const FabWrapper = styled.div`
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 1000;
+`;
+
+export const TooltipBubble = styled.div`
+  padding: 12px 16px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: 600;
+  color: ${colors.gray[900]};
+  white-space: nowrap;
+  animation: slideUp 0.3s ease-out;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid white;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+export const ChatFab = styled.button`
+  width: 64px;
+  height: 64px;
+  background: ${colors.primary[500]};
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+`;
 
 export default function Style() { return null; }
