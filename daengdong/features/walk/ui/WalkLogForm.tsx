@@ -1,35 +1,13 @@
 import styled from '@emotion/styled';
 import { colors, radius, spacing } from '@/shared/styles/tokens';
-import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useToastStore } from '@/shared/stores/useToastStore';
-import { useWriteWalkDiary } from '@/features/walk/model/useWalkMutations';
+import { useWalkLogForm } from '@/features/walk/model/useWalkLogForm';
 
-export const WalkLogForm = () => {
-  const [log, setLog] = useState('');
-  const MAX_LENGTH = 500;
-  const router = useRouter();
-  const { walkId } = useParams();
-  const { showToast } = useToastStore();
-  const { mutate: writeDiary } = useWriteWalkDiary();
+interface WalkLogFormProps {
+  hasAnalysis?: boolean;
+}
 
-  const handleSubmit = () => {
-    if (!walkId) return;
-
-    writeDiary(
-      { walkId: Number(walkId), memo: log },
-      {
-        onSuccess: () => {
-          showToast({
-            message: '산책일지가 작성되었습니다.',
-            type: 'success',
-            duration: 2000,
-          });
-          router.push('/walk');
-        },
-      }
-    );
-  };
+export const WalkLogForm = ({ hasAnalysis = false }: WalkLogFormProps) => {
+  const { log, setLog, isUploading, handleSubmit, MAX_LENGTH } = useWalkLogForm();
 
   return (
     <Container>
@@ -49,8 +27,13 @@ export const WalkLogForm = () => {
           {log.length}/{MAX_LENGTH}
         </CharCounter>
       </TextAreaWrapper>
-      <SubmitButton onClick={handleSubmit}>
-        기록 완료
+      {hasAnalysis && (
+        <AnalysisHint>
+          🐶 표정 분석 결과도 함께 저장됩니다
+        </AnalysisHint>
+      )}
+      <SubmitButton onClick={handleSubmit} disabled={isUploading}>
+        {isUploading ? '업로드 중...' : '기록 완료'}
       </SubmitButton>
     </Container>
   );
@@ -81,7 +64,7 @@ const TextArea = styled.textarea`
   border-radius: ${radius.md};
   border: 1px solid ${colors.gray[200]};
   background-color: ${colors.gray[50]};
-  font-size: 14px;
+  font-size: 16px; 
   color: ${colors.gray[900]};
   resize: none;
   outline: none;
@@ -125,3 +108,18 @@ const SubmitButton = styled.button`
     background-color: ${colors.primary[700]};
   }
 `;
+
+const AnalysisHint = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${colors.primary[600]};
+  background: ${colors.primary[50]};
+  border: 1px solid ${colors.primary[100]};
+  border-radius: ${radius.md};
+  padding: 10px ${spacing[3]}px;
+`;
+

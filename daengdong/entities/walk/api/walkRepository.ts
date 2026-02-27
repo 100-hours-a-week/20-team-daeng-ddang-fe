@@ -41,7 +41,10 @@ export const walkRepository: WalkRepository = {
         return data.data;
     },
     postWalkDiary: async (req) => {
-        const { data } = await http.post<WriteWalkDiaryResponse>(`/walks/${req.walkId}/diaries`, { memo: req.memo });
+        const { data } = await http.post<WriteWalkDiaryResponse>(`/walks/${req.walkId}/diaries`, {
+            memo: req.memo,
+            mapImageUrl: req.mapImageUrl
+        });
         return data;
     },
 };

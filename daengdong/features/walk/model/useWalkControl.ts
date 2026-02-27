@@ -11,10 +11,12 @@ import fileApi from "@/shared/api/file";
 import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { WalkWebSocketClient } from "@/shared/lib/websocket/WalkWebSocketClient";
 import { IWalkWebSocketClient, ServerMessage } from "@/shared/lib/websocket/types";
-
-
 import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
+import { resolveS3Url } from '@/shared/utils/resolveS3Url';
+import { missionApi } from "@/entities/mission/api/mission";
+import { useMissionStore } from "@/entities/mission/model/missionStore";
+import { useAuthStore } from "@/entities/session/model/store";
 
 export const useWalkControl = () => {
     const {
@@ -26,7 +28,6 @@ export const useWalkControl = () => {
         startWalk,
         endWalk,
         reset,
-        myBlocks,
         setWalkResult,
         setMyBlocks,
         setOthersBlocks,
@@ -213,7 +214,21 @@ export const useWalkControl = () => {
     }, [handleWebSocketMessage]);
 
     const handleStart = async () => {
-        // 데이터 로딩 중에는 아무 작업도 하지 않음
+        const isLoggedIn = useAuthStore.getState().isLoggedIn;
+        if (!isLoggedIn) {
+            openModal({
+                title: "로그인이 필요해요!",
+                message: "산책 기록을 위해서는 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
+                type: "confirm",
+                confirmText: "로그인하기",
+                cancelText: "취소",
+                onConfirm: () => {
+                    router.push("/login");
+                },
+            });
+            return;
+        }
+
         if (isDogLoading) {
             console.log('[산책 시작] 반려견 정보 로딩 중...');
             return;
@@ -375,6 +390,7 @@ export const useWalkControl = () => {
                         message: "비정상적인 이동 속도가 감지되어 이동 거리가 0으로 저장됩니다.",
                         type: "error"
                     });
+                    useWalkStore.getState().setMyBlocks([]);
                 }
 
                 showLoading("산책을 종료하고 스냅샷을 저장 중입니다...");
@@ -428,11 +444,17 @@ export const useWalkControl = () => {
                                 reader.onloadend = () => resolve(reader.result as string);
                                 reader.readAsDataURL(blob);
                             });
+                            console.log('Snapshot generated:', base64Url.substring(0, 50) + '...');
                             storedImageUrl = base64Url;
 
                             try {
-                                const { presignedUrl } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
+                                const { presignedUrl, objectKey } = await fileApi.getPresignedUrl("IMAGE", "image/png", "WALK");
                                 await fileApi.uploadFile(presignedUrl, blob, "image/png");
+
+                                const s3Url = resolveS3Url(objectKey);
+                                if (s3Url) {
+                                    storedImageUrl = s3Url;
+                                }
                             } catch (e) {
                                 console.error("[Snapshot] S3 업로드 실패:", e);
                             }
@@ -455,16 +477,28 @@ export const useWalkControl = () => {
                         isValidated: isAbnormal,
                     },
                     {
-                        onSuccess: (response) => {
+                        onSuccess: async (response) => {
                             wsClientRef.current?.disconnect();
                             setWalkResult({
                                 time: elapsedTime,
                                 distance: finalDistance,
                                 imageUrl: storedImageUrl,
-                                // 서버에서 반환하는 이번 산책의 점유 블록 수 사용
                                 blockCount: isAbnormal ? 0 : response.occupiedBlockCount,
                             });
                             hideLoading();
+
+                            // 미션이 있는 경우 분석 Task 생성
+                            const { completedMissionIds } = useMissionStore.getState();
+                            let missionTaskId: string | null = null;
+                            if (completedMissionIds.length > 0) {
+                                try {
+                                    const task = await missionApi.createMissionTask(walkId);
+                                    missionTaskId = task.taskId;
+                                } catch (e) {
+                                    console.error("[미션 Task] 생성 실패:", e);
+                                }
+                            }
+
                             openModal({
                                 title: "반려견 표정 분석",
                                 message: "산책 종료 시 반려견 표정 분석을 진행할까요?",
@@ -472,11 +506,13 @@ export const useWalkControl = () => {
                                 confirmText: "분석하기",
                                 cancelText: "건너뛰기",
                                 onConfirm: () => {
-                                    router.push(`/walk/expression?walkId=${walkId}`);
+                                    router.push(`/walk/expression?walkId=${walkId}${missionTaskId ? `&missionTaskId=${missionTaskId}` : ''}`);
                                     endWalk();
                                 },
                                 onCancel: () => {
-                                    router.push(`/walk/complete/${walkId}`);
+                                    const params = new URLSearchParams();
+                                    if (missionTaskId) params.set('missionTaskId', missionTaskId);
+                                    router.push(`/walk/complete/${walkId}${params.size > 0 ? `?${params}` : ''}`);
                                     endWalk();
                                 },
                             });

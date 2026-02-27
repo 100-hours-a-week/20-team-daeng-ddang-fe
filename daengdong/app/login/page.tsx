@@ -1,7 +1,7 @@
 "use client";
 
-import { LoginScreen } from './ui/LoginScreen';
+import { LoginPage } from '../../views/login/LoginPage';
 
-export default function LoginPage() {
-  return <LoginScreen />;
+export default function Page() {
+  return <LoginPage />;
 }

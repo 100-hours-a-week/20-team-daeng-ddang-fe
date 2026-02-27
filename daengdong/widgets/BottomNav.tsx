@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { colors } from "@/shared/styles/tokens";
+import { colors, zIndex } from "@/shared/styles/tokens";
 
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 import ScanHeartIcon from "@/shared/assets/icons/scan-heart.svg";
@@ -83,7 +83,7 @@ const NavContainer = styled.nav`
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
-  z-index: 1000;
+  z-index: ${zIndex.bottomNav};
   display: flex;
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);

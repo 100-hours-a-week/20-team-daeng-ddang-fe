@@ -1,5 +1,5 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+import { RankingPage } from "@/views/ranking/RankingPage";
 
-export default function RankingPage() {
-    return <UnderConstruction />;
+export default function Page() {
+    return <RankingPage />;
 }

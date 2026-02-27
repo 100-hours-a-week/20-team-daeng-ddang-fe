@@ -1,5 +1,9 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+"use client";
 
-export default function HealthcarePage() {
-    return <UnderConstruction />;
+import { HealthcarePage } from "@/views/healthcare/HealthcarePage";
+
+export default function Page() {
+    return (
+        <HealthcarePage />
+    );
 }

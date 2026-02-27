@@ -8,7 +8,7 @@ import { useEffect, useCallback } from 'react';
 export const useKakaoLogin = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const code = searchParams.get('code');
+    const code = searchParams?.get('code');
     const setLoggedIn = useAuthStore((state) => state.setLoggedIn);
 
     const loginMutation = useMutation({

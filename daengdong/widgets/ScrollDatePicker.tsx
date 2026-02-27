@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
-import { colors, radius, spacing } from '@/shared/styles/tokens';
+import { colors, spacing, zIndex } from '@/shared/styles/tokens';
 import dayjs from 'dayjs';
 
 interface ScrollDatePickerProps {
@@ -9,9 +9,10 @@ interface ScrollDatePickerProps {
     onClose: () => void;
     onConfirm: (date: string) => void;
     initialDate?: string;
+    mode?: 'date' | 'yearMonth';
 }
 
-export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: ScrollDatePickerProps) {
+export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate, mode = 'date' }: ScrollDatePickerProps) {
     const today = dayjs();
     const [selectedYear, setSelectedYear] = useState(initialDate ? dayjs(initialDate).year() : today.year());
     const [selectedMonth, setSelectedMonth] = useState(initialDate ? dayjs(initialDate).month() + 1 : today.month() + 1);
@@ -23,7 +24,6 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     const getDaysInMonth = (year: number, month: number) => dayjs(`${year}-${month}-01`).daysInMonth();
     const maxDaysInMonth = getDaysInMonth(selectedYear, selectedMonth);
 
-    // Use derived state instead of effect to validate day
     const validatedDay = Math.min(selectedDay, maxDaysInMonth);
 
     const days = Array.from({ length: maxDaysInMonth }, (_, i) => i + 1);
@@ -43,7 +43,12 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
     }, [isOpen]);
 
     const handleConfirm = () => {
-        const dateStr = dayjs(`${selectedYear}-${selectedMonth}-${validatedDay}`).format('YYYY-MM-DD');
+        let dateStr;
+        if (mode === 'yearMonth') {
+            dateStr = dayjs(`${selectedYear}-${selectedMonth}-01`).format('YYYY-MM-DD');
+        } else {
+            dateStr = dayjs(`${selectedYear}-${selectedMonth}-${validatedDay}`).format('YYYY-MM-DD');
+        }
         onConfirm(dateStr);
         onClose();
     };
@@ -59,14 +64,14 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
                         onClick={onClose}
                     />
                     <Sheet
-                        initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
-                        exit={{ y: '100%' }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                     >
                         <Header>
                             <CancelButton type="button" onClick={onClose}>취소</CancelButton>
-                            <Title>생년월일 선택</Title>
+                            <Title>{mode === 'yearMonth' ? '캘린더 월 선택' : '생년월일 선택'}</Title>
                             <ConfirmButton type="button" onClick={handleConfirm}>확인</ConfirmButton>
                         </Header>
 
@@ -85,12 +90,14 @@ export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate }: Sc
                                 onSelect={setSelectedMonth}
                                 label="월"
                             />
-                            <WheelColumn
-                                items={days}
-                                selectedValue={validatedDay}
-                                onSelect={setSelectedDay}
-                                label="일"
-                            />
+                            {mode === 'date' && (
+                                <WheelColumn
+                                    items={days}
+                                    selectedValue={validatedDay}
+                                    onSelect={setSelectedDay}
+                                    label="일"
+                                />
+                            )}
                         </PickerContainer>
                     </Sheet>
                 </>
@@ -147,28 +154,28 @@ function WheelColumn({ items, selectedValue, onSelect, label }: WheelColumnProps
     );
 }
 
-const Backdrop = styled(motion.div)`
+const Backdrop = styled(m.div)`
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 100;
+    z-index: ${zIndex.overlay};
 `;
 
-const Sheet = styled(motion.div)`
+const Sheet = styled(m.div)`
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) !important; 
     background: white;
-    border-top-left-radius: ${radius.lg};
-    border-top-right-radius: ${radius.lg};
-    z-index: 101;
-    padding-bottom: env(safe-area-inset-bottom);
-    max-width: 600px;
-    margin: 0 auto;
+    border-radius: 16px;
+    z-index: ${zIndex.modal};
+    width: 90%;
+    max-width: 320px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 `;
 
 const Header = styled.div`

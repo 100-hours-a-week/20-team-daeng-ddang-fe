@@ -4,6 +4,11 @@ const DEFAULT_S3_BASE_URL =
 
 export const resolveS3Url = (url?: string | null): string | undefined => {
     if (!url) return undefined;
+
+    if (url.includes("cdn.example.com")) {
+        return undefined;
+    }
+
     if (url.startsWith("http://") || url.startsWith("https://")) {
         return url;
     }

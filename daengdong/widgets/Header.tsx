@@ -7,9 +7,10 @@ interface HeaderProps {
   title: string;
   showBackButton: boolean;
   onBack?: () => void;
+  isSticky?: boolean;
 }
 
-export function Header({ title, showBackButton, onBack }: HeaderProps) {
+export function Header({ title, showBackButton, onBack, isSticky = true }: HeaderProps) {
   const router = useRouter();
 
   const handleBackClick = () => {
@@ -21,7 +22,7 @@ export function Header({ title, showBackButton, onBack }: HeaderProps) {
   };
 
   return (
-    <Container>
+    <Container isSticky={isSticky}>
       <LeftSection>
         {showBackButton && (
           <BackButton onClick={handleBackClick} aria-label="Go back">
@@ -37,15 +38,16 @@ export function Header({ title, showBackButton, onBack }: HeaderProps) {
   );
 }
 
-const Container = styled.header`
+const Container = styled.header<{ isSticky?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 56px;
+  flex-shrink: 0;
   padding: 0 16px;
   background-color: white;
   border-bottom: 1px solid #f0f0f0;
-  position: sticky;
+  position: ${({ isSticky }) => (isSticky ? 'sticky' : 'relative')};
   top: 0;
   z-index: 50;
 `;
