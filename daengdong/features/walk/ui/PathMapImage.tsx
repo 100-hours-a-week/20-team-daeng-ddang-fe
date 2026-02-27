@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { radius } from '@/shared/styles/tokens';
 import { useWalkStore } from '@/entities/walk/model/walkStore';
+import Image from 'next/image';
 
 export const PathMapImage = ({ className }: { className?: string }) => {
   const { walkResult } = useWalkStore();
@@ -9,15 +10,23 @@ export const PathMapImage = ({ className }: { className?: string }) => {
   return (
     <Container className={className} hasImage={!!imageUrl}>
       {imageUrl ? (
-        <MapImage src={imageUrl} alt="산책 경로 스냅샷" />
+        <Image
+          src={imageUrl}
+          alt="산책 경로 스냅샷"
+          fill
+          sizes="(max-width: 430px) 100vw, 430px"
+          style={{ objectFit: 'cover' }}
+          priority
+        />
       ) : (
-        <PlaceholderText>Map Snapshot Area</PlaceholderText>
+        <PlaceholderText>산책 경로 이미지를 불러오지 못했어요</PlaceholderText>
       )}
     </Container>
   );
 };
 
 const Container = styled.div<{ hasImage: boolean }>`
+  position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   background-color: #e0e0e0;
@@ -27,12 +36,6 @@ const Container = styled.div<{ hasImage: boolean }>`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-`;
-
-const MapImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 `;
 
 const PlaceholderText = styled.span`

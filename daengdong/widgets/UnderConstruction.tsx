@@ -5,7 +5,12 @@ import Image from "next/image";
 import ConstructionImage from "@/shared/assets/images/construction.png";
 import { colors } from "@/shared/styles/tokens";
 
-export const UnderConstruction = () => {
+interface UnderConstructionProps {
+    title?: string;
+    message?: string;
+}
+
+export const UnderConstruction = ({ title, message }: UnderConstructionProps) => {
     return (
         <Container>
             <ImageWrapper>
@@ -18,12 +23,20 @@ export const UnderConstruction = () => {
                 />
             </ImageWrapper>
             <Message>
-                앗! 지금은<br />
-                <Highlight>서비스 준비 중</Highlight>이에요
+                {title ? title : (
+                    <>
+                        앗! 지금은<br />
+                        <Highlight>서비스 준비 중</Highlight>이에요
+                    </>
+                )}
             </Message>
             <SubMessage>
-                더 좋은 서비스를 위해 열심히 준비하고 있어요.<br />
-                조금만 기다려주세요! 🚧
+                {message ? message : (
+                    <>
+                        더 좋은 서비스를 위해 열심히 준비하고 있어요.<br />
+                        조금만 기다려주세요! 🚧
+                    </>
+                )}
             </SubMessage>
         </Container>
     );
@@ -34,7 +47,7 @@ const Container = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100svh;
     padding: 20px;
     background-color: #fff;
     padding-bottom: 80px; /* BottomNav space */

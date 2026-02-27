@@ -16,7 +16,7 @@ import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { OnboardingOverlay } from "./OnboardingOverlay";
 import { NaverMap } from "@/types/naver-maps";
 import HelpIcon from "@/shared/assets/icons/help.svg";
-import { useOnboarding } from "@/features/walk/model/useOnboarding";
+import { useOnboarding } from "@/shared/hooks/useOnboarding";
 
 const MAP_CONFIG = {
     DEFAULT_CENTER: { lat: 37.5665, lng: 126.9780 },

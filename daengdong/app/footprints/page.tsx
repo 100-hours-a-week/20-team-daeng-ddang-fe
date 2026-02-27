@@ -1,5 +1,5 @@
-import { UnderConstruction } from "@/widgets/UnderConstruction";
+import { FootprintsPage } from "@/views/footprints/FootprintsPage";
 
-export default function FootprintsPage() {
-    return <UnderConstruction />;
+export default function Page() {
+    return <FootprintsPage />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { UserInfoScreen } from './UserInfoScreen';
+import { UserInfoPage } from '@/views/mypage/user/UserInfoPage';
 
-export default function UserInfoPage() {
-    return <UserInfoScreen />;
+export default function Page() {
+    return <UserInfoPage />;
 }

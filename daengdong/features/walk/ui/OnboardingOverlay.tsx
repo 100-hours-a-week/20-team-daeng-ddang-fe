@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { keyframes } from "@emotion/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
+import MotionProvider from "@/shared/components/MotionProvider";
 
 interface OnboardingOverlayProps {
     onClose: () => void;
@@ -9,53 +10,55 @@ interface OnboardingOverlayProps {
 
 export const OnboardingOverlay = ({ onClose }: OnboardingOverlayProps) => {
     return (
-        <Overlay>
-            <Content
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-            >
-                <Title>산책 가이드</Title>
+        <MotionProvider>
+            <Overlay>
+                <Content
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <Title>산책 가이드</Title>
 
-                <RuleList>
-                    <RuleItem>
-                        <IconWrapper>📍</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>내 땅 만들기</RuleTitle>
-                            <RuleDesc>지도에서 같은 위치에 <Highlight>5초 이상</Highlight> 머무르면 내 땅이 됩니다.</RuleDesc>
-                        </TextWrapper>
-                    </RuleItem>
+                    <RuleList>
+                        <RuleItem>
+                            <IconWrapper>📍</IconWrapper>
+                            <TextWrapper>
+                                <RuleTitle>내 땅 만들기</RuleTitle>
+                                <RuleDesc>지도에서 같은 위치에 <Highlight>5초 이상</Highlight> 머무르면 내 땅이 됩니다.</RuleDesc>
+                            </TextWrapper>
+                        </RuleItem>
 
-                    <RuleItem>
-                        <IconWrapper>⚔️</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>땅 뺏기</RuleTitle>
-                            <RuleDesc>다른 강아지의 땅도 <Highlight>5초 이상</Highlight> 머무르면 뺏어올 수 있어요.</RuleDesc>
-                        </TextWrapper>
-                    </RuleItem>
+                        <RuleItem>
+                            <IconWrapper>⚔️</IconWrapper>
+                            <TextWrapper>
+                                <RuleTitle>땅 뺏기</RuleTitle>
+                                <RuleDesc>다른 강아지의 땅도 <Highlight>5초 이상</Highlight> 머무르면 뺏어올 수 있어요.</RuleDesc>
+                            </TextWrapper>
+                        </RuleItem>
 
-                    <RuleItem>
-                        <IconWrapper>📸</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>돌발 미션</RuleTitle>
-                            <RuleDesc>산책 중 나타나는 돌발 미션을 수행하며 산책에 재미를 더해보세요!</RuleDesc>
-                        </TextWrapper>
-                    </RuleItem>
+                        <RuleItem>
+                            <IconWrapper>📸</IconWrapper>
+                            <TextWrapper>
+                                <RuleTitle>돌발 미션</RuleTitle>
+                                <RuleDesc>산책 중 나타나는 돌발 미션을 수행하며 산책에 재미를 더해보세요!</RuleDesc>
+                            </TextWrapper>
+                        </RuleItem>
 
-                    <RuleItem>
-                        <IconWrapper>🐶</IconWrapper>
-                        <TextWrapper>
-                            <RuleTitle>감정 분석</RuleTitle>
-                            <RuleDesc>산책이 끝난 뒤, 강아지의 표정으로 감정을 살펴볼 수 있어요.</RuleDesc>
-                        </TextWrapper>
-                    </RuleItem>
-                </RuleList>
+                        <RuleItem>
+                            <IconWrapper>🐶</IconWrapper>
+                            <TextWrapper>
+                                <RuleTitle>감정 분석</RuleTitle>
+                                <RuleDesc>산책이 끝난 뒤, 강아지의 표정으로 감정을 살펴볼 수 있어요.</RuleDesc>
+                            </TextWrapper>
+                        </RuleItem>
+                    </RuleList>
 
-                <CloseButton onClick={onClose}>
-                    알겠어요!
-                </CloseButton>
-            </Content>
-        </Overlay>
+                    <CloseButton onClick={onClose}>
+                        알겠어요!
+                    </CloseButton>
+                </Content>
+            </Overlay>
+        </MotionProvider>
     );
 };
 
@@ -81,7 +84,7 @@ const Overlay = styled.div`
     animation: ${fadeIn} 0.3s ease-out;
 `;
 
-const Content = styled(motion.div)`
+const Content = styled(m.div)`
     background: white;
     width: 100%;
     max-width: 320px;
