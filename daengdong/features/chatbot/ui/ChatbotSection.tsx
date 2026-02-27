@@ -23,6 +23,7 @@ export const ChatbotSection = () => {
         textareaRef,
         fileInputRef,
         scrollToBottom,
+        handleScroll,
         handleSendMessage,
         handleFollowupClick,
         handleImageSelect,
@@ -34,7 +35,7 @@ export const ChatbotSection = () => {
             <NoticeBar>
                 ⚠️ 채팅 기록은 저장되지 않으며, 화면을 나가면 사라집니다.
             </NoticeBar>
-            <ChatList ref={scrollRef}>
+            <ChatList ref={scrollRef} onScroll={handleScroll}>
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} onFollowupClick={handleFollowupClick} />
                 ))}

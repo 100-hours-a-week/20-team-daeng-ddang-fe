@@ -179,6 +179,17 @@ export const useChatbot = () => {
         setHasNewMessage(false);
     }, []);
 
+    const handleScroll = useCallback(() => {
+        if (!scrollRef.current) return;
+
+        const el = scrollRef.current;
+        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+
+        if (isNearBottom && hasNewMessage) {
+            setHasNewMessage(false);
+        }
+    }, [hasNewMessage]);
+
     const handleFollowupClick = useCallback((question: string) => {
         setInputText(question);
         textareaRef.current?.focus();
@@ -216,6 +227,7 @@ export const useChatbot = () => {
         fileInputRef,
 
         scrollToBottom,
+        handleScroll,
         handleSendMessage,
         handleFollowupClick,
         handleImageSelect,
