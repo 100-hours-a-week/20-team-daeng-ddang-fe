@@ -8,13 +8,28 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   output: "standalone",
   webpack(config) {
+    const assetRule = config.module.rules.find(
+      (rule: unknown) =>
+        typeof rule === 'object' &&
+        rule !== null &&
+        'test' in rule &&
+        (rule as { test?: unknown }).test instanceof RegExp &&
+        (rule as { test: RegExp }).test.test('.svg')
+    ) as { exclude?: RegExp } | undefined;
+
+    if (assetRule) {
+      assetRule.exclude = /\.svg$/;
+    }
+
     config.module.rules.push({
       test: /\.svg$/,
       issuer: /\.[jt]sx?$/,
       use: ['@svgr/webpack'],
     });
+
     return config;
   },
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "via.placeholder.com" },
