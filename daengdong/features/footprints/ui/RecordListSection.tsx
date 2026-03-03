@@ -11,8 +11,8 @@ import MedicalCrossIcon from "@/shared/assets/icons/medical-cross.svg";
 import WalkIcon from "@/shared/assets/icons/paw-print.svg";
 
 
+import { useRef, useState, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef, useEffect, useState } from 'react';
 
 interface RecordListSectionProps {
     selectedDate: string;
@@ -77,7 +77,7 @@ export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainer
                                     top: 0,
                                     left: 0,
                                     width: '100%',
-                                    transform: `translateY(${virtualRow.start}px)`,
+                                    transform: `translateY(${virtualRow.start - listOffset}px)`,
                                 }}
                             >
                                 <RecordItem onClick={() => onRecordClick(record)}>
