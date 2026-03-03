@@ -2,11 +2,11 @@ name: FE CI/CD
 
 on:
   pull_request:
-    branches: ["main", "dev"]
+    branches: ["main"]
     paths-ignore:
       - ".github/workflows/rollback.yml"
   push:
-    branches: ["main", "dev"]
+    branches: ["main"]
     paths-ignore:
       - ".github/workflows/rollback.yml"
   workflow_dispatch: {}
