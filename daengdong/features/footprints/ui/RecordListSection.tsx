@@ -51,8 +51,8 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
                         <RecordItem key={`${record.type}-${record.id}`} onClick={() => onRecordClick(record)}>
                             <IconWrapper $type={record.type}>
                                 {record.type === 'WALK'
-                                    ? <Image src={WalkIcon.src} alt="산책" width={20} height={20} />
-                                    : <Image src={MedicalCrossIcon.src} alt="헬스케어" width={20} height={20} style={{ filter: 'invert(1)' }} />
+                                    ? <WalkIcon width={20} height={20} />
+                                    : <MedicalCrossIcon width={25} height={25} />
                                 }
                             </IconWrapper>
                             <Info>
@@ -124,6 +124,7 @@ const IconWrapper = styled.div<{ $type: 'WALK' | 'HEALTH' }>`
     justify-content: center;
     font-size: 20px;
     margin-right: ${spacing[3]}px;
+    color: white;
 `;
 
 const Info = styled.div`

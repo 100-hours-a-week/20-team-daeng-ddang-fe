@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "@emotion/styled";
-import { colors, zIndex } from "@/shared/styles/tokens";
+import { colors } from "@/shared/styles/tokens";
 
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 import ScanHeartIcon from "@/shared/assets/icons/scan-heart.svg";
@@ -17,34 +17,34 @@ interface BottomNavProps {
 interface NavItem {
     path: string;
     label: string;
-    iconFn: string;
+    IconComponent: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const NAV_ITEMS: NavItem[] = [
     {
         label: "발자국",
         path: "/footprints",
-        iconFn: PawPrintIcon.src,
+        IconComponent: PawPrintIcon,
     },
     {
         label: "헬스케어",
         path: "/healthcare",
-        iconFn: ScanHeartIcon.src,
+        IconComponent: ScanHeartIcon,
     },
     {
         label: "산책하기",
         path: "/walk",
-        iconFn: DogIcon.src,
+        IconComponent: DogIcon,
     },
     {
         label: "랭킹",
         path: "/ranking",
-        iconFn: TrophyIcon.src,
+        IconComponent: TrophyIcon,
     },
     {
         label: "마이페이지",
         path: "/mypage",
-        iconFn: CircleUserIcon.src,
+        IconComponent: CircleUserIcon,
     },
 ];
 
@@ -61,7 +61,7 @@ export function BottomNav({ currentPath, onNavigate }: BottomNavProps) {
                             isActive={isActive}
                         >
                             <IconWrapper isActive={isActive}>
-                                <MaskedIcon src={item.iconFn} />
+                                <item.IconComponent width={24} height={24} />
                             </IconWrapper>
                             <Label isActive={isActive}>{item.label}</Label>
                         </NavItemContainer>
@@ -83,7 +83,7 @@ const NavContainer = styled.nav`
   height: 60px;
   background-color: white;
   border-top: 1px solid ${colors.gray[200]};
-  z-index: ${zIndex.bottomNav};
+  z-index: 1000;
   display: flex;
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
@@ -122,19 +122,7 @@ const IconWrapper = styled.div<{ isActive: boolean }>`
   justify-content: center;
 `;
 
-const MaskedIcon = styled.div<{ src: string }>`
-  width: 100%;
-  height: 100%;
-  background-color: currentColor;
-  mask-image: url(${({ src }) => src});
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  -webkit-mask-image: url(${({ src }) => src});
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
-`;
+
 
 const Label = styled.span<{ isActive: boolean }>`
   font-size: 10px;

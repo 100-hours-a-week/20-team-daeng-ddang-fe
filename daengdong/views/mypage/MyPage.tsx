@@ -10,7 +10,6 @@ import { useModalStore } from '@/shared/stores/useModalStore';
 import { useMyPageSummaryQuery } from '@/features/mypage/api/useMyPageSummaryQuery';
 import { spacing } from '@/shared/styles/tokens';
 import { m } from 'framer-motion';
-import Image from 'next/image';
 import PawPrintIcon from '@/shared/assets/icons/paw-print.svg';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useWalkStore } from '@/entities/walk/model/walkStore';
@@ -167,12 +166,10 @@ export const MyPage = () => {
                                     times: [0, 0.2, 0.8]
                                 }}
                             >
-                                <Image
-                                    src={PawPrintIcon}
-                                    alt="Loading"
+                                <PawPrintIcon
                                     width={32}
                                     height={32}
-                                    style={{ width: "100%", height: "100%" }}
+                                    style={{ width: "100%", height: "100%", color: "white" }}
                                 />
                             </PawWrapper>
                         ))}

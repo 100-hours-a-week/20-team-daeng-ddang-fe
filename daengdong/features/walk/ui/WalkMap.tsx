@@ -10,7 +10,7 @@ import { PathOverlay } from "./PathOverlay";
 import { MyBlocksOverlay } from "./MyBlocksOverlay";
 import { OthersBlocksOverlay } from "./OthersBlocksOverlay";
 import { CurrentLocationMarker } from "./CurrentLocationMarker";
-import Image from "next/image";
+
 import TargetIcon from "@/shared/assets/icons/target.svg";
 import { BlockData, LatLng } from "@/entities/walk/model/types";
 import { OnboardingOverlay } from "./OnboardingOverlay";
@@ -123,11 +123,11 @@ export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], pat
 
             <RecenterButtonWrapper>
                 <HelpButton onClick={openOnboarding}>
-                    <Image src={HelpIcon} alt="도움말" width={24} height={24} />
+                    <HelpIcon width={24} height={24} />
                 </HelpButton>
 
                 <PrimaryRecenterButton onClick={recenterToCurrentLocation}>
-                    <Image src={TargetIcon} alt="현재 위치" width={24} height={24} />
+                    <TargetIcon width={24} height={24} />
                 </PrimaryRecenterButton>
             </RecenterButtonWrapper>
 
@@ -195,7 +195,7 @@ const RecenterButton = styled.button`
 `;
 
 const PrimaryRecenterButton = styled(RecenterButton)`
-  img {
+  svg {
     filter: brightness(0) saturate(100%)
       invert(45%) sepia(98%) saturate(1234%)
       hue-rotate(340deg) brightness(98%) contrast(95%);
@@ -203,7 +203,7 @@ const PrimaryRecenterButton = styled(RecenterButton)`
 `;
 
 const HelpButton = styled(RecenterButton)`
-  img {
+  svg {
     filter: grayscale(100%) brightness(70%);
   }
 `;

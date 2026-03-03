@@ -19,7 +19,7 @@ export const HealthcareMainSection = ({ onUpload, onRecord, onChat, onHelp }: He
         <Title>AI 보행 분석</Title>
         {onHelp && (
           <HelpButton onClick={onHelp}>
-            <Image src={HelpIcon} alt="도움말" width={20} height={20} />
+            <HelpIcon width={20} height={20} />
           </HelpButton>
         )}
       </TitleSection>

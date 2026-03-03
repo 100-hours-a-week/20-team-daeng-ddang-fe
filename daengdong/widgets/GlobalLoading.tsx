@@ -3,7 +3,7 @@
 import styled from "@emotion/styled";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import { useEffect } from "react";
-import Image from "next/image";
+
 import PawPrintIcon from "@/shared/assets/icons/paw-print.svg";
 
 export function LoadingView({ message }: { message?: string }) {
@@ -19,13 +19,7 @@ export function LoadingView({ message }: { message?: string }) {
               key={index}
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <Image
-                src={PawPrintIcon}
-                alt="Loading paw"
-                width={32}
-                height={32}
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
+              <PawPrintIcon width={32} height={32} />
             </PawWrapper>
           ))}
         </PawContainer>
@@ -92,6 +86,8 @@ const PawWrapper = styled.div`
   opacity: 0.3;
   transform: scale(0.8);
   animation: pulse 1.5s infinite ease-in-out;
+  color: white;
+
 
   @keyframes pulse {
     0%, 100% {
