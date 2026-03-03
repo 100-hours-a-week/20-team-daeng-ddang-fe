@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 
 const ALLOWED_HOSTS = [
-    "cdn.myapp.com",
-    "images.unsplash.com",
-    "your-bucket.s3.amazonaws.com",
+    "daeng-map.s3.ap-northeast-2.amazonaws.com",
+    "k.kakaocdn.net",
+    "via.placeholder.com",
+    "placedog.net",
 ];
 
 const MAX_WIDTH = 2000;

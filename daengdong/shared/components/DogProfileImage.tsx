@@ -20,14 +20,17 @@ export const DogProfileImage = ({ src, alt, size, priority = false }: DogProfile
         return <DefaultDogImage size={size} />;
     }
 
+    const optimizedSrc = `/api/image?url=${encodeURIComponent(resolvedUrl)}&w=${size * 2}&q=40`;
+
     return (
         <Image
-            src={resolvedUrl}
+            src={optimizedSrc}
             alt={alt}
             width={size}
             height={size}
             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             priority={priority}
+            unoptimized
             onError={() => setIsError(true)}
         />
     );
