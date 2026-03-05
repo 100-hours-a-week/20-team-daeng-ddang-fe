@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { RegionRankingItem, PeriodType } from "@/entities/ranking/model/types";
 import { RegionRankRow } from "./RegionRankRow";
-import { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { spacing } from "@/shared/styles/tokens";
 
 interface RegionRankingListProps {
@@ -13,7 +13,11 @@ interface RegionRankingListProps {
     periodType: PeriodType;
     periodValue: string;
     userRegionId?: number;
+    isFetchingNextPage: boolean;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }
+
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const RegionRankingList = ({
     ranks,
@@ -23,59 +27,78 @@ export const RegionRankingList = ({
     hasMore,
     periodType,
     periodValue,
-    userRegionId
+    userRegionId,
+    isFetchingNextPage,
+    scrollContainerRef
 }: RegionRankingListProps) => {
-    const observerRef = useRef<IntersectionObserver | null>(null);
-    const loadMoreRef = useRef<HTMLDivElement>(null);
+    const virtualizer = useVirtualizer({
+        count: ranks.length,
+        getScrollElement: () => scrollContainerRef.current,
+        estimateSize: () => 64,
+        overscan: 5,
+    });
+
+    // expandedRegionId 변경 시 크기 재계산
+    useEffect(() => {
+        virtualizer.measure();
+    }, [expandedRegionId, virtualizer]);
+
+    const virtualItems = virtualizer.getVirtualItems();
 
     useEffect(() => {
-        if (observerRef.current) observerRef.current.disconnect();
+        if (!virtualItems.length) return;
 
-        observerRef.current = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting && hasMore) {
-                onLoadMore();
-            }
-        });
-
-        if (loadMoreRef.current) {
-            observerRef.current.observe(loadMoreRef.current);
+        const lastVirtualItem = virtualItems[virtualItems.length - 1];
+        if (
+            lastVirtualItem.index >= ranks.length - 1 &&
+            hasMore &&
+            !isFetchingNextPage
+        ) {
+            onLoadMore();
         }
-
-        return () => observerRef.current?.disconnect();
-    }, [hasMore, onLoadMore]);
+    }, [virtualItems, ranks.length, hasMore, isFetchingNextPage, onLoadMore]);
 
     return (
-        <ListContainer>
-            {ranks.map((item) => {
+        <ListContainer style={{ height: `${virtualizer.getTotalSize()}px` }}>
+            {virtualItems.map((virtualRow) => {
+                const item = ranks[virtualRow.index];
+                if (!item) return null;
                 const isMy = userRegionId === item.regionId;
                 return (
-                    <RegionRankRow
-                        key={`region-${item.regionId}`}
-                        item={item}
-                        isExpanded={expandedRegionId === item.regionId}
-                        onToggle={() => onToggleRegion(item.regionId)}
-                        periodType={periodType}
-                        periodValue={periodValue}
-                        isMyRegion={isMy}
-                    />
+                    <VirtualItemWrapper
+                        key={`region-wrapper-${item.regionId}`}
+                        data-index={virtualRow.index}
+                        ref={virtualizer.measureElement}
+                        style={{
+                            transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                    >
+                        <RegionRankRow
+                            key={`region-${item.regionId}`}
+                            item={item}
+                            isExpanded={expandedRegionId === item.regionId}
+                            onToggle={() => onToggleRegion(item.regionId)}
+                            periodType={periodType}
+                            periodValue={periodValue}
+                            isMyRegion={isMy}
+                        />
+                    </VirtualItemWrapper>
                 );
             })}
-            {hasMore && <LoadingTrigger ref={loadMoreRef}>Loading...</LoadingTrigger>}
         </ListContainer>
     );
 };
 
 const ListContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    padding: 0 ${spacing[4]}px ${spacing[6]}px;
+    position: relative;
+    width: 100%;
+    padding: 0 ${spacing[4]}px;
 `;
 
-const LoadingTrigger = styled.div`
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #999;
+const VirtualItemWrapper = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0 ${spacing[4]}px;
 `;

@@ -12,22 +12,44 @@ import { useRef, useEffect } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import MotionProvider from "@/shared/components/MotionProvider";
 import { radius } from "@/shared/styles/tokens";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useModalStore } from '@/shared/stores/useModalStore';
 import { useAuthStore } from '@/entities/session/model/store';
+import { useScrollRestoration } from '@/shared/hooks/useScrollRestoration';
 
 export const FootprintsPage = () => {
     const router = useRouter();
-    const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [viewDate, setViewDate] = useState({
-        year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1
-    });
-    const [showScrollTop, setShowScrollTop] = useState(false);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const contentRef = useRef<HTMLDivElement>(null);
     const { openModal } = useModalStore();
+    const selectedDate = searchParams.get("date") || format(new Date(), "yyyy-MM-dd");
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
+    const [viewDate, setViewDate] = useState(() => {
+        const dateObj = new Date(selectedDate);
+        return {
+            year: dateObj.getFullYear(),
+            month: dateObj.getMonth() + 1
+        };
+    });
+
+    // URL 파라미터에 날짜가 없으면 오늘 날짜로 설정
+    useEffect(() => {
+        const currentDate = searchParams.get("date");
+
+        if (!currentDate) {
+            const today = format(new Date(), "yyyy-MM-dd");
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("date", today);
+
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        }
+    }, [pathname, router, searchParams]);
+
+
+
+    // 로그인 체크
     useEffect(() => {
         const hasCookie = document.cookie.includes('isLoggedIn=true');
         if (!hasCookie) {
@@ -43,27 +65,16 @@ export const FootprintsPage = () => {
         }
     }, [openModal, router, isLoggedIn]);
 
-    useEffect(() => {
-        const contentEl = contentRef.current;
-        if (!contentEl) return;
-
-        const handleScroll = () => {
-            setShowScrollTop(contentEl.scrollTop > 300);
-        };
-
-        contentEl.addEventListener('scroll', handleScroll);
-        return () => contentEl.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const scrollToTop = () => {
-        contentRef.current?.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    };
+    const { showScrollTop, scrollToTop } = useScrollRestoration({
+        ref: contentRef,
+        storageKey: 'footprints-scroll',
+        threshold: 300
+    });
 
     const handleDateSelect = (date: string) => {
-        setSelectedDate(date);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('date', date);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     };
 
     const handleMonthChange = (year: number, month: number) => {
@@ -72,9 +83,11 @@ export const FootprintsPage = () => {
 
     const handleRecordClick = (record: DailyRecordItem) => {
         if (record.type === 'WALK') {
-            router.push(`/footprints/walk/${record.id}`);
+            router.push(
+                `/footprints/walk/${record.id}?date=${selectedDate}`
+            );
         } else if (record.type === 'HEALTH') {
-            router.push(`/footprints/healthcare/${record.id}`);
+            router.push(`/footprints/healthcare/${record.id}?date=${selectedDate}`);
         }
     };
 
@@ -94,6 +107,7 @@ export const FootprintsPage = () => {
                     <RecordListSection
                         selectedDate={selectedDate}
                         onRecordClick={handleRecordClick}
+                        scrollContainerRef={contentRef}
                     />
                 </Content>
 

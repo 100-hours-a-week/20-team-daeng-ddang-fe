@@ -24,6 +24,10 @@ export const HealthcareMainSection = ({ onUpload, onRecord, onChat, onHelp }: He
         )}
       </TitleSection>
 
+      <NoticeBox>
+        <NoticeText>⚠️ 헬스케어 및 챗봇은 오후 1시부터 9시까지만 이용 가능해요!</NoticeText>
+      </NoticeBox>
+
       <DescriptionBox>
         <DescriptionText>
           반려견의 측면 걷기 영상을 AI로 분석하여 슬개골 상태, 좌우 보행 균형, 무릎 관절 가동성, 보행 안정성, 보행 리듬 등을 확인할 수 있어요.
@@ -98,6 +102,20 @@ const HelpButton = styled.button`
   &:active {
     background: ${colors.gray[200]};
   }
+`;
+
+const NoticeBox = styled.div`
+  padding: ${spacing[3]}px;
+  background-color: ${colors.primary[50]};
+  border-radius: ${radius.md};
+  text-align: center;
+`;
+
+const NoticeText = styled.p`
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: ${colors.primary[600]};
 `;
 
 const DescriptionBox = styled.div`

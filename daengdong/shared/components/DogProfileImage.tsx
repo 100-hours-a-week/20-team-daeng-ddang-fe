@@ -20,7 +20,7 @@ export const DogProfileImage = ({ src, alt, size, priority = false }: DogProfile
         return <DefaultDogImage size={size} />;
     }
 
-    const optimizedSrc = `/api/image?url=${encodeURIComponent(resolvedUrl)}&w=${size * 2}&q=40`;
+    const optimizedSrc = `/next-api/image?url=${encodeURIComponent(resolvedUrl)}&w=${size * 2}&q=40`;
 
     return (
         <Image

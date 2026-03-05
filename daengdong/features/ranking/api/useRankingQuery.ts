@@ -5,10 +5,14 @@ import { AxiosError } from 'axios';
 
 import { getRankingStaleTime } from '../lib/rankingTimeUtils';
 
-export const useRankingSummaryQuery = (params: Omit<RankingQueryParams, 'cursor' | 'limit'>) => {
+export const useRankingSummaryQuery = (
+    params: Omit<RankingQueryParams, 'cursor' | 'limit'>,
+    options?: { enabled?: boolean }
+) => {
     return useQuery({
         queryKey: ['ranking', 'summary', params.periodType, params.periodValue, params.regionId],
         queryFn: () => rankingApi.getRankingSummary(params),
+        enabled: options?.enabled,
         staleTime: getRankingStaleTime(),
         gcTime: getRankingStaleTime(),
         retry: (failureCount, error) => {
@@ -18,7 +22,10 @@ export const useRankingSummaryQuery = (params: Omit<RankingQueryParams, 'cursor'
     });
 };
 
-export const useRankingListInfiniteQuery = (params: Omit<RankingQueryParams, 'cursor'>) => {
+export const useRankingListInfiniteQuery = (
+    params: Omit<RankingQueryParams, 'cursor'>,
+    options?: { enabled?: boolean }
+) => {
     return useInfiniteQuery({
         queryKey: ['ranking', 'list', params.periodType, params.periodValue, params.regionId],
         queryFn: async ({ pageParam }) => {
@@ -61,6 +68,7 @@ export const useRankingListInfiniteQuery = (params: Omit<RankingQueryParams, 'cu
         },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
+        enabled: options?.enabled,
         staleTime: getRankingStaleTime(),
         gcTime: getRankingStaleTime(),
         retry: (failureCount, error) => {

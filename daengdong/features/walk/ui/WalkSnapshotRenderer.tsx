@@ -21,7 +21,6 @@ const projectLatLng = (lat: number, lng: number) => {
 const getBounds = (path: LatLng[], blocks: BlockData[], currentPos?: LatLng | null) => {
     const points: LatLng[] = [...path];
 
-    // 현재 위치포함 (경로가 없더라도 내 위치 기준)
     if (currentPos) {
         points.push(currentPos);
     }
@@ -76,15 +75,10 @@ const getZoomLevel = (bounds: ReturnType<typeof getBounds>) => {
 
 // Naver Maps 좌표 변환 
 const latLngToPixel = (lat: number, lng: number, center: LatLng, zoom: number) => {
-    // Naver Maps Static API 공식 스케일
-    // Level 20: 1픽셀 = 0.0745m 
-    // Level n: 1픽셀 = 0.0745 * 2^(20-n) 미터
     const METERS_PER_PIXEL_AT_LEVEL_20 = 0.0745;
     const metersPerPixel = METERS_PER_PIXEL_AT_LEVEL_20 * Math.pow(2, 20 - zoom);
 
-    // 위도/경도를 미터로 변환
-    // 위도 1도 ≈ 111,000m (지구 둘레 / 360)
-    // 경도 1도 ≈ 111,000m * cos(latitude)
+    // 위도/경도 미터로 변환
     const METERS_PER_DEGREE_LAT = 111000;
     const metersPerDegreeLng = METERS_PER_DEGREE_LAT * Math.cos((center.lat * Math.PI) / 180);
 
@@ -94,7 +88,7 @@ const latLngToPixel = (lat: number, lng: number, center: LatLng, zoom: number) =
     const metersY = deltaLat * METERS_PER_DEGREE_LAT;
     const metersX = deltaLng * metersPerDegreeLng;
 
-    // 미터를 픽셀로 변환
+    // 미터 픽셀로 변환
     const x = (metersX / metersPerPixel) + SNAPSHOT_SIZE / 2;
     const y = -(metersY / metersPerPixel) + SNAPSHOT_SIZE / 2;
 
@@ -130,8 +124,7 @@ export const WalkSnapshotRenderer = ({
     const imageRef = useRef<HTMLImageElement | null>(null);
     const { isEnding } = useWalkStore();
 
-    const blocks = useMemo(() => [...myBlocks, ...othersBlocks], [myBlocks, othersBlocks]);
-    const bounds = useMemo(() => getBounds(path, blocks, currentPos), [path, blocks, currentPos]);
+    const bounds = useMemo(() => getBounds(path, myBlocks, currentPos), [path, myBlocks, currentPos]);
 
     // 지도 흔들림 방지: 중심좌표 반올림 (약 10m 단위)
     const center = useMemo(

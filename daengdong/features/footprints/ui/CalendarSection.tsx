@@ -26,6 +26,9 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
     const startDate = startOfWeek(monthStartDate);
     const endDate = endOfWeek(monthEndDate);
 
+    const maxAllowedMonth = startOfMonth(addMonths(new Date(), 1));
+    const isNextDisabled = monthStartDate >= maxAllowedMonth;
+
     const rows = [];
     let days = [];
     let day = startDate;
@@ -37,6 +40,7 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
     };
 
     const handleNextMonth = () => {
+        if (isNextDisabled) return;
         const newDate = addMonths(monthStartDate, 1);
         onMonthChange(newDate.getFullYear(), newDate.getMonth() + 1);
     };
@@ -56,6 +60,7 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
             formattedDate = format(day, "yyyy-MM-dd");
             const isSelected = isSameDay(day, new Date(selectedDate));
             const isCurrentMonth = isSameMonth(day, monthStartDate);
+            const isToday = isSameDay(day, new Date());
             const meta = getMetaForDate(formattedDate);
             const cloneDay = day;
 
@@ -76,6 +81,7 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
                             {format(day, "d")}
                         </DayNumber>
                     </DayContent>
+                    {isToday && <TodayText>오늘</TodayText>}
                 </DayCell>
             );
             day = addDays(day, 1);
@@ -94,7 +100,10 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
                         <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </Title>
-                <NavButton onClick={handleNextMonth}>&gt;</NavButton>
+                <NavButton
+                    onClick={handleNextMonth}
+                    style={{ visibility: isNextDisabled ? 'hidden' : 'visible' }}
+                >&gt;</NavButton>
             </Header>
             <WeekDaysRow>
                 {['일', '월', '화', '수', '목', '금', '토'].map((d, i) => (
@@ -108,6 +117,7 @@ export const CalendarSection = ({ year, month, selectedDate, onDateSelect, onMon
                 onClose={() => setIsDatePickerOpen(false)}
                 onConfirm={handleDateConfirm}
                 initialDate={format(monthStartDate, "yyyy-MM-dd")}
+                maxDate={format(maxAllowedMonth, "yyyy-MM-dd")}
                 mode="yearMonth"
             />
         </Container>
@@ -190,6 +200,15 @@ const DayCell = styled.div`
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: relative;
+`;
+
+const TodayText = styled.span`
+    position: absolute;
+    bottom: 0px;
+    font-size: 10px;
+    font-weight: 700;
+    color: ${colors.primary[500]};
 `;
 
 const DayContent = styled.div<{ isSelected: boolean; isCurrentMonth: boolean; walkLevel: number }>`

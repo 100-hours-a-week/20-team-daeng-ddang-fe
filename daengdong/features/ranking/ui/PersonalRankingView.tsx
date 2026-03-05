@@ -2,7 +2,6 @@ import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styled from "@emotion/styled";
 import { RankingFilters } from "./RankingFilters";
-import { TopPodium } from "./TopPodium";
 import { RankingList } from "./RankingList";
 import { LoadingView } from "@/widgets/GlobalLoading";
 import { RegionSelectionModal } from "./RegionSelectionModal";
@@ -37,6 +36,7 @@ export const PersonalRankingView = () => {
         myRankInfo,
         topRanks,
         summaryData,
+        isFetchingNextPage,
     } = usePersonalRanking();
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -76,12 +76,14 @@ export const PersonalRankingView = () => {
             </FixedHeader>
 
             <ScrollContent ref={scrollContentRef}>
-                <TopPodium topRanks={topRanks} />
                 <RankingList
+                    topRanks={topRanks}
                     ranks={rankingList}
                     myRankInfo={myRankInfo}
                     onLoadMore={fetchNextPage}
                     hasMore={!!hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
+                    scrollContainerRef={scrollContentRef}
                 />
             </ScrollContent>
 

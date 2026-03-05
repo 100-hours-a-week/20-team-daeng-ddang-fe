@@ -29,7 +29,8 @@ export const useRegionalRanking = () => {
         data: regionListData,
         fetchNextPage: fetchNextRegionPage,
         hasNextPage: hasNextRegionPage,
-        isLoading: isRegionListLoading
+        isLoading: isRegionListLoading,
+        isFetchingNextPage
     } = useInfiniteQuery({
         queryKey: ['ranking', 'region-list', period, periodValue],
         queryFn: async ({ pageParam }) => {
@@ -125,6 +126,7 @@ export const useRegionalRanking = () => {
         handleJumpToMyRegion,
 
         hasNextRegionPage,
+        isFetchingNextPage,
         regionRanks,
         periodValue,
         userRankInfo

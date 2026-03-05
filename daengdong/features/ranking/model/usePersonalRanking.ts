@@ -43,21 +43,24 @@ export const usePersonalRanking = () => {
         }
     }, [userInfo, isUserLoading, selectedRegion]);
 
+    const isDogRegistered = dogInfo === undefined ? undefined : !!dogInfo;
+
     const { data: summaryData, isLoading: isSummaryLoading, isError: isSummaryError } = useRankingSummaryQuery({
         periodType: period,
         periodValue,
         regionId: scope === 'REGIONAL' ? selectedRegion?.id : undefined,
-    });
+    }, { enabled: isDogRegistered !== false });
 
     const {
         data: listData,
         fetchNextPage,
-        hasNextPage
+        hasNextPage,
+        isFetchingNextPage
     } = useRankingListInfiniteQuery({
         periodType: period,
         periodValue,
         regionId: scope === 'REGIONAL' ? selectedRegion?.id : undefined,
-    });
+    }, { enabled: isDogRegistered !== false });
 
     const rankingList = useMemo(() =>
         listData?.pages.flatMap((page: ApiResponse<RankingListType>) => page.data.ranks)
@@ -66,8 +69,6 @@ export const usePersonalRanking = () => {
 
     const myRankInfo = summaryData?.data?.myRank;
     const topRanks = summaryData?.data?.topRanks || listData?.pages[0]?.data?.ranks.slice(0, 3) || [];
-
-    const isDogRegistered = dogInfo === undefined ? undefined : !!dogInfo;
 
     return {
         period,
@@ -85,6 +86,7 @@ export const usePersonalRanking = () => {
         setSelectedRegion,
 
         fetchNextPage,
+        isFetchingNextPage,
 
         hasNextPage,
         rankingList,

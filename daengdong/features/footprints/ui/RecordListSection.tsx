@@ -11,15 +11,35 @@ import MedicalCrossIcon from "@/shared/assets/icons/medical-cross.svg";
 import WalkIcon from "@/shared/assets/icons/paw-print.svg";
 
 
+import { useRef, useState, useEffect } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+
 interface RecordListSectionProps {
     selectedDate: string;
     onRecordClick: (item: DailyRecordItem) => void;
+    scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSectionProps) => {
+export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainerRef }: RecordListSectionProps) => {
     const { data: records, isLoading } = useDailyRecordsQuery(selectedDate);
+    const listRef = useRef<HTMLDivElement>(null);
+    const [listOffset, setListOffset] = useState(0);
 
     const formattedDate = format(new Date(selectedDate), "M월 d일 EEEE", { locale: ko });
+
+    useEffect(() => {
+        if (listRef.current) {
+            setListOffset(listRef.current.offsetTop);
+        }
+    }, [records]);
+
+    const virtualizer = useVirtualizer({
+        count: records?.length || 0,
+        getScrollElement: () => scrollContainerRef.current,
+        estimateSize: () => 76,
+        scrollMargin: listOffset,
+        overscan: 3,
+    });
 
     if (isLoading) {
         return (
@@ -45,37 +65,51 @@ export const RecordListSection = ({ selectedDate, onRecordClick }: RecordListSec
     return (
         <Container>
             <Header>{formattedDate}</Header>
-            <List>
-                {records.map((record) => {
-                    return (
-                        <RecordItem key={`${record.type}-${record.id}`} onClick={() => onRecordClick(record)}>
-                            <IconWrapper $type={record.type}>
-                                {record.type === 'WALK'
-                                    ? <WalkIcon width={20} height={20} />
-                                    : <MedicalCrossIcon width={25} height={25} />
-                                }
-                            </IconWrapper>
-                            <Info>
-                                <Title>
-                                    {record.createdAt ? (
-                                        <>
-                                            <TimeText $type={record.type}>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
-                                            <span>{record.type === 'WALK' ? '산책일지' : '헬스케어'}</span>
-                                        </>
-                                    ) : (
-                                        record.title
+            <div ref={listRef}>
+                <List style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                        const record = records[virtualRow.index];
+                        return (
+                            <div
+                                key={`${record.type}-${record.id}`}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    transform: `translateY(${virtualRow.start - listOffset}px)`,
+                                }}
+                            >
+                                <RecordItem onClick={() => onRecordClick(record)}>
+                                    <IconWrapper $type={record.type}>
+                                        {record.type === 'WALK'
+                                            ? <WalkIcon width={20} height={20} />
+                                            : <MedicalCrossIcon width={25} height={25} />
+                                        }
+                                    </IconWrapper>
+                                    <Info>
+                                        <Title>
+                                            {record.createdAt ? (
+                                                <>
+                                                    <TimeText $type={record.type}>{format(new Date(record.createdAt), 'a h시 mm분', { locale: ko })}</TimeText>
+                                                    <span>{record.type === 'WALK' ? '산책일지' : '헬스케어'}</span>
+                                                </>
+                                            ) : (
+                                                record.title
+                                            )}
+                                        </Title>
+                                    </Info>
+                                    {record.imageUrl && (
+                                        <Thumbnail>
+                                            <Image src={record.imageUrl} alt="thumbnail" width={48} height={48} style={{ objectFit: 'cover' }} />
+                                        </Thumbnail>
                                     )}
-                                </Title>
-                            </Info>
-                            {record.imageUrl && (
-                                <Thumbnail>
-                                    <Image src={record.imageUrl} alt="thumbnail" width={48} height={48} style={{ objectFit: 'cover' }} />
-                                </Thumbnail>
-                            )}
-                        </RecordItem>
-                    );
-                })}
-            </List>
+                                </RecordItem>
+                            </div>
+                        );
+                    })}
+                </List>
+            </div>
         </Container>
     );
 };

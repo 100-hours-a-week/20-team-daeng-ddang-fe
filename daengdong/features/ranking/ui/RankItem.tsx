@@ -68,12 +68,15 @@ type RankItemComponent = React.FC<RankItemProps> & {
   GapBadge: typeof GapBadge;
 };
 
+const RankItemBase = React.memo(({ isHighlighted, id, children }: RankItemProps) => (
+  <StyledRankRow isHighlighted={!!isHighlighted} id={id}>
+    {children}
+  </StyledRankRow>
+));
+RankItemBase.displayName = "RankItem";
+
 export const RankItem: RankItemComponent = Object.assign(
-  ({ isHighlighted, id, children }: RankItemProps) => (
-    <StyledRankRow isHighlighted={!!isHighlighted} id={id}>
-      {children}
-    </StyledRankRow>
-  ),
+  RankItemBase,
   {
     Number: RankNumber,
     Avatar: RankAvatar,
@@ -84,7 +87,6 @@ export const RankItem: RankItemComponent = Object.assign(
     GapBadge: GapBadge,
   }
 );
-
 const StyledRankRow = styled.div<{ isHighlighted: boolean }>`
   display: flex;
   align-items: center;

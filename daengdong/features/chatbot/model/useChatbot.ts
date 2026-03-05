@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import chatbotApi, { ChatMessageResponse } from "@/entities/chatbot/api/chatbot";
-import fileApi from "@/shared/api/file";
-import { useToastStore } from "@/shared/stores/useToastStore";
 
 export interface Message {
     id: string;
@@ -29,7 +27,6 @@ export const useChatbot = () => {
     const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
     const [inputText, setInputText] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -40,8 +37,24 @@ export const useChatbot = () => {
 
     const [hasNewMessage, setHasNewMessage] = useState(false);
 
+    const [isAvailable, setIsAvailable] = useState(true);
+
     // 채팅 세션 생성
     useEffect(() => {
+        const currentHour = new Date().getHours();
+        const available = currentHour >= 13 && currentHour < 21;
+        setIsAvailable(available);
+
+        if (!available) {
+            setMessages([{
+                id: 'out-of-hours',
+                text: '현재 챗봇은 오후 1시부터 오후 9시까지 이용이 가능합니다.',
+                sender: 'bot',
+                timestamp: new Date(),
+            }]);
+            return;
+        }
+
         chatbotApi.createChatSession()
             .then(session => setConversationId(session.conversationId))
             .catch(() => {
@@ -102,7 +115,6 @@ export const useChatbot = () => {
         // const previewImage = selectedImage;
         setInputText("");
         setSelectedImage(null);
-        setSelectedFile(null);
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
         }
@@ -198,7 +210,6 @@ export const useChatbot = () => {
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => setSelectedImage(reader.result as string);
             reader.readAsDataURL(file);
@@ -207,10 +218,10 @@ export const useChatbot = () => {
 
     const clearImage = () => {
         setSelectedImage(null);
-        setSelectedFile(null);
     };
 
     return {
+        isAvailable,
         conversationId,
         sessionError,
         messages,

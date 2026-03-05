@@ -85,12 +85,32 @@ export const HealthcarePage = () => {
         }
     };
 
+    const requireAvailableTime = (onSuccess: () => void) => {
+        const currentHour = new Date().getHours();
+        const available = currentHour >= 13 && currentHour < 21;
+        if (!available) {
+            openModal({
+                title: "이용 시간 안내",
+                message: "현재 헬스케어 분석은\n오후 1시부터 오후 9시까지만\n이용이 가능합니다.",
+                type: "alert",
+                confirmText: "확인",
+                onConfirm: () => { }
+            });
+        } else {
+            onSuccess();
+        }
+    };
+
     const handleUpload = () => {
-        requireLogin(() => setMode('upload'));
+        requireAvailableTime(() => {
+            requireLogin(() => setMode('upload'));
+        });
     };
 
     const handleRecord = () => {
-        requireLogin(() => setMode('record'));
+        requireAvailableTime(() => {
+            requireLogin(() => setMode('record'));
+        });
     };
 
     const handleChat = () => {

@@ -6,4 +6,5 @@ export const queryKeys = {
     breeds: 'breeds',
     walks: 'walks',
     walk: (walkId: number) => ['walk', walkId] as const,
+    ranking: 'ranking',
 };

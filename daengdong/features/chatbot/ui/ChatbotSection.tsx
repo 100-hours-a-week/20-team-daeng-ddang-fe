@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 
 export const ChatbotSection = () => {
     const {
+        isAvailable,
         conversationId,
         sessionError,
         messages,
@@ -83,15 +84,15 @@ export const ChatbotSection = () => {
                         onChange={(e) => { if (e.target.value.length <= 200) setInputText(e.target.value); }}
                         onFocus={() => setIsInputFocused(true)}
                         onBlur={() => setIsInputFocused(false)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        placeholder={sessionError ? "세션 오류로 사용 불가" : conversationId ? "메시지를 입력하세요" : "세션 연결 중..."}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSendMessage(); } }}
+                        placeholder={!isAvailable ? "오후 1시부터 9시까지 이용 가능합니다." : sessionError ? "세션 오류로 사용 불가" : conversationId ? "메시지를 입력하세요" : "세션 연결 중..."}
                         rows={1}
-                        disabled={!conversationId || sessionError}
+                        disabled={!isAvailable || !conversationId || sessionError}
                     />
 
                     <SendButton
-                        disabled={(!inputText.trim() && !selectedImage) || isLoading || !conversationId || sessionError}
-                        isActive={!!(inputText.trim() || selectedImage) && !!conversationId && !sessionError}
+                        disabled={(!inputText.trim() && !selectedImage) || isLoading || !isAvailable || !conversationId || sessionError}
+                        isActive={!!(inputText.trim() || selectedImage) && isAvailable && !!conversationId && !sessionError}
                         onClick={handleSendMessage}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

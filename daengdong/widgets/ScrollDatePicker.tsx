@@ -10,23 +10,37 @@ interface ScrollDatePickerProps {
     onConfirm: (date: string) => void;
     initialDate?: string;
     mode?: 'date' | 'yearMonth';
+    maxDate?: string; // 'YYYY-MM-DD'
 }
 
-export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate, mode = 'date' }: ScrollDatePickerProps) {
+export function ScrollDatePicker({ isOpen, onClose, onConfirm, initialDate, mode = 'date', maxDate }: ScrollDatePickerProps) {
     const today = dayjs();
+    const maxAllowedDate = maxDate ? dayjs(maxDate) : today;
+    const maxAllowedYear = maxAllowedDate.year();
+
     const [selectedYear, setSelectedYear] = useState(initialDate ? dayjs(initialDate).year() : today.year());
     const [selectedMonth, setSelectedMonth] = useState(initialDate ? dayjs(initialDate).month() + 1 : today.month() + 1);
     const [selectedDay, setSelectedDay] = useState(initialDate ? dayjs(initialDate).date() : today.date());
 
-    const years = Array.from({ length: today.year() - 1999 }, (_, i) => today.year() - i);
-    const months = Array.from({ length: 12 }, (_, i) => i + 1);
+    const years = Array.from({ length: maxAllowedYear - 1999 }, (_, i) => maxAllowedYear - i);
+
+    const maxMonth = selectedYear === maxAllowedYear ? maxAllowedDate.month() + 1 : 12;
+    const months = Array.from({ length: maxMonth }, (_, i) => i + 1);
 
     const getDaysInMonth = (year: number, month: number) => dayjs(`${year}-${month}-01`).daysInMonth();
-    const maxDaysInMonth = getDaysInMonth(selectedYear, selectedMonth);
+    const daysInCurrentSelection = getDaysInMonth(selectedYear, selectedMonth);
+    const maxDays = (selectedYear === maxAllowedYear && selectedMonth === maxAllowedDate.month() + 1)
+        ? maxAllowedDate.date()
+        : daysInCurrentSelection;
 
-    const validatedDay = Math.min(selectedDay, maxDaysInMonth);
+    const validatedDay = Math.min(selectedDay, maxDays);
+    const days = Array.from({ length: maxDays }, (_, i) => i + 1);
 
-    const days = Array.from({ length: maxDaysInMonth }, (_, i) => i + 1);
+    useEffect(() => {
+        if (selectedMonth > maxMonth) {
+            setTimeout(() => setSelectedMonth(maxMonth), 0);
+        }
+    }, [selectedYear, maxMonth, selectedMonth]);
 
     useEffect(() => {
         if (isOpen) {

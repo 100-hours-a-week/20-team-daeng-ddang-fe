@@ -28,6 +28,7 @@ export const useEndWalk = () => {
             queryClient.invalidateQueries({ queryKey: [queryKeys.myPageSummary] });
             queryClient.invalidateQueries({ queryKey: ["nearbyBlocks"] });
             queryClient.invalidateQueries({ queryKey: ["footprints"] });
+            queryClient.invalidateQueries({ queryKey: [queryKeys.ranking] });
         },
         onError: (error) => {
             console.error("산책 종료 실패", error);
