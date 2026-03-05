@@ -94,6 +94,7 @@ export const RegionalRankingView = () => {
                             periodType={period}
                             periodValue={periodValue}
                             isMyRegion={true}
+                            isFixedBottom={true}
                         />
                     </MyRankContainer>
                 </FixedFooter>
