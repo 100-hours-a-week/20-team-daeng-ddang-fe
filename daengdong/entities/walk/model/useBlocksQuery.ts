@@ -6,7 +6,7 @@ import { useAuthStore } from "@/entities/session/model/store";
 export const useNearbyBlocksQuery = (
     lat: number | null,
     lng: number | null,
-    radius: number = 1000
+    radius: number = 500
 ) => {
     const { isLoggedIn } = useAuthStore();
     const hasToken = typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false;

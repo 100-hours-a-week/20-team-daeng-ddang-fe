@@ -154,15 +154,16 @@ export const ExpressionCamera = ({
     setCountdown(3);
     setFlowState("COUNTDOWN");
 
+    let currentCountdown = 3;
     const countdownInterval = window.setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          window.clearInterval(countdownInterval);
-          startRecording();
-          return 0;
-        }
-        return prev - 1;
-      });
+      currentCountdown -= 1;
+      if (currentCountdown <= 0) {
+        window.clearInterval(countdownInterval);
+        setCountdown(0);
+        startRecording();
+      } else {
+        setCountdown(currentCountdown);
+      }
     }, 1000);
     countdownTimerRef.current = countdownInterval;
   }, [stream, startRecording]);

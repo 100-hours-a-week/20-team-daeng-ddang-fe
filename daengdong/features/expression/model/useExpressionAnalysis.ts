@@ -6,6 +6,7 @@ import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useLoadingStore } from '@/shared/stores/useLoadingStore';
 import fileApi from '@/shared/api/file';
 import { expressionApi } from '@/entities/expression/api/expression';
+import { connectWalkAnalysisSSE } from '@/shared/lib/sse/analysisSSE';
 
 export const useExpressionAnalysis = () => {
     const router = useRouter();
@@ -55,18 +56,18 @@ export const useExpressionAnalysis = () => {
             showLoading("표정 분석 요청 중입니다...");
             const job = await expressionApi.createExpressionJob(walkId, { videoUrl });
 
-            let taskStatus = job.status;
-            while (taskStatus === "PENDING" || taskStatus === "RUNNING") {
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                const currentStatus = await expressionApi.getAnalysisTaskStatus(walkId, job.taskId);
-                taskStatus = currentStatus.status;
-
-                if (taskStatus === "FAIL") {
-                    throw new Error("ANALYSIS_FAILED");
-                }
-            }
+            showLoading("표정 분석 중입니다...");
+            await new Promise<void>((resolve, reject) => {
+                connectWalkAnalysisSSE(
+                    walkId,
+                    job.taskId,
+                    () => resolve(),
+                    (err) => reject(err)
+                );
+            });
 
             router.replace(`/walk/expression/result?walkId=${walkId}&taskId=${job.taskId}`);
+
 
         } catch (e: unknown) {
             const err = e as { response?: { data?: { errorCode?: string } } };

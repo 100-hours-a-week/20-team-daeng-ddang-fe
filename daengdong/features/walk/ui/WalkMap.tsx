@@ -76,7 +76,6 @@ export const WalkMap = memo(({ currentPos, myBlocks = [], othersBlocks = [], pat
         });
 
         setMap(newMap);
-        // currentPos는 의도적으로 deps에서 제외 (지도는 최초 1회 생성, 위치 변경은 panTo로 처리)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loaded, map]);
 

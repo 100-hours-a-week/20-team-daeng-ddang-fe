@@ -25,7 +25,7 @@ export const WalkPage = () => {
     const { data: nearbyBlocks } = useNearbyBlocksQuery(
         roundCoord(currentPos?.lat),
         roundCoord(currentPos?.lng),
-        1000
+        500
     );
 
     const { data: dog } = useDogInfoQuery();
