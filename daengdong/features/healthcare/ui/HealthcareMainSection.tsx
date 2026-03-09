@@ -24,9 +24,9 @@ export const HealthcareMainSection = ({ onUpload, onRecord, onChat, onHelp }: He
         )}
       </TitleSection>
 
-      <NoticeBox>
+      {/* <NoticeBox>
         <NoticeText>⚠️ 헬스케어 및 챗봇은 오후 1시부터 9시까지만 이용 가능해요!</NoticeText>
-      </NoticeBox>
+      </NoticeBox> */}
 
       <DescriptionBox>
         <DescriptionText>
