@@ -42,7 +42,7 @@ export const useChatbot = () => {
     // 채팅 세션 생성
     useEffect(() => {
         const currentHour = new Date().getHours();
-        const available = currentHour >= 13 && currentHour < 21;
+        const available = currentHour >= 9 && currentHour < 21;
         setIsAvailable(available);
 
         if (!available) {
