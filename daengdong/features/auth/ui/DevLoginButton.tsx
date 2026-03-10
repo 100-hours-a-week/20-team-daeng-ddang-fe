@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { devLogin } from '@/shared/api/auth';
+import { devLogin } from '@/features/auth/api/auth';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useToastStore } from '@/shared/stores/useToastStore';
 

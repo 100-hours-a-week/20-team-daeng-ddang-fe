@@ -1,4 +1,4 @@
-import { http } from './http';
+import { http } from "@/shared/api/http";
 
 export interface LoginResponse {
     accessToken: string;
@@ -29,8 +29,8 @@ export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
 };
 
 /**
- * Dev Login 
- * 로컬 및 피처 브랜치에서 Kakao OAuth 없이 로그인 테스트
+ * Dev Login
+ * 로컬 및 feature 브랜치에서 Kakao OAuth 없이 로그인 테스트
  */
 export interface DevLoginRequest {
     kakaoUserId: number;
@@ -46,14 +46,37 @@ export interface DevLoginResponse {
     };
 }
 
-export const devLogin = async (data: DevLoginRequest): Promise<DevLoginResponse> => {
-    const response = await http.post<ApiResponse<DevLoginResponse>>(
-        '/auth/dev/login',
-        data,
-        {
-            withCredentials: true,
-        }
-    );
+const parseBooleanEnv = (value: string | undefined): boolean | null => {
+    if (value == null) return null;
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+    return null;
+};
 
+export const devLogin = async (data: DevLoginRequest): Promise<DevLoginResponse> => {
+    const useBffAuth = parseBooleanEnv(process.env.NEXT_PUBLIC_USE_BFF_AUTH);
+
+    if (useBffAuth) {
+        const res = await fetch("/api/auth/dev-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+            credentials: "include",
+        });
+
+        if (!res.ok) {
+            throw new Error("Dev login failed");
+        }
+
+        const body = (await res.json()) as ApiResponse<DevLoginResponse>;
+        return body.data;
+    }
+
+    const response = await http.post<ApiResponse<DevLoginResponse>>(
+        "/auth/dev/login",
+        data,
+        { withCredentials: true }
+    );
     return response.data.data;
 };

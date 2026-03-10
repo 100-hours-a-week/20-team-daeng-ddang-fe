@@ -1,6 +1,6 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
-import { kakaoLogin } from '@/shared/api/auth';
+import { kakaoLogin } from '@/features/auth/api/auth';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { useEffect, useCallback } from 'react';
