@@ -1,4 +1,5 @@
 import { http } from "@/shared/api/http";
+import { clearLegacyAccessToken, setLegacyAccessToken } from "@/shared/lib/auth/legacyToken";
 
 export interface LoginResponse {
     isNewUser: boolean;
@@ -13,6 +14,10 @@ interface ApiResponse<T> {
     message: string;
     data: T;
     errorCode: string | null;
+}
+
+interface LegacyTokenPayload {
+    accessToken?: string;
 }
 
 export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
@@ -34,13 +39,20 @@ export const kakaoLogin = async (code: string): Promise<LoginResponse> => {
         return body.data;
     }
 
-    const response = await http.post<ApiResponse<LoginResponse>>(
+    const response = await http.post<ApiResponse<LoginResponse & LegacyTokenPayload>>(
         `/auth/login`,
         { code },
         {
             withCredentials: true,
         }
     );
+
+    const accessToken = response.data.data.accessToken;
+    if (accessToken) {
+        setLegacyAccessToken(accessToken);
+    } else {
+        clearLegacyAccessToken();
+    }
 
     return response.data.data;
 };
@@ -81,10 +93,18 @@ export const devLogin = async (data: DevLoginRequest): Promise<DevLoginResponse>
         return body.data;
     }
 
-    const response = await http.post<ApiResponse<DevLoginResponse>>(
+    const response = await http.post<ApiResponse<DevLoginResponse & LegacyTokenPayload>>(
         "/auth/dev/login",
         data,
         { withCredentials: true }
     );
+
+    const accessToken = response.data.data.accessToken;
+    if (accessToken) {
+        setLegacyAccessToken(accessToken);
+    } else {
+        clearLegacyAccessToken();
+    }
+
     return response.data.data;
 };

@@ -15,9 +15,10 @@ import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 import { missionApi } from "@/entities/mission/api/mission";
+import { expressionApi } from "@/entities/expression/api/expression";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useAuthStore } from "@/entities/session/model/store";
-import { connectWalkAnalysisSSE } from "@/shared/lib/sse/analysisSSE";
+import { waitWalkAnalysisCompletion } from "@/shared/lib/sse/analysisSSE";
 
 export const useWalkControl = () => {
     const {
@@ -481,16 +482,14 @@ export const useWalkControl = () => {
                                     showLoading("돌발 미션 분석 중입니다...");
 
                                     const task = await missionApi.createMissionTask(walkId);
-                                    missionTaskId = task.taskId;
+                                    const createdTaskId = task.taskId;
+                                    missionTaskId = createdTaskId;
 
-                                    await new Promise<void>((resolve, reject) => {
-                                        connectWalkAnalysisSSE(
-                                            walkId,
-                                            missionTaskId as string,
-                                            () => resolve(),
-                                            (err) => reject(err)
-                                        );
-                                    });
+                                    await waitWalkAnalysisCompletion(
+                                        walkId,
+                                        createdTaskId,
+                                        () => expressionApi.getAnalysisTaskStatus(walkId, createdTaskId)
+                                    );
                                 } catch (e) {
                                     console.error("[미션 Task] 분석 실패:", e);
                                     showToast({

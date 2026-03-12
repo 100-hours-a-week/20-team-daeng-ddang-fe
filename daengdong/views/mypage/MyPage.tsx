@@ -16,6 +16,7 @@ import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useEndWalk } from '@/features/walk/model/useWalkMutations';
 import { isAbnormalSpeed } from '@/entities/walk/lib/validator';
 import { useEffect } from 'react';
+import { clearLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
 export const MyPage = () => {
     const router = useRouter();
@@ -42,10 +43,15 @@ export const MyPage = () => {
 
     const handleLogout = async () => {
         const clearSession = async () => {
+            const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+            if (useBffAuth) {
             await fetch('/api/auth/logout', {
                 method: 'POST',
                 credentials: 'include',
             }).catch(() => undefined);
+            } else {
+                clearLegacyAccessToken();
+            }
             useAuthStore.getState().setLoggedIn(false);
         };
 

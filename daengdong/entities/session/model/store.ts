@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
 interface AuthState {
     isLoggedIn: boolean;
@@ -12,6 +13,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     isAuthChecked: false,
     setLoggedIn: (value) => set({ isLoggedIn: value, isAuthChecked: true }),
     checkLoginStatus: async () => {
+        const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+
+        if (!useBffAuth) {
+            const accessToken = getLegacyAccessToken();
+            set({ isLoggedIn: !!accessToken, isAuthChecked: true });
+            return;
+        }
+
         try {
             const response = await fetch('/api/auth/session', {
                 method: 'GET',
