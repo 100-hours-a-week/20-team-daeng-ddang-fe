@@ -16,6 +16,7 @@ import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useEndWalk } from '@/features/walk/model/useWalkMutations';
 import { isAbnormalSpeed } from '@/entities/walk/lib/validator';
 import { useEffect } from 'react';
+import { clearLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
 export const MyPage = () => {
     const router = useRouter();
@@ -24,10 +25,10 @@ export const MyPage = () => {
     const { data: summaryData, isLoading } = useMyPageSummaryQuery();
     const { mutateAsync: endWalkMutateAsync } = useEndWalk();
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
     useEffect(() => {
-        const hasCookie = document.cookie.includes('isLoggedIn=true');
-        if (!hasCookie) {
+        if (isAuthChecked && !isLoggedIn) {
             openModal({
                 title: "로그인이 필요해요!",
                 message: "마이페이지를 보려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
@@ -38,9 +39,22 @@ export const MyPage = () => {
                 onCancel: () => router.push('/'),
             });
         }
-    }, [openModal, router, isLoggedIn]);
+    }, [isAuthChecked, isLoggedIn, openModal, router]);
 
     const handleLogout = async () => {
+        const clearSession = async () => {
+            const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+            if (useBffAuth) {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            }).catch(() => undefined);
+            } else {
+                clearLegacyAccessToken();
+            }
+            useAuthStore.getState().setLoggedIn(false);
+        };
+
         const { walkMode, walkId, currentPos, elapsedTime, distance } = useWalkStore.getState();
 
         // 산책 중인지 확인
@@ -95,9 +109,7 @@ export const MyPage = () => {
                     }
 
                     // 로그아웃 처리
-                    localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
-                    useAuthStore.getState().setLoggedIn(false);
+                    await clearSession();
 
                     showToast({
                         message: "로그아웃되었습니다!",
@@ -115,10 +127,8 @@ export const MyPage = () => {
             type: "confirm",
             confirmText: "확인",
             cancelText: "취소",
-            onConfirm: () => {
-                localStorage.removeItem('accessToken');
-                document.cookie = 'isLoggedIn=; path=/; max-age=0'; // Clear middleware cookie
-                useAuthStore.getState().setLoggedIn(false);
+            onConfirm: async () => {
+                await clearSession();
 
                 showToast({
                     message: "로그아웃되었습니다!",

@@ -7,7 +7,7 @@ export const AuthInitializer = () => {
     const { checkLoginStatus } = useAuthStore();
 
     useEffect(() => {
-        checkLoginStatus();
+        void checkLoginStatus();
     }, [checkLoginStatus]);
 
     return null;

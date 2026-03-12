@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { devLogin } from '@/shared/api/auth';
+import { devLogin } from '@/features/auth/api/auth';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useToastStore } from '@/shared/stores/useToastStore';
 
@@ -21,8 +21,6 @@ export const DevLoginButton = () => {
     const loginMutation = useMutation({
         mutationFn: devLogin,
         onSuccess: (data) => {
-            localStorage.setItem('accessToken', data.accessToken);
-            document.cookie = 'isLoggedIn=true; path=/; max-age=31536000';
             setLoggedIn(true);
 
             // isNewUser 기반 라우팅

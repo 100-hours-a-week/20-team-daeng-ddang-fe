@@ -6,7 +6,7 @@ import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useLoadingStore } from '@/shared/stores/useLoadingStore';
 import fileApi from '@/shared/api/file';
 import { expressionApi } from '@/entities/expression/api/expression';
-import { connectWalkAnalysisSSE } from '@/shared/lib/sse/analysisSSE';
+import { waitWalkAnalysisCompletion } from '@/shared/lib/sse/analysisSSE';
 
 export const useExpressionAnalysis = () => {
     const router = useRouter();
@@ -57,14 +57,11 @@ export const useExpressionAnalysis = () => {
             const job = await expressionApi.createExpressionJob(walkId, { videoUrl });
 
             showLoading("표정 분석 중입니다...");
-            await new Promise<void>((resolve, reject) => {
-                connectWalkAnalysisSSE(
-                    walkId,
-                    job.taskId,
-                    () => resolve(),
-                    (err) => reject(err)
-                );
-            });
+            await waitWalkAnalysisCompletion(
+                walkId,
+                job.taskId,
+                () => expressionApi.getAnalysisTaskStatus(walkId, job.taskId)
+            );
 
             router.replace(`/walk/expression/result?walkId=${walkId}&taskId=${job.taskId}`);
 

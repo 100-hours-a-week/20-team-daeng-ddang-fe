@@ -36,17 +36,11 @@ export function proxy(request: NextRequest) {
         path === '/' ? pathname === '/' : pathname.startsWith(path)
     );
 
-    const hasAuthCookie = request.cookies.has('isLoggedIn');
+    const hasAuthCookie = request.cookies.has('dd_sid');
 
     if (!isPublicPath && !hasAuthCookie && pathname !== '/terms') {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
-        return NextResponse.redirect(url);
-    }
-
-    if (pathname === '/login' && hasAuthCookie) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/walk';
         return NextResponse.redirect(url);
     }
 

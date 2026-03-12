@@ -3,6 +3,7 @@ import { useUserStore } from '@/entities/user/model/userStore';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useRouter } from 'next/navigation';
 import { deleteUser } from '@/entities/user/api/user';
+import { clearLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
 
 
@@ -13,10 +14,16 @@ export const useDeleteUser = () => {
 
     return useMutation({
         mutationFn: deleteUser,
-        onSuccess: () => {
-            localStorage.removeItem('accessToken');
-            document.cookie = 'refreshToken=; Max-Age=0; path=/;';
-            document.cookie = 'isLoggedIn=; Max-Age=0; path=/;';
+        onSuccess: async () => {
+            const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+            if (useBffAuth) {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include',
+                }).catch(() => undefined);
+            } else {
+                clearLegacyAccessToken();
+            }
             resetUser();
             setLoggedIn(false);
             router.replace('/login');

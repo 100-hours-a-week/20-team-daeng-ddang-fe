@@ -43,11 +43,10 @@ export const PersonalRankingView = () => {
     const scrollContentRef = useRef<HTMLDivElement>(null);
 
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
     useEffect(() => {
-        // 새로고침 시 Zustand 초기값(false) 때문에 모달이 뜨는 것을 방지하기 위해 쿠키 직접 확인
-        const hasCookie = document.cookie.includes('isLoggedIn=true');
-        if (hasCookie && !isUserLoading && !isDogLoading && isDogRegistered === false) {
+        if (isAuthChecked && isLoggedIn && !isUserLoading && !isDogLoading && isDogRegistered === false) {
             openModal({
                 title: "반려견 등록 필요",
                 message: "내 순위를 보려면 반려견 등록이 필요합니다! \n등록하시겠어요?",
@@ -57,7 +56,7 @@ export const PersonalRankingView = () => {
                 onConfirm: () => router.push('/mypage/dog'),
             });
         }
-    }, [isUserLoading, isDogLoading, isDogRegistered, openModal, router, isLoggedIn]);
+    }, [isAuthChecked, isLoggedIn, isUserLoading, isDogLoading, isDogRegistered, openModal, router]);
 
     if (isSummaryLoading && !summaryData && topRanks.length === 0) return <LoadingView message="랭킹 불러오는 중..." />;
 
