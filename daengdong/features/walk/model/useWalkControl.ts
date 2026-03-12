@@ -19,8 +19,10 @@ import { expressionApi } from "@/entities/expression/api/expression";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useAuthStore } from "@/entities/session/model/store";
 import { waitWalkAnalysisCompletion } from "@/shared/lib/sse/analysisSSE";
+import { getLegacyAccessToken } from "@/shared/lib/auth/legacyToken";
 
 export const useWalkControl = () => {
+    const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
     const {
         walkMode,
         elapsedTime,
@@ -197,7 +199,8 @@ export const useWalkControl = () => {
         // 새로고침/페이지 이동 후 복귀 시 자동 재연결
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
-            wsClientRef.current.connect(walkId)
+            const accessToken = useBffAuth ? undefined : getLegacyAccessToken() ?? undefined;
+            wsClientRef.current.connect(walkId, accessToken)
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
 
@@ -272,7 +275,8 @@ export const useWalkControl = () => {
 
             // WebSocket 연결
             try {
-                await wsClientRef.current?.connect(res.walkId);
+                const accessToken = useBffAuth ? undefined : getLegacyAccessToken() ?? undefined;
+                await wsClientRef.current?.connect(res.walkId, accessToken);
             } catch (e) {
                 console.error("[산책 시작] WebSocket 연결 실패:", e);
             }
