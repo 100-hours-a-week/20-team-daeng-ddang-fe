@@ -5,9 +5,18 @@ import styled from "@emotion/styled";
 import { Header } from "@/widgets/Header";
 import { RankingTabs } from "@/features/ranking/ui/RankingTabs";
 import { PersonalRankingView } from "@/features/ranking/ui/PersonalRankingView";
-import { RegionalRankingView } from "@/features/ranking/ui/RegionalRankingView";
+import { ApiResponse } from "@/shared/api/types";
+import { RankingList, RankingSummary } from "@/entities/ranking/model/types";
+import { InfiniteData } from "@tanstack/react-query";
 
 export const RankingPage = () => {
+
+interface RankingPageProps {
+    initialSummaryData?: ApiResponse<RankingSummary>;
+    initialListData?: InfiniteData<ApiResponse<RankingList>, string | undefined>;
+}
+
+export const RankingPage = ({ initialSummaryData, initialListData }: RankingPageProps) => {
     const [activeTab, setActiveTab] = useState<'PERSONAL' | 'REGIONAL'>('PERSONAL');
 
     return (
@@ -17,7 +26,10 @@ export const RankingPage = () => {
 
             <Content>
                 {activeTab === 'PERSONAL' ? (
-                    <PersonalRankingView />
+                    <PersonalRankingView
+                        initialSummaryData={initialSummaryData}
+                        initialListData={initialListData}
+                    />
                 ) : (
                     <RegionalRankingView />
                 )}

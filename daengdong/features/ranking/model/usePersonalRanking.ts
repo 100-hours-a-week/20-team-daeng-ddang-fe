@@ -2,11 +2,17 @@ import { useState, useMemo, useEffect } from "react";
 import { useUserInfoQuery } from "@/features/user/api/useUserInfoQuery";
 import { useDogInfoQuery } from "@/features/dog/api/useDogInfoQuery";
 import { useRankingListInfiniteQuery, useRankingSummaryQuery } from "../api/useRankingQuery";
-import { PeriodType, ScopeType, RankingItem, RankingList as RankingListType } from "@/entities/ranking/model/types";
+import { PeriodType, ScopeType, RankingItem, RankingList as RankingListType, RankingSummary } from "@/entities/ranking/model/types";
 import { format } from "date-fns";
 import { ApiResponse } from "@/shared/api/types";
+import { InfiniteData } from "@tanstack/react-query";
 
-export const usePersonalRanking = () => {
+type InitialRankingData = {
+    summary?: ApiResponse<RankingSummary>;
+    list?: InfiniteData<ApiResponse<RankingListType>, string | undefined>;
+};
+
+export const usePersonalRanking = (initialData?: InitialRankingData) => {
     const { data: userInfo, isLoading: isUserLoading } = useUserInfoQuery();
     const { data: dogInfo, isLoading: isDogLoading } = useDogInfoQuery();
 
@@ -29,6 +35,7 @@ export const usePersonalRanking = () => {
 
     const [selectedRegion, setSelectedRegion] = useState<{ id: number; name: string } | null>(null);
     const [isRegionModalOpen, setIsRegionModalOpen] = useState(false);
+    const canUseInitialRankingData = period === 'WEEK' && scope === 'NATIONWIDE' && !selectedRegion;
 
     useEffect(() => {
         if (isUserLoading) return;
@@ -49,7 +56,10 @@ export const usePersonalRanking = () => {
         periodType: period,
         periodValue,
         regionId: scope === 'REGIONAL' ? selectedRegion?.id : undefined,
-    }, { enabled: isDogRegistered !== false });
+    }, {
+        enabled: isDogRegistered !== false,
+        initialData: canUseInitialRankingData ? initialData?.summary : undefined,
+    });
 
     const {
         data: listData,
@@ -60,15 +70,36 @@ export const usePersonalRanking = () => {
         periodType: period,
         periodValue,
         regionId: scope === 'REGIONAL' ? selectedRegion?.id : undefined,
-    }, { enabled: isDogRegistered !== false });
+    }, {
+        enabled: isDogRegistered !== false,
+        initialData: canUseInitialRankingData ? initialData?.list : undefined,
+    });
 
-    const rankingList = useMemo(() =>
-        listData?.pages.flatMap((page: ApiResponse<RankingListType>) => page.data.ranks)
-            .filter((item: RankingItem) => item.rank > 3) || []
-        , [listData]);
+    const rankingList = useMemo(() => {
+        const queriedRanks = listData?.pages
+            .flatMap((page: ApiResponse<RankingListType>) => page.data.ranks)
+            .filter((item: RankingItem) => item.rank > 3);
+
+        if (queriedRanks && queriedRanks.length > 0) {
+            return queriedRanks;
+        }
+
+        if (!canUseInitialRankingData) {
+            return [];
+        }
+
+        return initialData?.list?.pages
+            .flatMap((page: ApiResponse<RankingListType>) => page.data.ranks)
+            .filter((item: RankingItem) => item.rank > 3) ?? [];
+    }, [canUseInitialRankingData, initialData, listData]);
 
     const myRankInfo = summaryData?.data?.myRank;
-    const topRanks = summaryData?.data?.topRanks || listData?.pages[0]?.data?.ranks.slice(0, 3) || [];
+    const topRanks =
+        summaryData?.data?.topRanks ||
+        listData?.pages[0]?.data?.ranks.slice(0, 3) ||
+        (canUseInitialRankingData
+            ? (initialData?.summary?.data.topRanks ?? initialData?.list?.pages[0]?.data?.ranks.slice(0, 3) ?? [])
+            : []);
 
     return {
         period,

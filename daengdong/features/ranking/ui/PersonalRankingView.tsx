@@ -13,8 +13,16 @@ import { useModalStore } from "@/shared/stores/useModalStore";
 import { useAuthStore } from "@/entities/session/model/store";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 import { RankItem } from "./RankItem";
+import { ApiResponse } from "@/shared/api/types";
+import { RankingList as RankingListType, RankingSummary } from "@/entities/ranking/model/types";
+import { InfiniteData } from "@tanstack/react-query";
 
-export const PersonalRankingView = () => {
+interface PersonalRankingViewProps {
+    initialSummaryData?: ApiResponse<RankingSummary>;
+    initialListData?: InfiniteData<ApiResponse<RankingListType>, string | undefined>;
+}
+
+export const PersonalRankingView = ({ initialSummaryData, initialListData }: PersonalRankingViewProps) => {
     const router = useRouter();
     const { openModal } = useModalStore();
     const {
@@ -37,7 +45,10 @@ export const PersonalRankingView = () => {
         topRanks,
         summaryData,
         isFetchingNextPage,
-    } = usePersonalRanking();
+    } = usePersonalRanking({
+        summary: initialSummaryData,
+        list: initialListData,
+    });
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContentRef = useRef<HTMLDivElement>(null);
