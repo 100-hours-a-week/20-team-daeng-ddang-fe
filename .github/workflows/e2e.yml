@@ -21,6 +21,8 @@ jobs:
     - name: Install Playwright Browsers
       run: pnpm exec playwright install --with-deps
     - name: Run Playwright tests
+      env:
+        NEXT_PUBLIC_API_BASE_URL: https://dev.daeng-map.store/api/v3
       run: pnpm exec playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
