@@ -10,7 +10,6 @@ import { formatDistance } from "@/shared/utils/formatDistance";
 
 interface RankingListProps {
     ranks: RankingItem[];
-    topRanks?: RankingItem[];
     myRankInfo?: RankingItem | null;
     onLoadMore: () => void;
     hasMore: boolean;
@@ -19,18 +18,11 @@ interface RankingListProps {
 }
 
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { TopPodium } from "./TopPodium";
-
-export const RankingList = ({ ranks, topRanks, myRankInfo, onLoadMore, hasMore, isFetchingNextPage, scrollContainerRef }: RankingListProps) => {
-    const hasHeader = topRanks && topRanks.length > 0;
-
+export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore, isFetchingNextPage, scrollContainerRef }: RankingListProps) => {
     const virtualizer = useVirtualizer({
-        count: ranks.length + (hasHeader ? 1 : 0),
+        count: ranks.length,
         getScrollElement: () => scrollContainerRef.current,
-        estimateSize: (index) => {
-            if (hasHeader && index === 0) return 260; // TopPodium 높이
-            return 64;
-        },
+        estimateSize: () => 64,
         overscan: 5,
     });
 
@@ -40,7 +32,7 @@ export const RankingList = ({ ranks, topRanks, myRankInfo, onLoadMore, hasMore, 
         if (!virtualItems.length) return;
 
         const lastVirtualItem = virtualItems[virtualItems.length - 1];
-        const lastIndex = hasHeader ? ranks.length : ranks.length - 1;
+        const lastIndex = ranks.length - 1;
 
         if (
             lastVirtualItem.index >= lastIndex &&
@@ -49,7 +41,7 @@ export const RankingList = ({ ranks, topRanks, myRankInfo, onLoadMore, hasMore, 
         ) {
             onLoadMore();
         }
-    }, [virtualItems, ranks.length, hasMore, isFetchingNextPage, onLoadMore, hasHeader]);
+    }, [virtualItems, ranks.length, hasMore, isFetchingNextPage, onLoadMore]);
 
     const getGapInfo = (itemRank: number, itemDistance: number) => {
         if (!myRankInfo) return null;
@@ -69,24 +61,7 @@ export const RankingList = ({ ranks, topRanks, myRankInfo, onLoadMore, hasMore, 
     return (
         <ListContainer style={{ height: `${virtualizer.getTotalSize()}px` }}>
             {virtualItems.map((virtualRow) => {
-                const isHeaderRow = hasHeader && virtualRow.index === 0;
-
-                if (isHeaderRow && topRanks) {
-                    return (
-                        <VirtualItemWrapper
-                            key="top-podium-header"
-                            data-index={virtualRow.index}
-                            ref={virtualizer.measureElement}
-                            style={{
-                                transform: `translateY(${virtualRow.start}px)`,
-                            }}
-                        >
-                            <TopPodium topRanks={topRanks} />
-                        </VirtualItemWrapper>
-                    );
-                }
-
-                const itemIndex = hasHeader ? virtualRow.index - 1 : virtualRow.index;
+                const itemIndex = virtualRow.index;
                 const item = ranks[itemIndex];
                 if (!item) return null;
 

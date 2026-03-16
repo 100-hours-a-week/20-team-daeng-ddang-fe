@@ -1,18 +1,20 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, InfiniteData } from '@tanstack/react-query';
 import { rankingApi } from '../../../entities/ranking/api/rankingApi';
-import { RankingQueryParams } from '../../../entities/ranking/model/types';
+import { RankingList, RankingQueryParams, RankingSummary } from '../../../entities/ranking/model/types';
 import { AxiosError } from 'axios';
+import { ApiResponse } from '@/shared/api/types';
 
 import { getRankingStaleTime } from '../lib/rankingTimeUtils';
 
 export const useRankingSummaryQuery = (
     params: Omit<RankingQueryParams, 'cursor' | 'limit'>,
-    options?: { enabled?: boolean }
+    options?: { enabled?: boolean; initialData?: ApiResponse<RankingSummary> }
 ) => {
     return useQuery({
         queryKey: ['ranking', 'summary', params.periodType, params.periodValue, params.regionId],
         queryFn: () => rankingApi.getRankingSummary(params),
         enabled: options?.enabled,
+        initialData: options?.initialData,
         staleTime: getRankingStaleTime(),
         gcTime: getRankingStaleTime(),
         retry: (failureCount, error) => {
@@ -24,7 +26,7 @@ export const useRankingSummaryQuery = (
 
 export const useRankingListInfiniteQuery = (
     params: Omit<RankingQueryParams, 'cursor'>,
-    options?: { enabled?: boolean }
+    options?: { enabled?: boolean; initialData?: InfiniteData<ApiResponse<RankingList>, string | undefined> }
 ) => {
     return useInfiniteQuery({
         queryKey: ['ranking', 'list', params.periodType, params.periodValue, params.regionId],
@@ -67,6 +69,7 @@ export const useRankingListInfiniteQuery = (
             });
         },
         initialPageParam: undefined as string | undefined,
+        initialData: options?.initialData,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
         enabled: options?.enabled,
         staleTime: getRankingStaleTime(),

@@ -1,66 +1,32 @@
-import axios, { InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
-import { ApiResponse } from './types';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { clearLegacyAccessToken, getLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const USE_BFF_AUTH = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+const RESOLVED_BASE_URL = USE_BFF_AUTH ? '/api/proxy' : API_BASE_URL;
 
-if (!API_BASE_URL) {
+if (!RESOLVED_BASE_URL) {
     throw new Error('API_BASE_URL is not defined');
 }
 
 // 일반 API 요청용 인스턴스
 export const http = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 30000, // 30초 - 느린 네트워크 환경 고려
+    baseURL: RESOLVED_BASE_URL,
+    timeout: 30000, 
+    withCredentials: true,
 });
 
-// 토큰 갱신 전용 인스턴스 (인터셉터 무한 루프 방지)
-const tokenHttp = axios.create({
-    baseURL: API_BASE_URL,
-});
-
-// Axios Request Config 확장 타입 정의
-interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
-    _retry?: boolean;
-}
-
-http.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-
-        if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('accessToken');
-
-            // 토큰 갱신 요청에는 만료된 액세스 토큰을 보내지 않음 (401 유발 방지)
-            if (token && config.url !== '/auth/token') {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        }
-        return config;
-    },
-    (error: AxiosError) => {
-        console.error('Request Error:', error);
-        return Promise.reject(error);
-    }
-);
-
-interface FailedRequest {
-    resolve: (value: string | PromiseLike<string>) => void;
-    reject: (reason?: unknown) => void;
-}
-
-let isRefreshing = false;
-let failedQueue: FailedRequest[] = [];
-
-const processQueue = (error: unknown, token: string | null = null) => {
-    failedQueue.forEach((prom) => {
-        if (error) {
-            prom.reject(error);
+http.interceptors.request.use((config) => {
+    if (!USE_BFF_AUTH) {
+        const token = getLegacyAccessToken();
+        if (token) {
+            config.headers.set('Authorization', `Bearer ${token}`);
         } else {
-            if (token) prom.resolve(token);
+            config.headers.delete('Authorization');
         }
-    });
-
-    failedQueue = [];
-};
+    }
+    return config;
+});
 
 http.interceptors.response.use(
     (response: AxiosResponse) => {
@@ -77,9 +43,8 @@ http.interceptors.response.use(
 
         // 404 Not Found 에러 처리 (페이지 없음)
         if (error.response && error.response.status === 404) {
-            const originalRequest = error.config as CustomAxiosRequestConfig;
+            const originalRequest = error.config;
 
-            // 미션/표정 분석 조회 API는 404리다이렉트 예외 처리
             const isAnalysisApi = originalRequest?.url?.includes('/missions/analysis') || originalRequest?.url?.includes('/expressions/analysis');
 
             if (typeof window !== 'undefined' && !isAnalysisApi) {
@@ -90,73 +55,28 @@ http.interceptors.response.use(
 
         // 401 Unauthorized 에러 처리 (토큰 만료)
         if (error.response && error.response.status === 401) {
-            const originalRequest = error.config as CustomAxiosRequestConfig;
-
-            if (!originalRequest) {
-                return Promise.reject(error);
-            }
-
-            // 랭킹 페이지 등 퍼블릭 열람이 필요한 API는 401 리다이렉트 제외
-            const isPublicApiFallback = originalRequest.url?.includes('/rankings');
-
-            // _retry 속성이 있는지 확인 (이미 재시도한 요청인지)
-            if (originalRequest._retry || originalRequest.url === '/auth/token') {
-                if (typeof window !== 'undefined' && !isPublicApiFallback) {
-                    localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
+            if (typeof window !== 'undefined') {
+                if (!USE_BFF_AUTH) {
+                    clearLegacyAccessToken();
                     window.location.href = '/login';
-                }
-                return Promise.reject(error);
-            }
+                } else {
+                    try {
+                        const sessionResponse = await fetch('/api/auth/session', {
+                            method: 'GET',
+                            credentials: 'include',
+                            cache: 'no-store',
+                        });
+                        const sessionBody = (await sessionResponse.json()) as { authenticated?: boolean };
 
-            // 토큰 갱신 중인 경우 큐에 담아 대기
-            if (isRefreshing) {
-                return new Promise<string>((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
-                })
-                    .then((token) => {
-                        if (originalRequest.headers) {
-                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                        if (!sessionBody.authenticated) {
+                            window.location.href = '/login';
                         }
-                        originalRequest._retry = true;
-                        return http(originalRequest);
-                    })
-                    .catch((err) => Promise.reject(err));
-            }
-
-            originalRequest._retry = true;
-            isRefreshing = true;
-
-            try {
-                // 토큰 갱신 요청 - 별도 인스턴스 사용
-                const { data } = await tokenHttp.post<ApiResponse<{ accessToken: string }>>('/auth/token');
-                const newAccessToken = data.data.accessToken;
-
-                localStorage.setItem('accessToken', newAccessToken);
-
-                // 헤더 업데이트 및 재요청
-                http.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
-                if (originalRequest.headers) {
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                    } catch {
+                        window.location.href = '/login';
+                    }
                 }
-
-                // 대기 중인 요청 처리
-                processQueue(null, newAccessToken);
-
-                // 재요청 시 _retry 속성 포함하여 실행
-                return http(originalRequest);
-            } catch (refreshError) {
-                // 갱신 실패 시 로그아웃 처리
-                processQueue(refreshError, null);
-                if (typeof window !== 'undefined' && !isPublicApiFallback) {
-                    localStorage.removeItem('accessToken');
-                    document.cookie = 'isLoggedIn=; path=/; max-age=0';
-                    window.location.href = '/login';
-                }
-                return Promise.reject(refreshError);
-            } finally {
-                isRefreshing = false;
             }
+            return Promise.reject(error);
         }
         return Promise.reject(error);
     }

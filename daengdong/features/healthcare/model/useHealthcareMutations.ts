@@ -3,7 +3,7 @@ import { useToastStore } from "@/shared/stores/useToastStore";
 import { useLoadingStore } from "@/shared/stores/useLoadingStore";
 import healthcareApi from "@/entities/healthcare/api/healthcare";
 import { uploadVideo } from "../lib/uploadVideo";
-import { connectHealthcareSSE } from "@/shared/lib/sse/analysisSSE";
+import { waitHealthcareAnalysisCompletion } from "@/shared/lib/sse/analysisSSE";
 
 export const useHealthcareMutations = () => {
     const { setResult, setStep } = useHealthcareStore();
@@ -25,17 +25,14 @@ export const useHealthcareMutations = () => {
             showLoading("헬스케어 분석을 요청하는 중입니다...");
             const task = await healthcareApi.createHealthcareTask(videoUrl, backVideoUrl);
             showLoading("헬스케어 분석 중입니다...");
-            const healthcareId = await new Promise<number>((resolve, reject) => {
-                connectHealthcareSSE(
-                    task.taskId,
-                    (data) => {
-                        const id = data.resultId ? Number(data.resultId) : null;
-                        if (!id) { reject(new Error("결과 ID를 받지 못했습니다.")); return; }
-                        resolve(id);
-                    },
-                    (err) => reject(err)
-                );
-            });
+            const completion = await waitHealthcareAnalysisCompletion(
+                task.taskId,
+                () => healthcareApi.getHealthcareTaskStatus(task.taskId)
+            );
+            const healthcareId = completion.resultId ? Number(completion.resultId) : null;
+            if (!healthcareId) {
+                throw new Error("결과 ID를 받지 못했습니다.");
+            }
 
             // 결과 조회
             const result = await healthcareApi.getHealthcareResult(healthcareId);

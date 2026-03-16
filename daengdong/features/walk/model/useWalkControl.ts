@@ -15,11 +15,15 @@ import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 import { missionApi } from "@/entities/mission/api/mission";
+import { expressionApi } from "@/entities/expression/api/expression";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useAuthStore } from "@/entities/session/model/store";
-import { connectWalkAnalysisSSE } from "@/shared/lib/sse/analysisSSE";
+import { waitWalkAnalysisCompletion } from "@/shared/lib/sse/analysisSSE";
+import { getLegacyAccessToken } from "@/shared/lib/auth/legacyToken";
 
 export const useWalkControl = () => {
+    const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+    const useBffRealtime = process.env.NEXT_PUBLIC_USE_BFF_SSE === 'true';
     const {
         walkMode,
         elapsedTime,
@@ -52,15 +56,43 @@ export const useWalkControl = () => {
     const lastLngRef = useRef<number | undefined>(undefined);
     const isFirstSyncRef = useRef(true);
 
-    // dog 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
         dogRef.current = dog;
     }, [dog]);
 
-    // currentPos ref 업데이트
     useEffect(() => {
         currentPosRef.current = currentPos;
     }, [currentPos]);
+
+    const resolveWalkWsAccessToken = useCallback(async (): Promise<string | undefined> => {
+        if (useBffRealtime) {
+            try {
+                const response = await fetch('/api/ws/walks/auth', {
+                    method: 'GET',
+                    credentials: 'include',
+                    cache: 'no-store',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`WS auth failed: ${response.status}`);
+                }
+
+                const body = (await response.json()) as { accessToken?: string };
+                if (!body.accessToken) {
+                    throw new Error('WS auth token is missing');
+                }
+
+                return body.accessToken;
+            } catch (error) {
+                console.error('[WebSocket] BFF 토큰 발급 실패:', error);
+                if (useBffAuth) {
+                    throw error;
+                }
+            }
+        }
+
+        return useBffAuth ? undefined : getLegacyAccessToken() ?? undefined;
+    }, [useBffAuth, useBffRealtime]);
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentDog = dogRef.current;
@@ -78,7 +110,6 @@ export const useWalkControl = () => {
 
                     showToast({ message: "새로운 영역을 획득했어요! 🚩", type: "success" });
                 } else {
-                    // 남이 점유 
                     updateOthersBlock({
                         blockId: message.data.blockId,
                         dogId: message.data.dogId,
@@ -199,15 +230,15 @@ export const useWalkControl = () => {
         // 새로고침/페이지 이동 후 복귀 시 자동 재연결
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
-            const token = localStorage.getItem('accessToken') || undefined;
-            wsClientRef.current.connect(walkId, token)
+            resolveWalkWsAccessToken()
+                .then((accessToken) => wsClientRef.current?.connect(walkId, accessToken))
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
 
         return () => {
             wsClientRef.current?.disconnect();
         };
-    }, [handleWebSocketMessage]);
+    }, [handleWebSocketMessage, resolveWalkWsAccessToken]);
 
     const handleStart = async () => {
         const isLoggedIn = useAuthStore.getState().isLoggedIn;
@@ -275,8 +306,8 @@ export const useWalkControl = () => {
 
             // WebSocket 연결
             try {
-                const token = localStorage.getItem('accessToken') || undefined;
-                await wsClientRef.current?.connect(res.walkId, token);
+                const accessToken = await resolveWalkWsAccessToken();
+                await wsClientRef.current?.connect(res.walkId, accessToken);
             } catch (e) {
                 console.error("[산책 시작] WebSocket 연결 실패:", e);
             }
@@ -486,16 +517,14 @@ export const useWalkControl = () => {
                                     showLoading("돌발 미션 분석 중입니다...");
 
                                     const task = await missionApi.createMissionTask(walkId);
-                                    missionTaskId = task.taskId;
+                                    const createdTaskId = task.taskId;
+                                    missionTaskId = createdTaskId;
 
-                                    await new Promise<void>((resolve, reject) => {
-                                        connectWalkAnalysisSSE(
-                                            walkId,
-                                            missionTaskId as string,
-                                            () => resolve(),
-                                            (err) => reject(err)
-                                        );
-                                    });
+                                    await waitWalkAnalysisCompletion(
+                                        walkId,
+                                        createdTaskId,
+                                        () => expressionApi.getAnalysisTaskStatus(walkId, createdTaskId)
+                                    );
                                 } catch (e) {
                                     console.error("[미션 Task] 분석 실패:", e);
                                     showToast({

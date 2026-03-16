@@ -25,6 +25,7 @@ export const FootprintsPage = () => {
     const { openModal } = useModalStore();
     const selectedDate = searchParams.get("date") || format(new Date(), "yyyy-MM-dd");
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
     const [viewDate, setViewDate] = useState(() => {
         const dateObj = new Date(selectedDate);
@@ -34,7 +35,7 @@ export const FootprintsPage = () => {
         };
     });
 
-    // URL 파라미터에 날짜가 없으면 오늘 날짜로 설정
+    // 파라미터에 날짜가 없으면 오늘 날짜로 설정
     useEffect(() => {
         const currentDate = searchParams.get("date");
 
@@ -49,10 +50,8 @@ export const FootprintsPage = () => {
 
 
 
-    // 로그인 체크
     useEffect(() => {
-        const hasCookie = document.cookie.includes('isLoggedIn=true');
-        if (!hasCookie) {
+        if (isAuthChecked && !isLoggedIn) {
             openModal({
                 title: "로그인이 필요해요!",
                 message: "발자국 기록을 보려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
@@ -63,7 +62,7 @@ export const FootprintsPage = () => {
                 onCancel: () => router.push('/'),
             });
         }
-    }, [openModal, router, isLoggedIn]);
+    }, [isAuthChecked, isLoggedIn, openModal, router]);
 
     const { showScrollTop, scrollToTop } = useScrollRestoration({
         ref: contentRef,

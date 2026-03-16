@@ -9,12 +9,11 @@ export const useNearbyBlocksQuery = (
     radius: number = 500
 ) => {
     const { isLoggedIn } = useAuthStore();
-    const hasToken = typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false;
 
     return useQuery({
         queryKey: ["nearbyBlocks", lat, lng, radius],
         queryFn: () => walkApi.getNearbyBlocks({ lat: lat!, lng: lng!, radius }),
-        enabled: lat !== null && lng !== null && isLoggedIn && hasToken,
+        enabled: lat !== null && lng !== null && isLoggedIn,
         staleTime: 30000,
         refetchOnWindowFocus: false,
     });
