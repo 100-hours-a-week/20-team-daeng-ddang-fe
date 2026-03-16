@@ -109,6 +109,9 @@ jobs:
           NEXT_PUBLIC_NAVER_MAP_CLIENT_ID: ${{ vars.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID }}
           NEXT_PUBLIC_MISSION_TEST_MODE: ${{ vars.NEXT_PUBLIC_MISSION_TEST_MODE }}
           NEXT_PUBLIC_MOCK: ${{ vars.NEXT_PUBLIC_MOCK }}
+          NEXT_PUBLIC_USE_BFF_AUTH: ${{ vars.NEXT_PUBLIC_USE_BFF_AUTH }}
+          NEXT_PUBLIC_USE_BFF_SSE: ${{ vars.NEXT_PUBLIC_USE_BFF_SSE }}
+
         run: |
           start=$(date +%s)
           pnpm build
