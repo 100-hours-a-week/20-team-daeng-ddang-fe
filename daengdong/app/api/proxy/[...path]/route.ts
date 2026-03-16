@@ -57,7 +57,7 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const targetUrl = `${BACKEND_BASE_URL}/${targetPath}${search}`;
   const sid = request.cookies.get("dd_sid")?.value;
   const isSecureCookie = request.nextUrl.protocol === "https:";
-  const session = getBffSession(sid);
+  const session = await getBffSession(sid);
   let refreshSetCookie: string | null = null;
   let accessToken = session?.accessToken;
 
@@ -66,7 +66,7 @@ async function handleProxy(request: NextRequest, path: string[]) {
     const refreshed = await refreshAccessTokenFromBackend(request);
     refreshSetCookie = refreshed.setCookie ?? null;
     if (refreshed.accessToken) {
-      updateBffSession(sid, {
+      await updateBffSession(sid, {
         accessToken: refreshed.accessToken,
         createdAt: Date.now(),
       });
@@ -106,7 +106,7 @@ async function handleProxy(request: NextRequest, path: string[]) {
     const newAccessToken = refreshed.accessToken;
 
     if (newAccessToken) {
-      updateBffSession(sid, {
+      await updateBffSession(sid, {
         accessToken: newAccessToken,
         createdAt: Date.now(),
       });
@@ -117,7 +117,7 @@ async function handleProxy(request: NextRequest, path: string[]) {
         headers,
       });
     } else {
-      deleteBffSession(sid);
+      await deleteBffSession(sid);
       const unauthorizedHeaders = sanitizeProxyHeaders(backendResponse.headers);
       if (refreshSetCookie) {
         unauthorizedHeaders.append("set-cookie", refreshSetCookie);

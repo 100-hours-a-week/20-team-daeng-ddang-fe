@@ -49,7 +49,7 @@ const refreshAccessToken = async (request: NextRequest): Promise<{ accessToken?:
 export const proxySse = async (request: NextRequest, backendPath: string): Promise<NextResponse> => {
   const sid = request.cookies.get("dd_sid")?.value;
   const isSecureCookie = request.nextUrl.protocol === "https:";
-  const session = getBffSession(sid);
+  const session = await getBffSession(sid);
   let accessToken = session?.accessToken;
   let refreshSetCookie: string | null = null;
 
@@ -72,7 +72,7 @@ export const proxySse = async (request: NextRequest, backendPath: string): Promi
       return res;
     }
 
-    updateBffSession(sid, {
+    await updateBffSession(sid, {
       accessToken: refreshed.accessToken,
       createdAt: Date.now(),
     });
@@ -95,7 +95,7 @@ export const proxySse = async (request: NextRequest, backendPath: string): Promi
     const refreshed = await refreshAccessToken(request);
     refreshSetCookie = refreshed.setCookie ?? refreshSetCookie;
     if (!refreshed.accessToken) {
-      deleteBffSession(sid);
+      await deleteBffSession(sid);
       const res = new NextResponse("Unauthorized", { status: 401 });
       res.cookies.set("dd_sid", "", {
         httpOnly: true,
@@ -107,7 +107,7 @@ export const proxySse = async (request: NextRequest, backendPath: string): Promi
       return res;
     }
 
-    updateBffSession(sid, {
+    await updateBffSession(sid, {
       accessToken: refreshed.accessToken,
       createdAt: Date.now(),
     });

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  let session = getBffSession(sid);
+  let session = await getBffSession(sid);
   let refreshResponseHeaders: Headers | null = null;
 
   if (!session) {
@@ -49,11 +49,11 @@ export async function GET(request: NextRequest) {
     refreshResponseHeaders = refreshed.headers;
 
     if (refreshed.accessToken) {
-      updateBffSession(sid, {
+      await updateBffSession(sid, {
         accessToken: refreshed.accessToken,
         createdAt: Date.now(),
       });
-      session = getBffSession(sid);
+      session = await getBffSession(sid);
     }
   }
 

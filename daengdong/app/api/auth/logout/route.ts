@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   const isSecureCookie = request.nextUrl.protocol === "https:";
 
   if (sid) {
-    deleteBffSession(sid);
+    await deleteBffSession(sid);
   }
 
   const response = NextResponse.json({ message: "logged out" });

@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   if (accessToken) {
     const isSecureCookie = request.nextUrl.protocol === "https:";
-    const sid = createBffSession({
+    const sid = await createBffSession({
       accessToken,
       createdAt: Date.now(),
     });

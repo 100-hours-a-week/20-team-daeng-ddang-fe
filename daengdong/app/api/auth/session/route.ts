@@ -9,7 +9,7 @@ if (!BACKEND_BASE_URL) {
 
 export async function GET(request: NextRequest) {
   const sid = request.cookies.get("dd_sid")?.value;
-  let session = getBffSession(sid);
+  let session = await getBffSession(sid);
   const isSecureCookie = request.nextUrl.protocol === "https:";
 
   let refreshSetCookie: string | null = null;
@@ -33,11 +33,11 @@ export async function GET(request: NextRequest) {
     const newAccessToken = refreshData?.data?.accessToken as string | undefined;
 
     if (refreshResponse.ok && newAccessToken) {
-      updateBffSession(sid, {
+      await updateBffSession(sid, {
         accessToken: newAccessToken,
         createdAt: Date.now(),
       });
-      session = getBffSession(sid);
+      session = await getBffSession(sid);
     }
   }
 
