@@ -1,16 +1,20 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: daengdong
+    env:
+      NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+      NEXT_PUBLIC_USE_BFF_AUTH: "true"
+      NEXT_PUBLIC_USE_BFF_SSE: "true"
+      NEXT_PUBLIC_MOCK: "true"
+
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -26,5 +30,5 @@ jobs:
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: daengdong/playwright-report/
+        path: playwright-report/
         retention-days: 30
