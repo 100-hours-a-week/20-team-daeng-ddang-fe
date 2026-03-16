@@ -2,16 +2,17 @@
 
 import styled from "@emotion/styled";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
-import { useWalkDetailQuery, useWalkExpressionQuery } from "@/features/footprints/api/useFootprintsQuery";
 import Image from "next/image";
 import { Header } from "@/widgets/Header";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { formatDistance } from "@/shared/utils/formatDistance";
 import { useRouter } from "next/navigation";
+import { WalkDetail, WalkExpressionAnalysis } from "@/entities/footprints/model/types";
 
 interface WalkDetailScreenProps {
-    walkId: number;
+    walk: WalkDetail;
+    expression: WalkExpressionAnalysis | null;
     onBack?: () => void;
 }
 
@@ -31,15 +32,9 @@ const formatDuration = (seconds: number) => {
     return `${minutes.toString().padStart(2, '0')}분 ${remainingSeconds.toString().padStart(2, '0')}초`;
 };
 
-export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
+export const WalkDetailPage = ({ walk, expression, onBack }: WalkDetailScreenProps) => {
     const router = useRouter();
     const handleBack = onBack || (() => router.back());
-
-    const { data: walk, isLoading: isWalkLoading } = useWalkDetailQuery(walkId);
-    const { data: expression, isLoading: isExpressionLoading } = useWalkExpressionQuery(walkId);
-
-    if (isWalkLoading) return null;
-    if (!walk) return null;
 
     const startTime = `${format(new Date(walk.createdAt), 'a h시 mm분', { locale: ko })}`;
 
@@ -96,7 +91,7 @@ export const WalkDetailPage = ({ walkId, onBack }: WalkDetailScreenProps) => {
                 )}
 
                 {/* 표정 분석 */}
-                {!isExpressionLoading && expression && (
+                {expression && (
                     <Section>
                         <SectionTitle>표정 분석 결과</SectionTitle>
                         {expression.videoUrl && (

@@ -2,7 +2,6 @@
 
 import styled from "@emotion/styled";
 
-import { useHealthcareDetailQuery } from "@/features/footprints/api/useFootprintsQuery";
 import { Header } from "@/widgets/Header";
 import {
     RiskLevelBadge,
@@ -23,19 +22,16 @@ import {
     formatLevelToKorean
 } from "@/views/healthcare/_style";
 import { useRouter } from "next/navigation";
+import { HealthcareDetail } from "@/entities/footprints/model/types";
 
 interface HealthcareDetailScreenProps {
-    healthcareId: number;
+    healthcare: HealthcareDetail;
     onBack?: () => void;
 }
 
-export const HealthcareDetailPage = ({ healthcareId, onBack }: HealthcareDetailScreenProps) => {
+export const HealthcareDetailPage = ({ healthcare, onBack }: HealthcareDetailScreenProps) => {
     const router = useRouter();
     const handleBack = onBack || (() => router.back());
-    const { data: healthcare, isLoading } = useHealthcareDetailQuery(healthcareId);
-
-    if (isLoading) return null;
-    if (!healthcare) return null;
 
     return (
         <ScreenContainer>
