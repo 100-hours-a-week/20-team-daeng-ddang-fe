@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - ".github/workflows/rollback.yml"
   push:
-    branches: ["dev"]
+    branches: ["dev", "test_ci"]
     paths-ignore:
       - ".github/workflows/rollback.yml"
   workflow_dispatch: {}
@@ -260,8 +260,8 @@ jobs:
     needs: ci
     timeout-minutes: 15
 
-    # push일 때만 배포
-    if: github.event_name == 'push'
+    # dev 브랜치에 push일 때만 배포
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
 
     environment:
       name: dev
