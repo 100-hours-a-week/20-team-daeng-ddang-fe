@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { footprintsApi } from '../../../entities/footprints/api/footprints';
 import { useAuthStore } from '@/entities/session/model/store';
+import { DailyRecordItem } from '@/entities/footprints/model/types';
 
 export const useFootprintsCalendarQuery = (year: number, month: number) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -12,12 +13,16 @@ export const useFootprintsCalendarQuery = (year: number, month: number) => {
     });
 };
 
-export const useDailyRecordsQuery = (date: string | null) => {
+export const useDailyRecordsQuery = (
+    date: string | null,
+    options?: { initialData?: DailyRecordItem[] }
+) => {
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     return useQuery({
         queryKey: ['footprints', 'daily', date],
         queryFn: () => date ? footprintsApi.getDailyRecords(date) : Promise.resolve([]),
         enabled: !!date && isLoggedIn,
+        initialData: options?.initialData,
     });
 };
 

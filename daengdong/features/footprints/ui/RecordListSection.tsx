@@ -18,10 +18,11 @@ interface RecordListSectionProps {
     selectedDate: string;
     onRecordClick: (item: DailyRecordItem) => void;
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+    initialRecords?: DailyRecordItem[];
 }
 
-export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainerRef }: RecordListSectionProps) => {
-    const { data: records, isLoading } = useDailyRecordsQuery(selectedDate);
+export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainerRef, initialRecords }: RecordListSectionProps) => {
+    const { data: records, isLoading } = useDailyRecordsQuery(selectedDate, { initialData: initialRecords });
     const listRef = useRef<HTMLDivElement>(null);
     const [listOffset, setListOffset] = useState(0);
 

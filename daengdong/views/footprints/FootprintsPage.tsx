@@ -17,13 +17,18 @@ import { useModalStore } from '@/shared/stores/useModalStore';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useScrollRestoration } from '@/shared/hooks/useScrollRestoration';
 
-export const FootprintsPage = () => {
+interface FootprintsPageProps {
+    initialSelectedDate: string;
+    initialRecords?: DailyRecordItem[];
+}
+
+export const FootprintsPage = ({ initialSelectedDate, initialRecords }: FootprintsPageProps) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const contentRef = useRef<HTMLDivElement>(null);
     const { openModal } = useModalStore();
-    const selectedDate = searchParams.get("date") || format(new Date(), "yyyy-MM-dd");
+    const selectedDate = searchParams.get("date") || initialSelectedDate;
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
     const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
@@ -107,6 +112,7 @@ export const FootprintsPage = () => {
                         selectedDate={selectedDate}
                         onRecordClick={handleRecordClick}
                         scrollContainerRef={contentRef}
+                        initialRecords={selectedDate === initialSelectedDate ? initialRecords : undefined}
                     />
                 </Content>
 
