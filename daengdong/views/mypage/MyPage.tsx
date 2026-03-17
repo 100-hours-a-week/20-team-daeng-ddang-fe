@@ -7,39 +7,23 @@ import { UserProfileSection } from '@/features/mypage/ui/UserProfileSection';
 import { MyPageMenuList } from '@/features/mypage/ui/MyPageMenuList';
 import { useToastStore } from '@/shared/stores/useToastStore';
 import { useModalStore } from '@/shared/stores/useModalStore';
-import { useMyPageSummaryQuery } from '@/features/mypage/api/useMyPageSummaryQuery';
+import { MyPageSummary } from '@/entities/mypage/model/types';
 import { spacing } from '@/shared/styles/tokens';
-import { m } from 'framer-motion';
-import PawPrintIcon from '@/shared/assets/icons/paw-print.svg';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useWalkStore } from '@/entities/walk/model/walkStore';
 import { useEndWalk } from '@/features/walk/model/useWalkMutations';
 import { isAbnormalSpeed } from '@/entities/walk/lib/validator';
-import { useEffect } from 'react';
 import { clearLegacyAccessToken } from '@/shared/lib/auth/legacyToken';
 
-export const MyPage = () => {
+interface MyPageProps {
+    initialSummaryData: MyPageSummary;
+}
+
+export const MyPage = ({ initialSummaryData }: MyPageProps) => {
     const router = useRouter();
     const { showToast } = useToastStore();
     const { openModal } = useModalStore();
-    const { data: summaryData, isLoading } = useMyPageSummaryQuery();
     const { mutateAsync: endWalkMutateAsync } = useEndWalk();
-    const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
-
-    useEffect(() => {
-        if (isAuthChecked && !isLoggedIn) {
-            openModal({
-                title: "로그인이 필요해요!",
-                message: "마이페이지를 보려면 로그인이 필요해요.\n로그인 페이지로 이동할까요?",
-                type: "confirm",
-                confirmText: "로그인하기",
-                cancelText: "메인으로",
-                onConfirm: () => router.push('/login'),
-                onCancel: () => router.push('/'),
-            });
-        }
-    }, [isAuthChecked, isLoggedIn, openModal, router]);
 
     const handleLogout = async () => {
         const clearSession = async () => {
@@ -158,47 +142,16 @@ export const MyPage = () => {
         },
     ];
 
-    if (isLoading) {
-        return (
-            <LoadingOverlay>
-                <LoadingContainer>
-                    <PawContainer>
-                        {[0, 1, 2].map((index) => (
-                            <PawWrapper
-                                key={index}
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 1] }}
-                                transition={{
-                                    duration: 1.5,
-                                    repeat: Infinity,
-                                    delay: index * 0.2,
-                                    ease: "easeInOut",
-                                    times: [0, 0.2, 0.8]
-                                }}
-                            >
-                                <PawPrintIcon
-                                    width={32}
-                                    height={32}
-                                    style={{ width: "100%", height: "100%", color: "white" }}
-                                />
-                            </PawWrapper>
-                        ))}
-                    </PawContainer>
-                </LoadingContainer>
-            </LoadingOverlay>
-        );
-    }
-
     return (
         <PageContainer>
             <Header title="마이페이지" showBackButton={false} />
 
             <ContentWrapper>
                 <UserProfileSection
-                    dogName={summaryData?.dogName || ""}
-                    profileImageUrl={summaryData?.profileImageUrl ?? undefined}
-                    totalWalkCount={summaryData?.totalWalkCount || 0}
-                    totalWalkDistance={summaryData?.totalWalkDistanceKm || 0}
+                    dogName={initialSummaryData.dogName}
+                    profileImageUrl={initialSummaryData.profileImageUrl ?? undefined}
+                    totalWalkCount={initialSummaryData.totalWalkCount}
+                    totalWalkDistance={initialSummaryData.totalWalkDistanceKm}
                 />
 
                 <MenuSection>
@@ -208,46 +161,6 @@ export const MyPage = () => {
         </PageContainer>
     );
 }
-
-const LoadingOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const PawContainer = styled.div`
-  display: flex;
-  gap: 12px;
-  height: 40px;
-  align-items: center;
-`;
-
-const PawWrapper = styled(m.div)`
-  width: 32px;
-  height: 32px;
-  
-  &:nth-of-type(odd) {
-    transform: rotate(-10deg);
-  }
-  &:nth-of-type(even) {
-    transform: rotate(10deg);
-  }
-`;
 
 const PageContainer = styled.div`
   min-height: 100svh;
