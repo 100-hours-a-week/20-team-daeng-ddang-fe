@@ -3,6 +3,8 @@
 import styled from "@emotion/styled";
 
 import { Header } from "@/widgets/Header";
+import { useAuthStore } from "@/entities/session/model/store";
+import { HealthcareChatbotFab } from "@/shared/components/HealthcareChatbotFab";
 import {
     RiskLevelBadge,
     ResultBubble,
@@ -21,7 +23,7 @@ import {
     GuideTooltip,
     formatLevelToKorean
 } from "@/views/healthcare/_style";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { HealthcareDetail } from "@/entities/footprints/model/types";
 
 interface HealthcareDetailScreenProps {
@@ -31,7 +33,21 @@ interface HealthcareDetailScreenProps {
 
 export const HealthcareDetailPage = ({ healthcare, onBack }: HealthcareDetailScreenProps) => {
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const handleBack = onBack || (() => router.back());
+
+    const handleChatbotOpen = () => {
+        const isLoggedIn = useAuthStore.getState().isLoggedIn;
+        if (!isLoggedIn) {
+            router.push("/login");
+            return;
+        }
+
+        const query = searchParams.toString();
+        const returnTo = query ? `${pathname}?${query}` : pathname;
+        router.push(`/chatbot?returnTo=${encodeURIComponent(returnTo)}`);
+    }
 
     return (
         <ScreenContainer>
@@ -141,6 +157,7 @@ export const HealthcareDetailPage = ({ healthcare, onBack }: HealthcareDetailScr
                     * 분석 결과는 진단이 아닙니다. 수의사와 상담하세요.
                 </GuideTooltip>
             </Content>
+            <HealthcareChatbotFab onClick={handleChatbotOpen} />
         </ScreenContainer>
     );
 };
@@ -163,7 +180,5 @@ const Content = styled.div`
     flex-direction: column;
     gap: 16px;
 `;
-
-
 
 export default HealthcareDetailPage;

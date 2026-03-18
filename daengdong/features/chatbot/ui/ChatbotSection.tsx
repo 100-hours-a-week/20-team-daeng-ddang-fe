@@ -1,14 +1,15 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import ChatbotImage from "@/shared/assets/images/chatbot.png";
 import { useChatbot, Message } from "@/features/chatbot/model/useChatbot";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const ChatbotSection = () => {
-    const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(true);
+    const { openModal } = useModalStore();
     const {
         isAvailable,
         conversationId,
@@ -32,41 +33,29 @@ export const ChatbotSection = () => {
         clearImage,
     } = useChatbot();
 
+    const showPolicyModal = () => {
+        openModal({
+            title: "챗봇 사용 안내",
+            message:
+                "채팅 기록은 화면을 나가면 사라집니다.\nai 답변은 정확하지 않을 수 있습니다.",
+            type: "alert",
+            confirmText: "확인",
+        });
+    };
+
+    useEffect(() => {
+        showPolicyModal();
+    }, []);
+
     return (
         <Container>
-            <ReopenNoticeButton onClick={() => setIsPolicyModalOpen(true)} aria-label="중요 안내 다시보기">
+            <ReopenNoticeButton onClick={showPolicyModal} aria-label="중요 안내 다시보기">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                     <path d="M12 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                     <circle cx="12" cy="7" r="1.2" fill="currentColor" />
                 </svg>
             </ReopenNoticeButton>
-            {isPolicyModalOpen && (
-                <PolicyOverlay>
-                    <PolicyModal>
-                        <PolicyTitle>챗봇 사용 안내</PolicyTitle>
-                        <PolicyList>
-                            <PolicyItem>
-                                <PolicyIcon>🗑️</PolicyIcon>
-                                <PolicyText>
-                                    <PolicyLine>채팅 기록은 저장되지 않습니다.</PolicyLine>
-                                    <PolicyLine>화면을 나가면 사라집니다.</PolicyLine>
-                                </PolicyText>
-                            </PolicyItem>
-                            <PolicyItem>
-                                <PolicyIcon>🏥</PolicyIcon>
-                                <PolicyText>
-                                    <PolicyLine>의료 정보는 참고용이며 정확하지 않을 수 있습니다.</PolicyLine>
-                                    <PolicyLine>증상이 있거나 걱정되면 병원 진료를 받아주세요.</PolicyLine>
-                                </PolicyText>
-                            </PolicyItem>
-                        </PolicyList>
-                        <PolicyConfirmButton onClick={() => setIsPolicyModalOpen(false)}>
-                            확인
-                        </PolicyConfirmButton>
-                    </PolicyModal>
-                </PolicyOverlay>
-            )}
             <ChatList ref={scrollRef} onScroll={handleScroll}>
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} onFollowupClick={handleFollowupClick} />
@@ -259,77 +248,6 @@ const ReopenNoticeButton = styled.button`
     &:hover {
         background-color: ${colors.primary[50]};
     }
-`;
-
-const PolicyOverlay = styled.div`
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 30;
-    padding: 20px;
-`;
-
-const PolicyModal = styled.div`
-    width: 100%;
-    max-width: 352px;
-    background-color: white;
-    border-radius: 16px;
-    padding: 22px 16px 16px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
-`;
-
-const PolicyTitle = styled.h3`
-    margin: 0 0 12px 0;
-    font-size: 17px;
-    font-weight: 700;
-    color: ${colors.gray[900]};
-    text-align: center;
-`;
-
-const PolicyList = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
-
-const PolicyItem = styled.div`
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-`;
-
-const PolicyIcon = styled.span`
-    font-size: 14px;
-    line-height: 1.5;
-    margin-top: 1px;
-`;
-
-const PolicyText = styled.p`
-    margin: 0;
-    font-size: 13px;
-    color: ${colors.gray[700]};
-    line-height: 1.55;
-    word-break: keep-all;
-`;
-
-const PolicyLine = styled.span`
-    display: block;
-`;
-
-const PolicyConfirmButton = styled.button`
-    width: 100%;
-    margin-top: 14px;
-    border: none;
-    border-radius: 10px;
-    background-color: ${colors.primary[500]};
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 10px 0;
-    cursor: pointer;
 `;
 
 const ChatList = styled.div`
