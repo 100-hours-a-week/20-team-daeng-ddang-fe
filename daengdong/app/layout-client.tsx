@@ -14,7 +14,7 @@ export function LayoutClient({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     // BottomNav를 숨길 페이지 목록
-    const hideBottomNavPaths = ['/login', '/oauth/kakao/callback', '/terms', '/walk/mission', '/walk/expression'];
+    const hideBottomNavPaths = ['/login', '/oauth/kakao/callback', '/terms', '/walk/mission', '/walk/expression', '/chatbot'];
     const shouldHideBottomNav = pathname ? hideBottomNavPaths.some(path => pathname.startsWith(path)) : false;
 
     return (
