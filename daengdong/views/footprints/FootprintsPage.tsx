@@ -19,10 +19,9 @@ import { useScrollRestoration } from '@/shared/hooks/useScrollRestoration';
 
 interface FootprintsPageProps {
     initialSelectedDate: string;
-    initialRecords?: DailyRecordItem[];
 }
 
-export const FootprintsPage = ({ initialSelectedDate, initialRecords }: FootprintsPageProps) => {
+export const FootprintsPage = ({ initialSelectedDate }: FootprintsPageProps) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -112,7 +111,6 @@ export const FootprintsPage = ({ initialSelectedDate, initialRecords }: Footprin
                         selectedDate={selectedDate}
                         onRecordClick={handleRecordClick}
                         scrollContainerRef={contentRef}
-                        initialRecords={selectedDate === initialSelectedDate ? initialRecords : undefined}
                     />
                 </Content>
 

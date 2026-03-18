@@ -6,6 +6,7 @@ import { ko } from "date-fns/locale";
 import { colors, radius, spacing } from "@/shared/styles/tokens";
 import { useDailyRecordsQuery } from "@/features/footprints/api/useFootprintsQuery";
 import { DailyRecordItem } from "@/entities/footprints/model/types";
+import { useAuthStore } from "@/entities/session/model/store";
 import Image from "next/image";
 import MedicalCrossIcon from "@/shared/assets/icons/medical-cross.svg";
 import WalkIcon from "@/shared/assets/icons/paw-print.svg";
@@ -18,11 +19,11 @@ interface RecordListSectionProps {
     selectedDate: string;
     onRecordClick: (item: DailyRecordItem) => void;
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-    initialRecords?: DailyRecordItem[];
 }
 
-export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainerRef, initialRecords }: RecordListSectionProps) => {
-    const { data: records, isLoading } = useDailyRecordsQuery(selectedDate, { initialData: initialRecords });
+export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainerRef }: RecordListSectionProps) => {
+    const { data: records, isLoading, isFetching } = useDailyRecordsQuery(selectedDate);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
     const listRef = useRef<HTMLDivElement>(null);
     const [listOffset, setListOffset] = useState(0);
 
@@ -42,11 +43,27 @@ export const RecordListSection = ({ selectedDate, onRecordClick, scrollContainer
         overscan: 3,
     });
 
-    if (isLoading) {
+    const shouldShowSkeleton =
+        !isAuthChecked ||
+        isLoading ||
+        (isFetching && (!records || records.length === 0));
+
+    if (shouldShowSkeleton) {
         return (
             <Container>
                 <Header>{formattedDate}</Header>
-                <Message>기록을 불러오는 중...</Message>
+                <SkeletonList aria-label="기록 로딩 중">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                        <SkeletonItem key={idx}>
+                            <SkeletonIcon />
+                            <SkeletonInfo>
+                                <SkeletonLine $width="45%" />
+                                <SkeletonLine $width="70%" />
+                            </SkeletonInfo>
+                            <SkeletonThumb />
+                        </SkeletonItem>
+                    ))}
+                </SkeletonList>
             </Container>
         );
     }
@@ -210,4 +227,69 @@ const TimeText = styled.span<{ $type: 'WALK' | 'HEALTH' }>`
     color: ${({ $type }) => $type === 'WALK' ? colors.primary[300] : colors.semantic.success};
     font-weight: 700;
     margin-right: 6px;
+`;
+
+const shimmer = `
+  background: linear-gradient(
+    90deg,
+    ${colors.gray[200]} 25%,
+    ${colors.gray[100]} 37%,
+    ${colors.gray[200]} 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+
+  @keyframes shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: 0 0;
+    }
+  }
+`;
+
+const SkeletonList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${spacing[3]}px;
+`;
+
+const SkeletonItem = styled.div`
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: ${spacing[3]}px;
+    border-radius: ${radius.md};
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+`;
+
+const SkeletonIcon = styled.div`
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: ${spacing[3]}px;
+    ${shimmer}
+`;
+
+const SkeletonInfo = styled.div`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+`;
+
+const SkeletonLine = styled.div<{ $width: string }>`
+    height: 12px;
+    width: ${({ $width }) => $width};
+    border-radius: ${radius.full};
+    ${shimmer}
+`;
+
+const SkeletonThumb = styled.div`
+    width: 48px;
+    height: 48px;
+    border-radius: ${radius.sm};
+    margin-left: ${spacing[3]}px;
+    ${shimmer}
 `;
