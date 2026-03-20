@@ -9,7 +9,7 @@ export interface BffSessionData {
 const sessions = new Map<string, BffSessionData>();
 const REDIS_URL = process.env.REDIS_URL;
 const SESSION_KEY_PREFIX = "bff:session:";
-const SESSION_TTL_SECONDS = Number(process.env.BFF_SESSION_TTL_SECONDS ?? 60 * 60 * 24);
+export const SESSION_TTL_SECONDS = Number(process.env.BFF_SESSION_TTL_SECONDS ?? 60 * 60 * 24);
 
 type RedisClientInstance = ReturnType<typeof createClient>;
 
