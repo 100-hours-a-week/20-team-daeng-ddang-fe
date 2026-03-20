@@ -41,8 +41,6 @@ export async function POST(request: NextRequest) {
     status: backendResponse.status,
   });
 
-  appendSetCookies(response.headers, backendResponse.headers);
-
   if (accessToken) {
     const isSecureCookie = request.nextUrl.protocol === "https:";
     const sid = await createBffSession({
@@ -58,6 +56,8 @@ export async function POST(request: NextRequest) {
       maxAge: SESSION_TTL_SECONDS,
     });
   }
+
+  appendSetCookies(response.headers, backendResponse.headers);
 
   return response;
 }

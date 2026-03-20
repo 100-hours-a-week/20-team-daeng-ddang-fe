@@ -1,4 +1,4 @@
-const getSetCookieValues = (headers: Headers): string[] => {
+export const getSetCookieValues = (headers: Headers): string[] => {
   const headersWithGetSetCookie = headers as Headers & {
     getSetCookie?: () => string[];
   };
