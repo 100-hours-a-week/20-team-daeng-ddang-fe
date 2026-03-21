@@ -1,5 +1,6 @@
 import { RankingPage } from "@/views/ranking/RankingPage";
 import { format } from "date-fns";
+import { headers } from "next/headers";
 import { ApiResponse } from "@/shared/api/types";
 import { RankingList, RankingSummary } from "@/entities/ranking/model/types";
 import { InfiniteData } from "@tanstack/react-query";
@@ -7,13 +8,14 @@ import { resolveS3Url } from "@/shared/utils/resolveS3Url";
 
 export const dynamic = "force-dynamic";
 
-const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 const getInitialRankingData = async (): Promise<{
     summary?: ApiResponse<RankingSummary>;
     list?: InfiniteData<ApiResponse<RankingList>, string | undefined>;
 }> => {
-    if (!BACKEND_BASE_URL) {
+    const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === "true";
+    const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    if (!backendBaseUrl) {
         return {};
     }
 
@@ -25,14 +27,35 @@ const getInitialRankingData = async (): Promise<{
     });
 
     try {
-        const [summaryRes, listRes] = await Promise.all([
-            fetch(`${BACKEND_BASE_URL}/rankings/dogs/summary?${params.toString()}`, {
-                cache: "no-store",
-            }),
-            fetch(`${BACKEND_BASE_URL}/rankings/dogs?${params.toString()}`, {
-                cache: "no-store",
-            }),
-        ]);
+        let summaryRes: Response;
+        let listRes: Response;
+
+        if (useBffAuth) {
+            const headersList = await headers();
+            const cookie = headersList.get("cookie") ?? "";
+            const port = process.env.PORT ?? 3000;
+            const baseUrl = `http://127.0.0.1:${port}`;
+
+            [summaryRes, listRes] = await Promise.all([
+                fetch(`${baseUrl}/bff/proxy/rankings/dogs/summary?${params.toString()}`, {
+                    cache: "no-store",
+                    headers: { cookie },
+                }),
+                fetch(`${baseUrl}/bff/proxy/rankings/dogs?${params.toString()}`, {
+                    cache: "no-store",
+                    headers: { cookie },
+                }),
+            ]);
+        } else {
+            [summaryRes, listRes] = await Promise.all([
+                fetch(`${backendBaseUrl}/rankings/dogs/summary?${params.toString()}`, {
+                    cache: "no-store",
+                }),
+                fetch(`${backendBaseUrl}/rankings/dogs?${params.toString()}`, {
+                    cache: "no-store",
+                }),
+            ]);
+        }
 
         if (!summaryRes.ok || !listRes.ok) {
             return {};

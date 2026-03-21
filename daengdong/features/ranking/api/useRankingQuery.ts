@@ -4,8 +4,6 @@ import { RankingList, RankingQueryParams, RankingSummary } from '../../../entiti
 import { AxiosError } from 'axios';
 import { ApiResponse } from '@/shared/api/types';
 
-import { getRankingStaleTime } from '../lib/rankingTimeUtils';
-
 export const useRankingSummaryQuery = (
     params: Omit<RankingQueryParams, 'cursor' | 'limit'>,
     options?: { enabled?: boolean; initialData?: ApiResponse<RankingSummary> }
@@ -15,8 +13,7 @@ export const useRankingSummaryQuery = (
         queryFn: () => rankingApi.getRankingSummary(params),
         enabled: options?.enabled,
         initialData: options?.initialData,
-        staleTime: getRankingStaleTime(),
-        gcTime: getRankingStaleTime(),
+        staleTime: 0, // 전역 기본값(60초) 무시, 실시간 refetch
         retry: (failureCount, error) => {
             if ((error as AxiosError).response?.status === 404) return false;
             return failureCount < 3;
@@ -72,8 +69,7 @@ export const useRankingListInfiniteQuery = (
         initialData: options?.initialData,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
         enabled: options?.enabled,
-        staleTime: getRankingStaleTime(),
-        gcTime: getRankingStaleTime(),
+        staleTime: 0, // 전역 기본값(60초) 무시, 실시간 refetch
         retry: (failureCount, error) => {
             const status = (error as AxiosError).response?.status;
             if (status === 404 || status === 401) return false;

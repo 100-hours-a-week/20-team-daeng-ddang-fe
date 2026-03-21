@@ -20,7 +20,7 @@ export const useContributionRanking = ({ regionId, periodType, periodValue }: Us
             periodValue,
             regionId
         }),
-        staleTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
 
     const {
@@ -72,8 +72,7 @@ export const useContributionRanking = ({ regionId, periodType, periodValue }: Us
         },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
-        staleTime: 5 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
+        staleTime: 0,
     });
 
     const queryClient = useQueryClient();
