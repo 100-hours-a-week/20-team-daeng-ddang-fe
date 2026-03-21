@@ -31,11 +31,12 @@ export const RegionSelectionModal = ({ isOpen, onClose, onSelect }: RegionSelect
 
     useEffect(() => {
         if (isOpen) {
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            setSelectedProvinceName("");
-            setSelectedProvinceId(null);
-            setSelectedDistrictName("");
-            setSelectedDistrictRegion(null);
+            queueMicrotask(() => {
+                setSelectedProvinceName("");
+                setSelectedProvinceId(null);
+                setSelectedDistrictName("");
+                setSelectedDistrictRegion(null);
+            });
         }
     }, [isOpen]);
 

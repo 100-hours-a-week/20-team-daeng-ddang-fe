@@ -31,6 +31,7 @@ export const RegionRankingList = ({
     isFetchingNextPage,
     scrollContainerRef
 }: RegionRankingListProps) => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual API
     const virtualizer = useVirtualizer({
         count: ranks.length,
         getScrollElement: () => scrollContainerRef.current,

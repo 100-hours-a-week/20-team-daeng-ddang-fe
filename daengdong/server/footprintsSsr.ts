@@ -1,7 +1,7 @@
 import { headers, cookies } from "next/headers";
 import { getBffSession, updateBffSession } from "@/server/bffSessionStore";
 import { ApiResponse } from "@/shared/api/types";
-import { HealthcareDetail, WalkDetail, WalkExpressionAnalysis } from "@/entities/footprints/model/types";
+import { DailyRecordItem, HealthcareDetail, WalkDetail, WalkExpressionAnalysis } from "@/entities/footprints/model/types";
 
 const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -116,4 +116,31 @@ export const getHealthcareDetailSsrData = async (healthcareId: number): Promise<
   if (!accessToken) return null;
 
   return fetchWithToken<HealthcareDetail>(`/healthcares/${healthcareId}`, accessToken);
+};
+
+interface DailyRecordsApiResponse {
+  date: string;
+  records: {
+    id: number;
+    title: string;
+    type: "WALK" | "HEALTH";
+    imageUrl?: string;
+    createdAt: string;
+  }[];
+}
+
+export const getDailyRecordsSsrData = async (date: string): Promise<DailyRecordItem[] | null> => {
+  const accessToken = await getAccessTokenFromSession();
+  if (!accessToken) return null;
+
+  const data = await fetchWithToken<DailyRecordsApiResponse>(`/footprints/dates/${date}`, accessToken);
+  if (!data?.records || !Array.isArray(data.records)) return null;
+
+  return data.records.map((item) => ({
+    type: item.type,
+    id: item.id,
+    title: item.title,
+    imageUrl: item.imageUrl,
+    createdAt: item.createdAt,
+  }));
 };

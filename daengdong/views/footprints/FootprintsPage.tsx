@@ -5,8 +5,6 @@ import styled from "@emotion/styled";
 import { format } from "date-fns";
 import { colors } from "@/shared/styles/tokens";
 import { CalendarSection } from "../../features/footprints/ui/CalendarSection";
-import { RecordListSection } from "../../features/footprints/ui/RecordListSection";
-import { DailyRecordItem } from "@/entities/footprints/model/types";
 import { Header } from "@/widgets/Header";
 import { useRef, useEffect } from "react";
 import { AnimatePresence, m } from "framer-motion";
@@ -19,9 +17,10 @@ import { useScrollRestoration } from '@/shared/hooks/useScrollRestoration';
 
 interface FootprintsPageProps {
     initialSelectedDate: string;
+    children: React.ReactNode;
 }
 
-export const FootprintsPage = ({ initialSelectedDate }: FootprintsPageProps) => {
+export const FootprintsPage = ({ initialSelectedDate, children }: FootprintsPageProps) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -84,16 +83,6 @@ export const FootprintsPage = ({ initialSelectedDate }: FootprintsPageProps) => 
         setViewDate({ year, month });
     };
 
-    const handleRecordClick = (record: DailyRecordItem) => {
-        if (record.type === 'WALK') {
-            router.push(
-                `/footprints/walk/${record.id}?date=${selectedDate}`
-            );
-        } else if (record.type === 'HEALTH') {
-            router.push(`/footprints/healthcare/${record.id}?date=${selectedDate}`);
-        }
-    };
-
     return (
         <MotionProvider>
             <ScreenContainer>
@@ -107,11 +96,7 @@ export const FootprintsPage = ({ initialSelectedDate }: FootprintsPageProps) => 
                         onMonthChange={handleMonthChange}
                     />
 
-                    <RecordListSection
-                        selectedDate={selectedDate}
-                        onRecordClick={handleRecordClick}
-                        scrollContainerRef={contentRef}
-                    />
+                    {children}
                 </Content>
 
                 <AnimatePresence>

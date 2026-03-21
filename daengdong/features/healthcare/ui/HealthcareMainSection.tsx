@@ -104,20 +104,6 @@ const HelpButton = styled.button`
   }
 `;
 
-const NoticeBox = styled.div`
-  padding: ${spacing[3]}px;
-  background-color: ${colors.primary[50]};
-  border-radius: ${radius.md};
-  text-align: center;
-`;
-
-const NoticeText = styled.p`
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: ${colors.primary[600]};
-`;
-
 const DescriptionBox = styled.div`
   padding: ${spacing[4]}px;
   background: ${colors.gray[50]};

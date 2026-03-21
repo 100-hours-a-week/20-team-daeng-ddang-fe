@@ -1,4 +1,8 @@
 import { FootprintsPage } from "@/views/footprints/FootprintsPage";
+import { getDailyRecordsSsrData } from "@/server/footprintsSsr";
+import { RecordListSectionServer } from "@/features/footprints/ui/RecordListSectionServer";
+
+export const dynamic = "force-dynamic";
 
 const normalizeDate = (rawDate: string | undefined) => {
     if (!rawDate) {
@@ -21,5 +25,11 @@ export default async function Page({ searchParams }: PageProps) {
     const dateParam = Array.isArray(params.date) ? params.date[0] : params.date;
     const selectedDate = normalizeDate(dateParam);
 
-    return <FootprintsPage initialSelectedDate={selectedDate} />;
+    const records = await getDailyRecordsSsrData(selectedDate);
+
+    return (
+        <FootprintsPage initialSelectedDate={selectedDate}>
+            <RecordListSectionServer selectedDate={selectedDate} records={records} />
+        </FootprintsPage>
+    );
 }

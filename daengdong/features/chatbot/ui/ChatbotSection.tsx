@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
@@ -33,7 +33,7 @@ export const ChatbotSection = () => {
         clearImage,
     } = useChatbot();
 
-    const showPolicyModal = () => {
+    const showPolicyModal = useCallback(() => {
         openModal({
             title: "챗봇 사용 안내",
             message:
@@ -41,11 +41,11 @@ export const ChatbotSection = () => {
             type: "alert",
             confirmText: "확인",
         });
-    };
+    }, [openModal]);
 
     useEffect(() => {
         showPolicyModal();
-    }, []);
+    }, [showPolicyModal]);
 
     return (
         <Container>

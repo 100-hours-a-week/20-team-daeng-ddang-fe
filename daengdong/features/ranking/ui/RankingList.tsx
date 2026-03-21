@@ -19,6 +19,7 @@ interface RankingListProps {
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 export const RankingList = ({ ranks, myRankInfo, onLoadMore, hasMore, isFetchingNextPage, scrollContainerRef }: RankingListProps) => {
+    // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual API
     const virtualizer = useVirtualizer({
         count: ranks.length,
         getScrollElement: () => scrollContainerRef.current,
