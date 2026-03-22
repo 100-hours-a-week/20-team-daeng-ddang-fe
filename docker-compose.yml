@@ -1,5 +1,5 @@
 services:
-  frontend-blue:
+  frontend1:
     image: ${DOCKER_IMAGE}
     container_name: daeng-frontend-3000
     ports:
@@ -9,7 +9,7 @@ services:
       - NAVER_MAP_CLIENT_SECRET=${NAVER_MAP_CLIENT_SECRET}
     restart: unless-stopped
 
-  frontend-green:
+  frontend2:
     image: ${DOCKER_IMAGE}
     container_name: daeng-frontend-3001
     ports:

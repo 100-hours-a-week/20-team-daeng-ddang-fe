@@ -33,7 +33,8 @@ const RankCard = ({ item }: { item: RankingItem }) => {
                         src={item.profileImageUrl}
                         alt={item.dogName}
                         size={size}
-                        priority={true}
+                        priority={isFirst}
+                        fetchPriority={isFirst ? "high" : "auto"}
                     />
                 </Avatar>
                 <RankBadge rank={item.rank}>{item.rank}</RankBadge>

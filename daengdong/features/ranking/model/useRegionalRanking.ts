@@ -73,6 +73,7 @@ export const useRegionalRanking = () => {
         },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: (lastPage) => lastPage.data.hasNext ? lastPage.data.nextCursor : undefined,
+        staleTime: 0,
     });
 
     const regionRanks = useMemo(() =>
@@ -93,7 +94,8 @@ export const useRegionalRanking = () => {
             periodValue,
             regionId: userInfo?.regionId
         }),
-        enabled: !!userInfo?.regionId
+        enabled: !!userInfo?.regionId,
+        staleTime: 0,
     });
 
     const userRankInfo = summaryData?.data.myRank;

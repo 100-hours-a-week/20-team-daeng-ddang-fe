@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter, usePathname } from "next/navigation";
 import { Header } from "@/widgets/Header";
 import { HealthcareMainSection } from "@/features/healthcare/ui/HealthcareMainSection";
 import { VideoUploadSection } from "@/features/healthcare/ui/VideoUploadSection";
@@ -15,7 +14,7 @@ import { useHealthcareMutations } from "@/features/healthcare/model/useHealthcar
 import { useAuthStore } from "@/entities/session/model/store";
 import { useModalStore } from "@/shared/stores/useModalStore";
 import { useConfirmPageLeave } from "@/shared/hooks/useConfirmPageLeave";
-import { ChatbotSection } from "@/features/chatbot/ui/ChatbotSection";
+import { HealthcareChatbotFab } from "@/shared/components/HealthcareChatbotFab";
 import {
     PageContainer,
     ContentWrapper,
@@ -40,20 +39,18 @@ import {
     RetryButton,
     GuideBox,
     GuideText,
-    formatLevelToKorean,
-    FabWrapper,
-    TooltipBubble,
-    ChatFab
+    formatLevelToKorean
 } from "./_style";
 
 export const HealthcarePage = () => {
     const router = useRouter();
+    const pathname = usePathname();
     const { step, setStep, result } = useHealthcareStore();
     const { showOnboarding, openOnboarding, closeOnboarding } = useOnboarding('hasVisitedHealthcare');
     const { uploadAndAnalyze } = useHealthcareMutations();
     const { openModal } = useModalStore();
 
-    const [mode, setMode] = useState<'main' | 'upload' | 'record' | 'chatbot'>('main');
+    const [mode, setMode] = useState<'main' | 'upload' | 'record'>('main');
     const [isCameraIdle, setIsCameraIdle] = useState(true);
 
     useConfirmPageLeave(mode === 'record' && !isCameraIdle);
@@ -86,19 +83,7 @@ export const HealthcarePage = () => {
     };
 
     const requireAvailableTime = (onSuccess: () => void) => {
-        const currentHour = new Date().getHours();
-        const available = currentHour >= 13 && currentHour < 21;
-        if (!available) {
-            openModal({
-                title: "이용 시간 안내",
-                message: "현재 헬스케어 분석은\n오후 1시부터 오후 9시까지만\n이용이 가능합니다.",
-                type: "alert",
-                confirmText: "확인",
-                onConfirm: () => { }
-            });
-        } else {
-            onSuccess();
-        }
+        onSuccess();
     };
 
     const handleUpload = () => {
@@ -114,7 +99,9 @@ export const HealthcarePage = () => {
     };
 
     const handleChat = () => {
-        requireLogin(() => setMode('chatbot'));
+        requireLogin(() => {
+            router.push(`/chatbot?returnTo=${encodeURIComponent(pathname)}`);
+        });
     };
 
     const handleComplete = async (videoBlob: Blob, backVideoBlob?: Blob) => {
@@ -252,23 +239,7 @@ export const HealthcarePage = () => {
                     </RetryButton>
                 </ContentWrapper>
 
-                <FabWrapper>
-                    <TooltipBubble>
-                        궁금한 점이 있나요? 🐾
-                    </TooltipBubble>
-                    <ChatFab onClick={handleChat}>
-                        <Image src={mascotImage} alt="AI 챗봇" width={40} height={40} style={{ objectFit: 'contain' }} />
-                    </ChatFab>
-                </FabWrapper>
-            </PageContainer>
-        );
-    }
-
-    if (mode === 'chatbot') {
-        return (
-            <PageContainer isFullScreen>
-                <Header title="AI 챗봇 상담" showBackButton onBack={() => setMode('main')} />
-                <ChatbotSection />
+                <HealthcareChatbotFab onClick={handleChat} />
             </PageContainer>
         );
     }

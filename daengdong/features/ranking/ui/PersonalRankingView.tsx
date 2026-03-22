@@ -13,8 +13,17 @@ import { useModalStore } from "@/shared/stores/useModalStore";
 import { useAuthStore } from "@/entities/session/model/store";
 import { ScrollToTopButton } from "./ScrollToTopButton";
 import { RankItem } from "./RankItem";
+import { TopPodium } from "./TopPodium";
+import { ApiResponse } from "@/shared/api/types";
+import { RankingList as RankingListType, RankingSummary } from "@/entities/ranking/model/types";
+import { InfiniteData } from "@tanstack/react-query";
 
-export const PersonalRankingView = () => {
+interface PersonalRankingViewProps {
+    initialSummaryData?: ApiResponse<RankingSummary>;
+    initialListData?: InfiniteData<ApiResponse<RankingListType>, string | undefined>;
+}
+
+export const PersonalRankingView = ({ initialSummaryData, initialListData }: PersonalRankingViewProps) => {
     const router = useRouter();
     const { openModal } = useModalStore();
     const {
@@ -37,17 +46,19 @@ export const PersonalRankingView = () => {
         topRanks,
         summaryData,
         isFetchingNextPage,
-    } = usePersonalRanking();
+    } = usePersonalRanking({
+        summary: initialSummaryData,
+        list: initialListData,
+    });
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContentRef = useRef<HTMLDivElement>(null);
 
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
     useEffect(() => {
-        // 새로고침 시 Zustand 초기값(false) 때문에 모달이 뜨는 것을 방지하기 위해 쿠키 직접 확인
-        const hasCookie = document.cookie.includes('isLoggedIn=true');
-        if (hasCookie && !isUserLoading && !isDogLoading && isDogRegistered === false) {
+        if (isAuthChecked && isLoggedIn && !isUserLoading && !isDogLoading && isDogRegistered === false) {
             openModal({
                 title: "반려견 등록 필요",
                 message: "내 순위를 보려면 반려견 등록이 필요합니다! \n등록하시겠어요?",
@@ -57,9 +68,10 @@ export const PersonalRankingView = () => {
                 onConfirm: () => router.push('/mypage/dog'),
             });
         }
-    }, [isUserLoading, isDogLoading, isDogRegistered, openModal, router, isLoggedIn]);
+    }, [isAuthChecked, isLoggedIn, isUserLoading, isDogLoading, isDogRegistered, openModal, router]);
 
     if (isSummaryLoading && !summaryData && topRanks.length === 0) return <LoadingView message="랭킹 불러오는 중..." />;
+    const isRankingEmpty = topRanks.length === 0 && rankingList.length === 0;
 
     return (
         <Container ref={containerRef}>
@@ -72,19 +84,27 @@ export const PersonalRankingView = () => {
                     onScopeChange={setScope}
                     onRegionClick={() => setIsRegionModalOpen(true)}
                 />
-                <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
             </FixedHeader>
 
             <ScrollContent ref={scrollContentRef}>
-                <RankingList
-                    topRanks={topRanks}
-                    ranks={rankingList}
-                    myRankInfo={myRankInfo}
-                    onLoadMore={fetchNextPage}
-                    hasMore={!!hasNextPage}
-                    isFetchingNextPage={isFetchingNextPage}
-                    scrollContainerRef={scrollContentRef}
-                />
+                {isRankingEmpty ? (
+                    <EmptyState>
+                        <EmptyTitle>아직 랭킹 데이터가 없어요</EmptyTitle>
+                        <EmptyDescription>산책 기록이 쌓이면 랭킹에 반영돼요.</EmptyDescription>
+                    </EmptyState>
+                ) : (
+                    <>
+                        {topRanks.length > 0 && <TopPodium topRanks={topRanks} />}
+                        <RankingList
+                            ranks={rankingList}
+                            myRankInfo={myRankInfo}
+                            onLoadMore={fetchNextPage}
+                            hasMore={!!hasNextPage}
+                            isFetchingNextPage={isFetchingNextPage}
+                            scrollContainerRef={scrollContentRef}
+                        />
+                    </>
+                )}
             </ScrollContent>
 
             <ScrollToTopButton scrollContainerRef={scrollContentRef} hasMyRank={!!myRankInfo} />
@@ -126,7 +146,8 @@ export const PersonalRankingView = () => {
 
 const Container = styled.div`
     background-color: white;
-    height: 100svh;
+    height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -142,6 +163,7 @@ const FixedHeader = styled.div`
 
 const ScrollContent = styled.div`
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     
     /* Hide scrollbar */
@@ -175,12 +197,28 @@ const MyRankRow = styled.div`
     border-radius: 5px;
 `;
 
-const UpdateNotice = styled.div`
-    font-size: 11px;
-    color: ${colors.gray[500]};
+const EmptyState = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: ${spacing[6]}px;
     text-align: center;
-    padding-bottom: ${spacing[2]}px;
-    margin-top: ${spacing[2]}px;
+    box-sizing: border-box;
+`;
+
+const EmptyTitle = styled.p`
+    margin: 0;
+    color: ${colors.gray[800]};
+    font-size: 16px;
+    font-weight: 700;
+`;
+
+const EmptyDescription = styled.p`
+    margin: ${spacing[2]}px 0 0;
+    color: ${colors.gray[500]};
+    font-size: 13px;
 `;
 
 const DistanceUnit = styled.span`

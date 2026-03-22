@@ -14,7 +14,7 @@ interface WalkCompletePageProps {
 
 export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
   const searchParams = useSearchParams();
-  const taskId = searchParams?.get("taskId") ?? null;
+  const expressionTaskId = searchParams?.get("taskId") ?? null;
 
   return (
     <PageContainer>
@@ -26,7 +26,7 @@ export const WalkCompletePage = ({ walkId }: WalkCompletePageProps) => {
         </HeaderTextContainer>
         <WalkSummarySection />
         <MissionResultSection walkId={parseInt(walkId)} />
-        <WalkLogForm hasAnalysis={!!taskId} />
+        <WalkLogForm hasAnalysis={!!expressionTaskId} />
       </ContentWrapper>
     </PageContainer>
   );

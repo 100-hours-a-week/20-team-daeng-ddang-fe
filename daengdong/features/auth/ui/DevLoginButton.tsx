@@ -1,28 +1,22 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import styled from '@emotion/styled';
-import { devLogin } from '@/shared/api/auth';
+import { devLogin } from '@/features/auth/api/auth';
 import { useAuthStore } from '@/entities/session/model/store';
 import { useToastStore } from '@/shared/stores/useToastStore';
 
 export const DevLoginButton = () => {
-    const [mounted, setMounted] = useState(false);
     const router = useRouter();
     const setLoggedIn = useAuthStore((state) => state.setLoggedIn);
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setMounted(true);
-    }, []);
+    const hostname = typeof window === 'undefined' ? '' : window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    const canInteract = typeof window !== 'undefined';
 
     const loginMutation = useMutation({
         mutationFn: devLogin,
         onSuccess: (data) => {
-            localStorage.setItem('accessToken', data.accessToken);
-            document.cookie = 'isLoggedIn=true; path=/; max-age=31536000';
             setLoggedIn(true);
 
             // isNewUser 기반 라우팅
@@ -42,12 +36,6 @@ export const DevLoginButton = () => {
             });
         },
     });
-
-    if (!mounted) {
-        return null;
-    }
-
-    const isLocalhost = window.location.hostname === 'localhost';
 
     if (!isLocalhost) {
         return null;
@@ -76,14 +64,14 @@ export const DevLoginButton = () => {
             <ButtonGroup>
                 <DevButton
                     onClick={handleNewUserLogin}
-                    disabled={loginMutation.isPending}
+                    disabled={loginMutation.isPending || !canInteract}
                     variant="new"
                 >
                     {loginMutation.isPending ? '로그인 중...' : '🆕 신규 유저로 로그인'}
                 </DevButton>
                 <DevButton
                     onClick={handleExistingUserLogin}
-                    disabled={loginMutation.isPending}
+                    disabled={loginMutation.isPending || !canInteract}
                     variant="existing"
                 >
                     {loginMutation.isPending ? '로그인 중...' : '👤 기존 유저로 로그인'}

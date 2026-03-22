@@ -32,13 +32,13 @@ export const RegionalRankingView = () => {
     const router = useRouter();
     const { openModal } = useModalStore();
     const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+    const isAuthChecked = useAuthStore((state) => state.isAuthChecked);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const hasCookie = document.cookie.includes('isLoggedIn=true');
-        if (hasCookie && !isUserLoading && isRegionRegistered === false) {
+        if (isAuthChecked && isLoggedIn && !isUserLoading && isRegionRegistered === false) {
             openModal({
                 title: "지역 설정 필요!",
                 message: "지역 랭킹을 보려면 지역 정보가 필요합니다! \n등록하시겠어요?",
@@ -48,7 +48,7 @@ export const RegionalRankingView = () => {
                 onConfirm: () => router.push('/mypage/user'),
             });
         }
-    }, [isUserLoading, isRegionRegistered, openModal, router, isLoggedIn]);
+    }, [isAuthChecked, isLoggedIn, isUserLoading, isRegionRegistered, openModal, router]);
 
     if (isRegionListLoading && regionRanks.length === 0) return <LoadingView message="지역 랭킹 불러오는 중..." />;
 
@@ -64,22 +64,28 @@ export const RegionalRankingView = () => {
                     showScopeSelector={false}
                     className="regional-ranking"
                 />
-                <UpdateNotice>랭킹은 매일 00시에 업데이트됩니다!</UpdateNotice>
             </FixedHeader>
 
             <ScrollContent ref={scrollContentRef} id="regional-scroll-content">
-                <RegionRankingList
-                    ranks={regionRanks}
-                    expandedRegionId={expandedRegionId}
-                    onToggleRegion={toggleRegion}
-                    onLoadMore={fetchNextRegionPage}
-                    hasMore={!!hasNextRegionPage}
-                    isFetchingNextPage={isFetchingNextPage}
-                    scrollContainerRef={scrollContentRef}
-                    periodType={period}
-                    periodValue={periodValue}
-                    userRegionId={userRegionId}
-                />
+                {regionRanks.length === 0 ? (
+                    <EmptyState>
+                        <EmptyTitle>아직 지역 랭킹 데이터가 없어요</EmptyTitle>
+                        <EmptyDescription>산책 기록이 쌓이면 지역 랭킹이 보여요.</EmptyDescription>
+                    </EmptyState>
+                ) : (
+                    <RegionRankingList
+                        ranks={regionRanks}
+                        expandedRegionId={expandedRegionId}
+                        onToggleRegion={toggleRegion}
+                        onLoadMore={fetchNextRegionPage}
+                        hasMore={!!hasNextRegionPage}
+                        isFetchingNextPage={isFetchingNextPage}
+                        scrollContainerRef={scrollContentRef}
+                        periodType={period}
+                        periodValue={periodValue}
+                        userRegionId={userRegionId}
+                    />
+                )}
             </ScrollContent>
 
             <ScrollToTopButton scrollContainerRef={scrollContentRef} hasMyRank={!!userRankInfo} />
@@ -105,7 +111,8 @@ export const RegionalRankingView = () => {
 
 const Container = styled.div`
     background-color: white;
-    height: 100svh;
+    height: 100%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -121,6 +128,7 @@ const FixedHeader = styled.div`
 
 const ScrollContent = styled.div`
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding-bottom: 80px;
     
@@ -131,12 +139,28 @@ const ScrollContent = styled.div`
     scrollbar-width: none;
 `;
 
-const UpdateNotice = styled.div`
-    font-size: 11px;
-    color: ${colors.gray[500]};
+const EmptyState = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: ${spacing[6]}px;
     text-align: center;
-    padding-bottom: ${spacing[3]}px;
-    margin-top: -${spacing[2]}px;
+    box-sizing: border-box;
+`;
+
+const EmptyTitle = styled.p`
+    margin: 0;
+    color: ${colors.gray[800]};
+    font-size: 16px;
+    font-weight: 700;
+`;
+
+const EmptyDescription = styled.p`
+    margin: ${spacing[2]}px 0 0;
+    color: ${colors.gray[500]};
+    font-size: 13px;
 `;
 
 const FixedFooter = styled.div`

@@ -1,3 +1,5 @@
+"use client";
+
 import { TermsModal } from '@/shared/components/TermsModal';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '@/shared/constants/terms';
 import { useTermsAgreement } from '@/features/auth/model/useTermsAgreement';

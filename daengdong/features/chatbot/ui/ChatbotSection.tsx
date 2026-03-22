@@ -1,13 +1,15 @@
-import { memo, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, spacing } from "@/shared/styles/tokens";
 import Image from "next/image";
 import ChatbotImage from "@/shared/assets/images/chatbot.png";
 import { useChatbot, Message } from "@/features/chatbot/model/useChatbot";
+import { useModalStore } from "@/shared/stores/useModalStore";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export const ChatbotSection = () => {
+    const { openModal } = useModalStore();
     const {
         isAvailable,
         conversationId,
@@ -31,11 +33,29 @@ export const ChatbotSection = () => {
         clearImage,
     } = useChatbot();
 
+    const showPolicyModal = useCallback(() => {
+        openModal({
+            title: "챗봇 사용 안내",
+            message:
+                "채팅 기록은 화면을 나가면 사라집니다.\nai 답변은 정확하지 않을 수 있습니다.",
+            type: "alert",
+            confirmText: "확인",
+        });
+    }, [openModal]);
+
+    useEffect(() => {
+        showPolicyModal();
+    }, [showPolicyModal]);
+
     return (
         <Container>
-            <NoticeBar>
-                ⚠️ 채팅 기록은 저장되지 않으며, 화면을 나가면 사라집니다.
-            </NoticeBar>
+            <ReopenNoticeButton onClick={showPolicyModal} aria-label="중요 안내 다시보기">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                    <path d="M12 10v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    <circle cx="12" cy="7" r="1.2" fill="currentColor" />
+                </svg>
+            </ReopenNoticeButton>
             <ChatList ref={scrollRef} onScroll={handleScroll}>
                 {messages.map((msg) => (
                     <MessageBubble key={msg.id} message={msg} onFollowupClick={handleFollowupClick} />
@@ -207,19 +227,34 @@ const Container = styled.div`
     position: relative;
 `;
 
-const NoticeBar = styled.div`
-    background-color: ${colors.primary[50]};
-    color: ${colors.primary[600]};
-    font-size: 12px;
-    padding: 8px 16px;
-    text-align: center;
-    border-bottom: 1px solid ${colors.primary[100]};
+const ReopenNoticeButton = styled.button`
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 20;
+    border: 1px solid ${colors.primary[200]};
+    background-color: white;
+    color: ${colors.primary[700]};
+    border-radius: 999px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    &:hover {
+        background-color: ${colors.primary[50]};
+    }
 `;
 
 const ChatList = styled.div`
     flex: 1;
     overflow-y: auto;
     padding: ${spacing[4]}px;
+    padding-top: calc(${spacing[4]}px + 36px);
     display: flex;
     flex-direction: column;
     gap: ${spacing[4]}px;

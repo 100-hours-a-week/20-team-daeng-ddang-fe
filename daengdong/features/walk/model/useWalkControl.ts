@@ -15,10 +15,15 @@ import { useAreaSubscription } from "@/features/walk/model/useAreaSubscription";
 import { isAbnormalSpeed } from "@/entities/walk/lib/validator";
 import { resolveS3Url } from '@/shared/utils/resolveS3Url';
 import { missionApi } from "@/entities/mission/api/mission";
+import { expressionApi } from "@/entities/expression/api/expression";
 import { useMissionStore } from "@/entities/mission/model/missionStore";
 import { useAuthStore } from "@/entities/session/model/store";
+import { waitWalkAnalysisCompletion } from "@/shared/lib/sse/analysisSSE";
+import { getLegacyAccessToken } from "@/shared/lib/auth/legacyToken";
 
 export const useWalkControl = () => {
+    const useBffAuth = process.env.NEXT_PUBLIC_USE_BFF_AUTH === 'true';
+    const useBffRealtime = process.env.NEXT_PUBLIC_USE_BFF_SSE === 'true';
     const {
         walkMode,
         elapsedTime,
@@ -51,15 +56,43 @@ export const useWalkControl = () => {
     const lastLngRef = useRef<number | undefined>(undefined);
     const isFirstSyncRef = useRef(true);
 
-    // dog 상태가 변경될 때마다 ref 업데이트
     useEffect(() => {
         dogRef.current = dog;
     }, [dog]);
 
-    // currentPos ref 업데이트
     useEffect(() => {
         currentPosRef.current = currentPos;
     }, [currentPos]);
+
+    const resolveWalkWsAccessToken = useCallback(async (): Promise<string | undefined> => {
+        if (useBffRealtime) {
+            try {
+                const response = await fetch('/bff/ws/walks/auth', {
+                    method: 'GET',
+                    credentials: 'include',
+                    cache: 'no-store',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`WS auth failed: ${response.status}`);
+                }
+
+                const body = (await response.json()) as { accessToken?: string };
+                if (!body.accessToken) {
+                    throw new Error('WS auth token is missing');
+                }
+
+                return body.accessToken;
+            } catch (error) {
+                console.error('[WebSocket] BFF 토큰 발급 실패:', error);
+                if (useBffAuth) {
+                    throw error;
+                }
+            }
+        }
+
+        return useBffAuth ? undefined : getLegacyAccessToken() ?? undefined;
+    }, [useBffAuth, useBffRealtime]);
 
     const handleWebSocketMessage = useCallback((message: ServerMessage) => {
         const currentDog = dogRef.current;
@@ -77,7 +110,6 @@ export const useWalkControl = () => {
 
                     showToast({ message: "새로운 영역을 획득했어요! 🚩", type: "success" });
                 } else {
-                    // 남이 점유 
                     updateOthersBlock({
                         blockId: message.data.blockId,
                         dogId: message.data.dogId,
@@ -108,19 +140,17 @@ export const useWalkControl = () => {
                     }
                 });
 
-                // 첫 BLOCK_SYNC: 서버 데이터로 완전 교체 (초기화)
-                // 이후 BLOCK_SYNC: 병합 (Optimistic Update 보존)
+                // 서버 데이터로 초기화
                 if (isFirstSyncRef.current) {
                     setMyBlocks(mine);
                     setOthersBlocks(others);
                     isFirstSyncRef.current = false;
                 } else {
-                    // 서버에서 온 블록 + 로컬에만 있는 블록 병합
+                    // 서버 블록 + 로컬 블록 병합
                     const { myBlocks: currentMyBlocks, othersBlocks: currentOthersBlocks } = useWalkStore.getState();
                     const serverMyBlockIds = new Set(mine.map(b => b.blockId));
                     const localOnlyMyBlocks = currentMyBlocks.filter(b => !serverMyBlockIds.has(b.blockId));
 
-                    // othersBlocks도 동일하게 병합
                     const serverOthersBlockIds = new Set(others.map(b => b.blockId));
                     const localOnlyOthersBlocks = currentOthersBlocks.filter(b => !serverOthersBlockIds.has(b.blockId));
 
@@ -131,7 +161,7 @@ export const useWalkControl = () => {
             case "BLOCK_TAKEN":
                 const { blockId, previousDogId, newDogId, takenAt } = message.data;
 
-                // 1. 내가 뺏은 경우
+                // 뺏은 경우
                 if (newDogId === myDogId) {
                     occupyBlock({
                         blockId,
@@ -141,10 +171,9 @@ export const useWalkControl = () => {
 
                     showToast({ message: "다른 강아지의 블록을 점령했어요! ⚔️", type: "success" });
                 }
-                // 2. 내가 뺏긴 경우
+                // 뺏긴 경우
                 else if (previousDogId === myDogId) {
                     removeMyBlock(blockId);
-                    // 뺏어간 사람 정보로 others에 추가
                     updateOthersBlock({
                         blockId,
                         dogId: newDogId,
@@ -153,7 +182,7 @@ export const useWalkControl = () => {
 
                     showToast({ message: "내 영역을 빼앗겼어요... 🥲", type: "error" });
                 }
-                // 3. 남끼리 뺏고 뺏긴 경우
+                // 남이 뺏고 뺏긴 경우
                 else {
                     updateOthersBlock({
                         blockId,
@@ -171,10 +200,8 @@ export const useWalkControl = () => {
     useEffect(() => {
         if (walkMode !== 'walking') return;
 
-        // 마지막 위치 저장
         lastLatRef.current = currentPos?.lat || undefined;
         lastLngRef.current = currentPos?.lng || undefined;
-
 
         // 주기적 전송
         const intervalId = setInterval(() => {
@@ -200,18 +227,18 @@ export const useWalkControl = () => {
             (error) => console.error("WebSocket Error:", error)
         );
 
-        // 산책 중 새로고침/페이지 이동 후 복귀 시 자동 재연결
+        // 새로고침/페이지 이동 후 복귀 시 자동 재연결
         const { walkMode, walkId } = useWalkStore.getState();
         if (walkMode === 'walking' && walkId) {
-            const token = localStorage.getItem('accessToken') || undefined;
-            wsClientRef.current.connect(walkId, token)
+            resolveWalkWsAccessToken()
+                .then((accessToken) => wsClientRef.current?.connect(walkId, accessToken))
                 .catch(err => console.error("[WebSocket] 자동 재연결 실패:", err));
         }
 
         return () => {
             wsClientRef.current?.disconnect();
         };
-    }, [handleWebSocketMessage]);
+    }, [handleWebSocketMessage, resolveWalkWsAccessToken]);
 
     const handleStart = async () => {
         const isLoggedIn = useAuthStore.getState().isLoggedIn;
@@ -234,7 +261,7 @@ export const useWalkControl = () => {
             return;
         }
 
-        // 반려견 정보 미등록 체크 (dog 객체가 없거나 id가 없는 경우)
+        // 반려견 정보 미등록 체크
         if (!dog?.id) {
             openModal({
                 title: "반려견 등록이 필요해요",
@@ -279,8 +306,8 @@ export const useWalkControl = () => {
 
             // WebSocket 연결
             try {
-                const token = localStorage.getItem('accessToken') || undefined;
-                await wsClientRef.current?.connect(res.walkId, token);
+                const accessToken = await resolveWalkWsAccessToken();
+                await wsClientRef.current?.connect(res.walkId, accessToken);
             } catch (e) {
                 console.error("[산책 시작] WebSocket 연결 실패:", e);
             }
@@ -312,8 +339,6 @@ export const useWalkControl = () => {
         }
     };
 
-    // ... existing imports ...
-
     const handleCancel = () => {
         openModal({
             title: "산책 취소",
@@ -322,7 +347,6 @@ export const useWalkControl = () => {
             confirmText: "취소하기",
             cancelText: "계속 산책하기",
             onConfirm: () => {
-                // 비정상 속도 체크
                 const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
                 if (isAbnormal) {
                     showToast({
@@ -357,7 +381,6 @@ export const useWalkControl = () => {
                         }
                     );
                 } else {
-                    // walkId가 없으면 로컬 리셋만 수행
                     wsClientRef.current?.disconnect();
                     reset();
                 }
@@ -381,7 +404,6 @@ export const useWalkControl = () => {
             confirmText: "종료하기",
             cancelText: "계속 산책하기",
             onConfirm: async () => {
-                // 비정상 속도 체크
                 const isAbnormal = isAbnormalSpeed(distance, elapsedTime);
                 const finalDistance = isAbnormal ? 0 : Number(distance.toFixed(4));
 
@@ -426,8 +448,8 @@ export const useWalkControl = () => {
                         });
                     };
 
-                    // 준비 상태 대기 (최대 10초)
-                    const isReady = await waitForSnapshotReady(10000);
+                    // 준비 상태 대기 
+                    const isReady = await waitForSnapshotReady(1000 * 10);
 
                     if (!isReady) {
                         console.warn("[Snapshot] 대기 후에도 스냅샷이 준비되지 않음");
@@ -438,7 +460,6 @@ export const useWalkControl = () => {
                         const blob = await window.getWalkSnapshotBlob();
 
                         if (blob && blob.size > 0) {
-                            // 결과 페이지에서 이미지가 즉시 보이도록 Base64로 변환하여 저장
                             const base64Url = await new Promise<string>((resolve) => {
                                 const reader = new FileReader();
                                 reader.onloadend = () => resolve(reader.result as string);
@@ -487,15 +508,31 @@ export const useWalkControl = () => {
                             });
                             hideLoading();
 
-                            // 미션이 있는 경우 분석 Task 생성
+                            // Task 생성 및 SSE 대기
                             const { completedMissionIds } = useMissionStore.getState();
                             let missionTaskId: string | null = null;
+
                             if (completedMissionIds.length > 0) {
                                 try {
+                                    showLoading("돌발 미션 분석 중입니다...");
+
                                     const task = await missionApi.createMissionTask(walkId);
-                                    missionTaskId = task.taskId;
+                                    const createdTaskId = task.taskId;
+                                    missionTaskId = createdTaskId;
+
+                                    await waitWalkAnalysisCompletion(
+                                        walkId,
+                                        createdTaskId,
+                                        () => expressionApi.getAnalysisTaskStatus(walkId, createdTaskId)
+                                    );
                                 } catch (e) {
-                                    console.error("[미션 Task] 생성 실패:", e);
+                                    console.error("[미션 Task] 분석 실패:", e);
+                                    showToast({
+                                        message: "돌발 미션 분석에 실패했어요. 나중에 다시 시도해주세요.",
+                                        type: "error",
+                                    });
+                                } finally {
+                                    hideLoading();
                                 }
                             }
 
@@ -533,7 +570,6 @@ export const useWalkControl = () => {
         }
     }, []);
 
-    // Area 구독 관리 Hook
     useAreaSubscription(currentPos, wsClientRef.current);
 
     return {

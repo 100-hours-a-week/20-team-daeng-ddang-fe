@@ -10,9 +10,16 @@ interface DogProfileImageProps {
     alt: string;
     size: number;
     priority?: boolean;
+    fetchPriority?: "high" | "low" | "auto";
 }
 
-export const DogProfileImage = ({ src, alt, size, priority = false }: DogProfileImageProps) => {
+export const DogProfileImage = ({
+    src,
+    alt,
+    size,
+    priority = false,
+    fetchPriority = "auto",
+}: DogProfileImageProps) => {
     const [isError, setIsError] = useState(false);
     const resolvedUrl = resolveS3Url(src);
 
@@ -30,6 +37,7 @@ export const DogProfileImage = ({ src, alt, size, priority = false }: DogProfile
             height={size}
             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             priority={priority}
+            fetchPriority={fetchPriority}
             unoptimized
             onError={() => setIsError(true)}
         />

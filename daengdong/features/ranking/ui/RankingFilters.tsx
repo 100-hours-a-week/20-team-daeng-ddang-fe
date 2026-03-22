@@ -72,7 +72,6 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: ${spacing[3]}px ${spacing[4]}px;
-    padding-bottom: 0px;
     background-color: white;
     
     &.regional-ranking {

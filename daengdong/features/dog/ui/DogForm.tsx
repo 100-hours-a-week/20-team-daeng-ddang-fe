@@ -152,8 +152,9 @@ export function DogForm({ initialData, initialImageUrl, onSubmit, isSubmitting }
                     onSelect={handleBreedSelect}
                     disabled={isSubmitting}
                 />
-                {errors.breedName && <ErrorText>{errors.breedName.message}</ErrorText>}
-                {errors.breedId && <ErrorText>{errors.breedId.message}</ErrorText>}
+                {(errors.breedId ?? errors.breedName) && (
+                    <ErrorText>{(errors.breedId ?? errors.breedName)!.message}</ErrorText>
+                )}
             </FieldGroup>
 
             <FieldGroup>

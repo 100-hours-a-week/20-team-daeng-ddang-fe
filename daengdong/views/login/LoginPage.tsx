@@ -32,9 +32,7 @@ export const LoginPage = () => {
 
             <ButtonWrapper>
                 <DevLoginButton />
-                <KakaoButton onClick={handleKakaoLogin}>
-                    카카오로 로그인
-                </KakaoButton>
+                <KakaoButton onClick={handleKakaoLogin} />
             </ButtonWrapper>
         </Container>
     );

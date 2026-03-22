@@ -36,17 +36,11 @@ export function proxy(request: NextRequest) {
         path === '/' ? pathname === '/' : pathname.startsWith(path)
     );
 
-    const hasAuthCookie = request.cookies.has('isLoggedIn');
+    const hasAuthCookie = request.cookies.has('dd_sid');
 
     if (!isPublicPath && !hasAuthCookie && pathname !== '/terms') {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
-        return NextResponse.redirect(url);
-    }
-
-    if (pathname === '/login' && hasAuthCookie) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/walk';
         return NextResponse.redirect(url);
     }
 
@@ -56,7 +50,7 @@ export function proxy(request: NextRequest) {
 export const config = {
     // 미들웨어 적용 경로
     matcher: [
-        '/((?!api|next-api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api|bff|next-api|_next/static|_next/image|favicon.ico).*)',
         '/map-proxy/static-map',
     ],
 };
