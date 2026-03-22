@@ -41,19 +41,7 @@ export const useChatbot = () => {
 
     // 채팅 세션 생성
     useEffect(() => {
-        const currentHour = new Date().getHours();
-        const available = currentHour >= 9 && currentHour < 21;
-        setIsAvailable(available);
-
-        if (!available) {
-            setMessages([{
-                id: 'out-of-hours',
-                text: '현재 챗봇은 오후 1시부터 오후 9시까지 이용이 가능합니다.',
-                sender: 'bot',
-                timestamp: new Date(),
-            }]);
-            return;
-        }
+        setIsAvailable(true);
 
         chatbotApi.createChatSession()
             .then(session => setConversationId(session.conversationId))
