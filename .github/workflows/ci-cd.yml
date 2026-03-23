@@ -266,6 +266,16 @@ jobs:
             --overwrite
           echo "✅ SSM 파라미터 업데이트 완료: ${{ env.DOCKER_IMAGE }}:${{ env.RELEASE_ID }}"
 
+      - name: Update SSM Parameter (Redis URL)
+        id: ssm_redis
+        run: |
+          aws ssm put-parameter \
+            --name "/daeng-map/fe/redis-url" \
+            --value "${{ secrets.REDIS_URL }}" \
+            --type SecureString \
+            --overwrite
+          echo "✅ SSM 파라미터 업데이트 완료: REDIS_URL"
+
       - name: Create new Launch Template version
         id: lt
         run: |
