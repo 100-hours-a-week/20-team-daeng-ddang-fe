@@ -7,6 +7,7 @@ services:
     environment:
       - PORT=3000
       - NAVER_MAP_CLIENT_SECRET=${NAVER_MAP_CLIENT_SECRET}
+      - REDIS_URL=${REDIS_URL}
     restart: unless-stopped
 
   frontend2:
@@ -17,4 +18,5 @@ services:
     environment:
       - PORT=3000
       - NAVER_MAP_CLIENT_SECRET=${NAVER_MAP_CLIENT_SECRET}
+      - REDIS_URL=${REDIS_URL}
     restart: unless-stopped
