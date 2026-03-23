@@ -339,6 +339,7 @@ jobs:
             cat > "${ENV_FILE}" <<EOF
             NAVER_MAP_CLIENT_SECRET=${{ secrets.NAVER_MAP_CLIENT_SECRET }}
             REDIS_URL=${{ secrets.REDIS_URL }}
+            REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
             EOF
             chmod 600 "${ENV_FILE}"
 
