@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/widgets/Header";
@@ -19,6 +19,19 @@ function ChatbotPageContent() {
     const searchParams = useSearchParams();
     const returnTo = searchParams.get("returnTo") || "/healthcare";
 
+    useEffect(() => {
+        const html = document.documentElement;
+        const body = document.body;
+        const prevHtml = html.style.overflow;
+        const prevBody = body.style.overflow;
+        html.style.overflow = "hidden";
+        body.style.overflow = "hidden";
+        return () => {
+            html.style.overflow = prevHtml;
+            body.style.overflow = prevBody;
+        };
+    }, []);
+
     return (
         <PageContainer>
             <Header
@@ -34,11 +47,13 @@ function ChatbotPageContent() {
 const PageContainer = styled.div`
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    margin: 0 auto;
     width: 100%;
     max-width: 430px;
     height: 100svh;
+    height: 100lvh;
     background-color: white;
     display: flex;
     flex-direction: column;
