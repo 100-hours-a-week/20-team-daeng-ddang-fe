@@ -222,6 +222,7 @@ const Container = styled.div`
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    overscroll-behavior: none;
     background-color: ${colors.gray[50]};
     position: relative;
 `;
@@ -252,12 +253,15 @@ const ReopenNoticeButton = styled.button`
 const ChatList = styled.div`
     flex: 1;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     padding: ${spacing[4]}px;
     padding-top: calc(${spacing[4]}px + 36px);
     display: flex;
     flex-direction: column;
     gap: ${spacing[4]}px;
-    padding-bottom: 20px;
+    /* InputArea와 겹침·여백 균형 */
+    padding-bottom: 24px;
 
     &::-webkit-scrollbar { display: none; }
     -ms-overflow-style: none;
@@ -430,6 +434,8 @@ const InputArea = styled.div`
     background-color: white;
     padding: ${spacing[3]}px;
     padding-bottom: calc(${spacing[3]}px + env(safe-area-inset-bottom));
+    /* 너무 아래(0)·너무 위(-14) 사이: 살짝만 겹침 */
+    margin-top: -4px;
     border-top: 1px solid ${colors.gray[100]};
     display: flex;
     flex-direction: column;
@@ -439,26 +445,35 @@ const InputArea = styled.div`
 
 const InputWrapper = styled.div<{ isFocused: boolean }>`
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     border: 1px solid ${({ isFocused }) => isFocused ? colors.primary[500] : colors.gray[300]};
     border-radius: 24px;
-    padding: 8px 12px;
+    padding: 6px 12px;
+    min-height: 44px;
     background-color: white;
     gap: 8px;
     transition: all 0.2s;
 `;
 
+/** iOS는 입력 font-size < 16px 이면 포커스 시 확대 — 16px 유지 + zoom으로만 13px 느낌 */
+const TEXTAREA_IOS_FONT_PX = 16;
+const TEXTAREA_VISUAL_PX = 13;
+const TEXTAREA_ZOOM = TEXTAREA_VISUAL_PX / TEXTAREA_IOS_FONT_PX;
+
 const StyledTextarea = styled.textarea`
     flex: 1;
+    align-self: center;
     color: ${colors.gray[900]};
     border: none;
     outline: none;
-    font-size: 13px;
-    padding: 4px 0;
+    font-size: ${TEXTAREA_IOS_FONT_PX}px;
+    zoom: ${TEXTAREA_ZOOM};
+    padding: 0;
+    margin: 0;
     background: transparent;
     resize: none;
-    max-height: 100px;
-    line-height: 1.5;
+    max-height: calc(100px / ${TEXTAREA_ZOOM});
+    line-height: 1.45;
     font-family: inherit;
     &::placeholder { color: ${colors.gray[400]}; }
     &:disabled { color: ${colors.gray[400]}; }
@@ -526,4 +541,6 @@ const CharacterCount = styled.div`
     color: ${colors.gray[400]};
     text-align: right;
     padding-right: 12px;
+    padding-top: 0;
+    line-height: 1.2;
 `;
