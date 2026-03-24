@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import chatbotApi, { ChatMessageResponse } from "@/entities/chatbot/api/chatbot";
+import fileApi from "@/shared/api/file";
+import { useToastStore } from "@/shared/stores/useToastStore";
 
 export interface Message {
     id: string;
@@ -21,12 +23,14 @@ const WELCOME_MESSAGE: Message = {
 };
 
 export const useChatbot = () => {
+    const { showToast } = useToastStore();
 
     const [conversationId, setConversationId] = useState<string | null>(null);
     const [sessionError, setSessionError] = useState(false);
     const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
     const [inputText, setInputText] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -81,7 +85,6 @@ export const useChatbot = () => {
         }
     }, [inputText]);
 
-    /*
     const uploadImage = async (file: File): Promise<string | null> => {
         try {
             const presignedData = await fileApi.getPresignedUrl("IMAGE", file.type, "CHATBOT");
@@ -91,7 +94,6 @@ export const useChatbot = () => {
             return null;
         }
     };
-    */
 
     const handleSendMessage = async () => {
         if ((!inputText.trim() && !selectedImage) || isLoading || !conversationId) return;
@@ -99,10 +101,14 @@ export const useChatbot = () => {
         setIsLoading(true);
 
         const textToSend = inputText;
-        // const fileToUpload = selectedFile;
-        // const previewImage = selectedImage;
+        const fileToUpload = selectedFile;
+        const previewImage = selectedImage;
         setInputText("");
         setSelectedImage(null);
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
         }
@@ -110,8 +116,6 @@ export const useChatbot = () => {
         try {
             let uploadedImageUrl: string | undefined;
 
-            // 1단계: 챗봇 이미지 업로드 기능 비활성화
-            /*
             if (fileToUpload) {
                 const url = await uploadImage(fileToUpload);
                 if (!url) {
@@ -123,7 +127,6 @@ export const useChatbot = () => {
                 }
                 uploadedImageUrl = url;
             }
-            */
 
             const userMessage: Message = {
                 id: generateId(),
@@ -198,14 +201,20 @@ export const useChatbot = () => {
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => setSelectedImage(reader.result as string);
             reader.readAsDataURL(file);
         }
+        e.target.value = "";
     };
 
     const clearImage = () => {
         setSelectedImage(null);
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     };
 
     return {
